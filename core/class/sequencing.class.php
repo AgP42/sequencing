@@ -36,94 +36,23 @@ class sequencing extends eqLogic {
 
     }
 
-    public static function triggerLaunch($_option) { // fct appelée par le listener des buttons d'alerte, n'importe quel bouton arrive ici
+    public static function triggerLaunch($_option) { // fct appelée par le listener des triggers (mais pas la cmd start !)
 
-      log::add('sequencing', 'debug', '################ Bouton d\'alerte déclenché ############');
+      log::add('sequencing', 'debug', '################ Trigger déclenché, on va évaluer les conditions ############');
 
-      $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche la personne correspondant au bouton d'alerte
+      $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
 
-      foreach ($sequencing->getConfiguration('action_alert_bt') as $action) { // pour toutes les actions définies
-
-        log::add('sequencing', 'debug', 'Config Action bouton d\'alerte - action_label : ' . $action['action_label'] . ' - action_timer : ' . $action['action_timer']);
-
-        if(is_numeric($action['action_timer']) && $action['action_timer'] > 0){ // si on a un timer bien defini et > 0 min, on va lancer un cron pour l'execution retardée de l'action
-          // si le CRON existe deja, on ne l'update pas pour ne pas retarder l'alerte en cas de multi appui d'alerte. Et on veut pas non plus setter plusieurs CRON pour la meme action..
-
-          $cron = cron::byClassAndFunction('sequencing', 'actionDelayed', array('eqLogic_id' => intval($sequencing->getId()), 'action' => $action)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (personne, action (qui contient cmd, option (les titres et messages notamment) et label))" Si on change le label ou le message, c'est plus le meme "action" et donc cette fonction ne le trouve pas et un nouveau cron sera crée !
-          // lors d'une sauvegarde ou suppression de l'eqLogic, si des crons sont existants, ils seront supprimés avec un message d'alerte
-
-          if (!is_object($cron)) { // pas de cron trouvé, on le cree
-
-              $cron = new cron();
-              $cron->setClass('sequencing');
-              $cron->setFunction('actionDelayed');
-
-              $options['eqLogic_id'] = intval($sequencing->getId());
-              $options['action'] = $action; //inclu tout le detail de l'action : sa cmd, ses options pour les messages, son label, ...
-              $cron->setOption($options);
-
-              log::add('sequencing', 'debug', 'Set CRON : ' . $options['eqLogic_id'] . ' - ' . $options['action']['cmd'] . ' - ' . $options['action']['action_label']);
-
-              $cron->setEnable(1);
-              $cron->setTimeout(5); //minutes
-
-              $delai = strtotime(date('Y-m-d H:i:s', strtotime('+'.$action['action_timer'].' min ' . date('Y-m-d H:i:s')))); // on lui dit de se déclencher dans 'action_timer' min
-              $cron->setSchedule(cron::convertDateToCron($delai));
-
-              $cron->setOnce(1); //permet qu'il s'auto supprime une fois executé
-
-              $cron->save();
-
-          } else {
-
-            log::add('sequencing', 'debug', 'CRON existe deja pour : ' . $cron->getOption()['eqLogic_id'] . ' - ' . $cron->getOption()['action']['cmd'] . ' - ' . $cron->getOption()['action']['action_label'] . ' => on ne fait rien !');
-          }
-
-        }else{ // pas de timer valide defini, on execute l'action immédiatement
-
-          log::add('sequencing', 'debug', 'Pas de timer liée, on execute ' . $action['cmd']);
-
-          $sequencing->execAction($action);
-        }
-
-      } // fin foreach toutes les actions
+      $sequencing->actionsLaunch();
 
     }
 
-    public static function triggerCancel($_option) { // fct appelée par le listener des buttons d'annulation d'alerte, n'importe lequel des boutons d'annulation arrive ici
+    public static function triggerCancel($_option) { // fct appelée par le listener des triggers d'annulation (mais pas la cmd stop !)
 
-      log::add('sequencing', 'debug', '################ Bouton d\'annulation d\'alerte déclenché ############');
+      log::add('sequencing', 'debug', '################ Trigger d\'annulation déclenché, on va évaluer les conditions ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche la personne correspondant au bouton
 
-      foreach ($sequencing->getConfiguration('action_cancel_alert_bt') as $action) { // pour toutes les actions d'annulation définies
-
-        $execActionLiee = $sequencing->getCache('execAction_'.$action['action_label_liee']); // on va lire le cache d'execution de l'action liée, savoir si deja lancé ou non...
-
-        log::add('sequencing', 'debug', 'Config Action Annulation bouton d\'alerte, action : '. $action['cmd'] .', label action liée : ' . $action['action_label_liee'] . ' - action liée deja executée : ' . $execActionLiee);
-
-        if($action['action_label_liee'] == ''){ // si pas d'action liée, on execute direct
-
-          log::add('sequencing', 'debug', 'Pas d\'action liée, on execute ' . $action['cmd']);
-
-          $sequencing->execAction($action);
-
-        }else if(isset($action['action_label_liee']) && $action['action_label_liee'] != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été executée => on execute notre action et on remet le cache de l'action liée à 0 (fait uniquement pour les boutons d'annulation et non à la réception de l'AR, donc l'aidant ayant recu une alerte pourra recevoir l'info qu'il y a eu une AR (mais on sait pas par qui... TODO...) puis que l'alerte est résolue)
-
-          log::add('sequencing', 'debug', 'Action liée ('.$action['action_label_liee'].') executée précédemment, donc on execute ' . $action['cmd'] . ' et remise à 0 du cache d\'exec de l\'action origine');
-
-          $sequencing->execAction($action);
-
-          $sequencing->setCache('execAction_'.$action['action_label_liee'], 0);
-
-        }else{ // sinon, on log qu'on n'execute pas l'action et la raison
-          log::add('sequencing', 'debug', 'Action liée ('.$action['action_label_liee'].') non executée précédemment, donc on execute pas ' . $action['cmd']);
-        }
-
-      } // fin foreach toutes les actions
-
-      //coupe les CRON des actions d'alertes non encore appelés
-      $this->cleanAllCron();
+      $sequencing->actionsCancel();
 
     }
 
@@ -155,23 +84,16 @@ class sequencing extends eqLogic {
           $options = $action['options'];
           foreach ($options as $key => $value) { // ici on peut définir les "tag" de configuration qui seront à remplacer par des variables
             // str_replace ($search, $replace, $subject) retourne une chaîne ou un tableau, dont toutes les occurrences de search dans subject ont été remplacées par replace.
-            $value = str_replace('#senior_name#', $this->getConfiguration('senior_name'), $value);
-            $value = str_replace('#senior_phone#', $this->getConfiguration('senior_phone'), $value);
-            $value = str_replace('#senior_address#', $this->getConfiguration('senior_address'), $value);
+            $value = str_replace('#tag1#', $this->getConfiguration('tag1'), $value);
+            $value = str_replace('#tag2#', $this->getConfiguration('tag2'), $value);
+            $value = str_replace('#tag3#', $this->getConfiguration('tag3'), $value);
 
-            $value = str_replace('#trusted_person_name#', $this->getConfiguration('trusted_person_name'), $value);
-            $value = str_replace('#trusted_person_phone#', $this->getConfiguration('trusted_person_phone'), $value);
-
-      //      $value = str_replace('#url_ar#', $this->getConfiguration('url_ar'), $value); // marche pas malheureusement, probablement une histoire de formatage... TODO...
-
-      //      $value = str_replace('#sensor_name#', $_sensor_name, $value);
-      //      $value = str_replace('#sensor_type#', $_sensor_type, $value);
-            $options[$key] = str_replace('#sensor_value#', $_sensor_value, $value);
+            $options[$key] = str_replace('#eq_name#', $this->getName(), $value);
           }
         }
         scenarioExpression::createAndExec('action', $action['cmd'], $options);
 
-        if(isset($action['action_label'])){ // si on avait un label (donc c'est une action d'alerte), on memorise qu'on a lancé l'action
+        if(isset($action['action_label'])){ // si on avait un label (donc c'est une action), on memorise qu'on l'a lancé
           $this->setCache('execAction_'.$action['action_label'], 1);
           log::add('sequencing', 'debug', 'setCache TRUE pour label : ' . $action['action_label']);
         }
@@ -184,7 +106,7 @@ class sequencing extends eqLogic {
     }
 
 
-    public function actionsLaunch() { // fct appelée par la cmd 'start' appelée par l'extérieur
+    public function actionsLaunch() { // fct appelée par la cmd 'start' appelée par l'extérieur ou par un trigger valide (fonction triggerLaunch)
 
       log::add('sequencing', 'debug', '################ Exécution des actions ############');
 
@@ -237,7 +159,7 @@ class sequencing extends eqLogic {
 
     }
 
-    public function actionsCancel() { // fct appelée par la cmd 'stop' appelée par l'extérieur
+    public function actionsCancel() { // fct appelée par la cmd 'stop' appelée par l'extérieur ou par un trigger_cancel valide (fonction triggerCancel)
 
       log::add('sequencing', 'debug', '################ Exécution des actions d\'annulation ############');
 

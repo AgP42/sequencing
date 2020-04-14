@@ -78,7 +78,7 @@ function addTrigger(_action, _type) {
     div += '<div class="form-group ">';
 
       div += '<label class="col-sm-1 control-label">{{Nom}}</label>';
-      div += '<div class="col-sm-2">';
+      div += '<div class="col-sm-1">';
         div += '<div class="input-group">';
           div += '<span class="input-group-btn">';
           div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer le bouton}}""><i class="fas fa-minus-circle"></i></a>';
@@ -88,13 +88,51 @@ function addTrigger(_action, _type) {
       div += '</div>';
 
       div += '<label class="col-sm-1 control-label">Capteur</label>';
-      div += '<div class="col-sm-3">';
+      div += '<div class="col-sm-1">';
         div += '<div class="input-group">';
           div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" />';
           div += '<span class="input-group-btn">';
             div += '<a class="btn btn-default listCmdInfoWindow roundedRight"><i class="fas fa-list-alt"></i></a>';
           div += '</span>';
         div += '</div>';
+      div += '</div>';
+
+      div += '<label class="col-sm-1 control-label">{{Conditions}}</label>';
+      div += '<div class="col-sm-1">';
+        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1">'; // dans la class : ['condition_operator1']
+        div += '<option value="==">{{égal}}</option>';
+        div += '<option value=">=">{{supérieur ou égal}}</option>';
+        div += '<option value=">">{{strictement supérieur}}</option>';
+        div += '<option value="<=">{{inférieur ou égal}}</option>';
+        div += '<option value="<">{{strictement inférieur}}</option>';
+        div += '<option value="!=">{{différent}}</option>';
+        div += '</select>';
+      div += '</div>';
+
+      div += '<div class="col-sm-1">';
+        div += '<input type="number" class="expressionAttr form-control" data-l1key="condition_test1" />';
+      div += '</div>';
+
+      div += '<div class="col-sm-1">';
+        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator">';
+        div += '<option value="||">{{OU}}</option>';
+        div += '<option value="&&">{{ET}}</option>';
+        div += '</select>';
+      div += '</div>';
+
+      div += '<div class="col-sm-1">';
+        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2">';
+        div += '<option value="==">{{égal}}</option>';
+        div += '<option value=">=">{{supérieur ou égal}}</option>';
+        div += '<option value=">">{{strictement supérieur}}</option>';
+        div += '<option value="<=">{{inférieur ou égal}}</option>';
+        div += '<option value="<">{{strictement inférieur}}</option>';
+        div += '<option value="!=">{{différent}}</option>';
+        div += '</select>';
+      div += '</div>';
+
+      div += '<div class="col-sm-1">';
+        div += '<input type="number" class="expressionAttr form-control" data-l1key="condition_test2" />';
       div += '</div>';
 
     div += '</div>';

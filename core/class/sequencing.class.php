@@ -26,9 +26,9 @@ class sequencing extends eqLogic {
 
     /*     * ***********************Methode static*************************** */
 
-    public static function alertBtActionDelayed($_options) { // fonction appelée par les cron qui servent a reporter l'execution des actions d'alerte. Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour executer l'action reportée, incluant le titre et message pour les messages
+    public static function actionDelayed($_options) { // fonction appelée par les cron qui servent a reporter l'execution des actions d'alerte. Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour executer l'action reportée, incluant le titre et message pour les messages
 
-      log::add('sequencing', 'debug', 'Fct alertBtActionDelayed Appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
+      log::add('sequencing', 'debug', 'Fct actionDelayed Appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
@@ -36,7 +36,7 @@ class sequencing extends eqLogic {
 
     }
 
-    public static function buttonAlert($_option) { // fct appelée par le listener des buttons d'alerte, n'importe quel bouton arrive ici
+    public static function triggerLaunch($_option) { // fct appelée par le listener des buttons d'alerte, n'importe quel bouton arrive ici
 
       log::add('sequencing', 'debug', '################ Bouton d\'alerte déclenché ############');
 
@@ -49,14 +49,14 @@ class sequencing extends eqLogic {
         if(is_numeric($action['action_timer']) && $action['action_timer'] > 0){ // si on a un timer bien defini et > 0 min, on va lancer un cron pour l'execution retardée de l'action
           // si le CRON existe deja, on ne l'update pas pour ne pas retarder l'alerte en cas de multi appui d'alerte. Et on veut pas non plus setter plusieurs CRON pour la meme action..
 
-          $cron = cron::byClassAndFunction('sequencing', 'alertBtActionDelayed', array('eqLogic_id' => intval($sequencing->getId()), 'action' => $action)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (personne, action (qui contient cmd, option (les titres et messages notamment) et label))" Si on change le label ou le message, c'est plus le meme "action" et donc cette fonction ne le trouve pas et un nouveau cron sera crée !
+          $cron = cron::byClassAndFunction('sequencing', 'actionDelayed', array('eqLogic_id' => intval($sequencing->getId()), 'action' => $action)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (personne, action (qui contient cmd, option (les titres et messages notamment) et label))" Si on change le label ou le message, c'est plus le meme "action" et donc cette fonction ne le trouve pas et un nouveau cron sera crée !
           // lors d'une sauvegarde ou suppression de l'eqLogic, si des crons sont existants, ils seront supprimés avec un message d'alerte
 
           if (!is_object($cron)) { // pas de cron trouvé, on le cree
 
               $cron = new cron();
               $cron->setClass('sequencing');
-              $cron->setFunction('alertBtActionDelayed');
+              $cron->setFunction('actionDelayed');
 
               $options['eqLogic_id'] = intval($sequencing->getId());
               $options['action'] = $action; //inclu tout le detail de l'action : sa cmd, ses options pour les messages, son label, ...
@@ -71,6 +71,7 @@ class sequencing extends eqLogic {
               $cron->setSchedule(cron::convertDateToCron($delai));
 
               $cron->setOnce(1); //permet qu'il s'auto supprime une fois executé
+
               $cron->save();
 
           } else {
@@ -79,8 +80,7 @@ class sequencing extends eqLogic {
           }
 
         }else{ // pas de timer valide defini, on execute l'action immédiatement
-          // C'est volontaire de ne pas vérifier que l'action a déjà été lancée, ca permet de relancer l'alerte immédiatement si la personne redemande et aussi de lancer quand meme l'action si aucune action "annulation" n'est définie donc que le cache ne se remet jamais a 0...
-          // TODO : on pourrait quand meme mettre une tempo pour filtrer 40 appuis sur le bouton... à voir !
+
           log::add('sequencing', 'debug', 'Pas de timer liée, on execute ' . $action['cmd']);
 
           $sequencing->execAction($action);
@@ -90,7 +90,7 @@ class sequencing extends eqLogic {
 
     }
 
-    public static function buttonAlertCancel($_option) { // fct appelée par le listener des buttons d'annulation d'alerte, n'importe lequel des boutons d'annulation arrive ici
+    public static function triggerCancel($_option) { // fct appelée par le listener des buttons d'annulation d'alerte, n'importe lequel des boutons d'annulation arrive ici
 
       log::add('sequencing', 'debug', '################ Bouton d\'annulation d\'alerte déclenché ############');
 
@@ -184,15 +184,68 @@ class sequencing extends eqLogic {
     }
 
 
-    public function btAlertAR() { // fct appelée par la cmd action appelée par l'extérieur pour AR de l'alerte en cours
+    public function actionsLaunch() { // fct appelée par la cmd 'start' appelée par l'extérieur
 
-      log::add('sequencing', 'debug', '################ Detection d\'un appel d\'Accusé de Réception ############');
+      log::add('sequencing', 'debug', '################ Exécution des actions ############');
 
-      foreach ($this->getConfiguration('action_ar_alert_bt') as $action) { // pour toutes les actions définies pour les AR
+      foreach ($this->getConfiguration('action') as $action) { // pour toutes les actions définies
 
-        $execActionLiee = $this->getCache('execAction_'.$action['action_label_liee']);
+        log::add('sequencing', 'debug', 'Config Action - action_label : ' . $action['action_label'] . ' - action_timer : ' . $action['action_timer']);
 
-        log::add('sequencing', 'debug', 'Config Action Accusé Réception bouton d\'alerte, action : '. $action['cmd'] .', label action liée : ' . $action['action_label_liee'] . ' - action liée deja executée : ' . $execActionLiee);
+        if(is_numeric($action['action_timer']) && $action['action_timer'] > 0){ // si on a un timer bien defini et > 0 min, on va lancer un cron pour l'execution retardée de l'action
+          // si le CRON existe deja, on ne l'update pas pour ne pas retarder l'alerte en cas de multi appui d'alerte. Et on veut pas non plus setter plusieurs CRON pour la meme action..
+          //TODO : laisser le choix de retarder ou non dans la conf en cas de multi declenchement ?
+
+          $cron = cron::byClassAndFunction('sequencing', 'actionDelayed', array('eqLogic_id' => intval($this->getId()), 'action' => $action)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (personne, action (qui contient cmd, option (les titres et messages notamment) et label))" Si on change le label ou le message, c'est plus le meme "action" et donc cette fonction ne le trouve pas et un nouveau cron sera crée !
+          // lors d'une sauvegarde ou suppression de l'eqLogic, si des crons sont existants, ils seront supprimés avec un message d'alerte
+
+          if (!is_object($cron)) { // pas de cron trouvé, on le cree
+
+              $cron = new cron();
+              $cron->setClass('sequencing');
+              $cron->setFunction('actionDelayed');
+
+              $options['eqLogic_id'] = intval($this->getId());
+              $options['action'] = $action; //inclu tout le detail de l'action : sa cmd, ses options pour les messages, son label, ...
+              $cron->setOption($options);
+
+              log::add('sequencing', 'debug', 'Set CRON : ' . $options['eqLogic_id'] . ' - ' . $options['action']['cmd'] . ' - ' . $options['action']['action_label']);
+
+              $cron->setEnable(1);
+              $cron->setTimeout(5); //minutes
+
+              $delai = strtotime(date('Y-m-d H:i:s', strtotime('+'.$action['action_timer'].' min ' . date('Y-m-d H:i:s')))); // on lui dit de se déclencher dans 'action_timer' min
+              $cron->setSchedule(cron::convertDateToCron($delai));
+
+              $cron->setOnce(1); //permet qu'il s'auto supprime une fois executé
+              // TODO : gerer les repetitions ?
+              $cron->save();
+
+          } else {
+
+            log::add('sequencing', 'debug', 'CRON existe deja pour : ' . $cron->getOption()['eqLogic_id'] . ' - ' . $cron->getOption()['action']['cmd'] . ' - ' . $cron->getOption()['action']['action_label'] . ' => on ne fait rien !');
+          }
+
+        }else{ // pas de timer valide defini, on execute l'action immédiatement
+
+          log::add('sequencing', 'debug', 'Pas de timer liée, on execute ' . $action['cmd']);
+
+          $this->execAction($action);
+        }
+
+      } // fin foreach toutes les actions
+
+    }
+
+    public function actionsCancel() { // fct appelée par la cmd 'stop' appelée par l'extérieur
+
+      log::add('sequencing', 'debug', '################ Exécution des actions d\'annulation ############');
+
+      foreach ($this->getConfiguration('action_cancel') as $action) { // pour toutes les actions d'annulation définies
+
+        $execActionLiee = $this->getCache('execAction_'.$action['action_label_liee']); // on va lire le cache d'execution de l'action liée, savoir si deja lancé ou non...
+
+        log::add('sequencing', 'debug', 'Config Action Annulation, action : '. $action['cmd'] .', label action liée : ' . $action['action_label_liee'] . ' - action liée deja executée : ' . $execActionLiee);
 
         if($action['action_label_liee'] == ''){ // si pas d'action liée, on execute direct
 
@@ -200,13 +253,15 @@ class sequencing extends eqLogic {
 
           $this->execAction($action);
 
-        }else if(isset($action['action_label_liee']) && $action['action_label_liee'] != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été executée => on execute notre action
+        }else if(isset($action['action_label_liee']) && $action['action_label_liee'] != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été executée => on execute notre action et on remet le cache de l'action liée à 0
 
-          log::add('sequencing', 'debug', 'Action liée ('.$action['action_label_liee'].') executée précédemment, donc on execute ' . $action['cmd']);
+          log::add('sequencing', 'debug', 'Action liée ('.$action['action_label_liee'].') executée précédemment, donc on execute ' . $action['cmd'] . ' et remise à 0 du cache d\'exec de l\'action origine');
 
           $this->execAction($action);
 
-        }else{ // sinon, on log qu'on ne l'execute pas
+          $this->setCache('execAction_'.$action['action_label_liee'], 0);
+
+        }else{ // sinon, on log qu'on n'execute pas l'action et la raison
           log::add('sequencing', 'debug', 'Action liée ('.$action['action_label_liee'].') non executée précédemment, donc on execute pas ' . $action['cmd']);
         }
 
@@ -221,7 +276,7 @@ class sequencing extends eqLogic {
 
       log::add('sequencing', 'debug', 'Fct cleanAllCron pour : ' . $this->getName());
 
-      $cron = cron::byClassAndFunction('sequencing', 'alertBtActionDelayed'); //on cherche le 1er cron pour ce plugin et cette action (il n'existe pas de fonction core renvoyant un array avec tous les cron de la class, comme pour les listeners... dommage...)
+      $cron = cron::byClassAndFunction('sequencing', 'actionDelayed'); //on cherche le 1er cron pour ce plugin et cette action (il n'existe pas de fonction core renvoyant un array avec tous les cron de la class, comme pour les listeners... dommage...)
 
       while (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId()) { // s'il existe et que l'id correspond, on le vire puis on cherche le suivant et tant qu'il y a un suivant on boucle
 
@@ -233,7 +288,7 @@ class sequencing extends eqLogic {
         }
 
         $cron->remove();
-        $cron = cron::byClassAndFunction('sequencing', 'alertBtActionDelayed');
+        $cron = cron::byClassAndFunction('sequencing', 'actionDelayed');
       }
 
 
@@ -243,13 +298,13 @@ class sequencing extends eqLogic {
 
       log::add('sequencing', 'debug', 'Fct cleanAllListener pour : ' . $this->getName());
 
-      $listeners = listener::byClass('sequencing'); // on prend tous nos listeners de ce plugin, pour toutes les personnes
+      $listeners = listener::byClass('sequencing'); // on prend tous nos listeners de ce plugin, pour tous les equipements
       foreach ($listeners as $listener) {
         $sequencing_id_listener = $listener->getOption()['sequencing_id'];
 
     //    log::add('sequencing', 'debug', 'cleanAllListener id lue : ' . $sequencing_id_listener . ' et nous on est l id : ' . $this->getId());
 
-        if($sequencing_id_listener == $this->getId()){ // si on correspond a la bonne personne, on le vire
+        if($sequencing_id_listener == $this->getId()){ // si on correspond, on le vire
           $listener->remove();
         }
 
@@ -261,22 +316,37 @@ class sequencing extends eqLogic {
 
     }
 
-    // Méthode appellée après la création de votre objet --> on va créer la commande pour l'AR
+    // Méthode appellée après la création de votre objet --> on va créer les cmd de déclenchement et annulation
     public function postInsert() {
-      $cmd = $this->getCmd(null, 'alerte_bt_ar');
+
+      $cmd = $this->getCmd(null, 'start');
       if (!is_object($cmd)) {
         $cmd = new sequencingCmd();
-        $cmd->setName(__('Accuser Réception Alerte', __FILE__));
+        $cmd->setName(__('Déclencher', __FILE__));
       }
-      $cmd->setLogicalId('alerte_bt_ar');
+      $cmd->setLogicalId('start');
       $cmd->setEqLogic_id($this->getId());
       $cmd->setType('action');
       $cmd->setSubType('other');
-      $cmd->setIsVisible(0);
-      $cmd->setIsHistorized(1);
-      $cmd->setConfiguration('historizeMode', 'none'); //on garde en mémoire tous les AR recu.
-      //TODO : voir comment on pourrait avoir l'info de "qui" a accusé réception...
+      $cmd->setIsVisible(1);
+      $cmd->setIsHistorized(0);
+      $cmd->setConfiguration('historizeMode', 'none');
       $cmd->save();
+
+      $cmd = $this->getCmd(null, 'stop');
+      if (!is_object($cmd)) {
+        $cmd = new sequencingCmd();
+        $cmd->setName(__('Arrêter', __FILE__));
+      }
+      $cmd->setLogicalId('stop');
+      $cmd->setEqLogic_id($this->getId());
+      $cmd->setType('action');
+      $cmd->setSubType('other');
+      $cmd->setIsVisible(1);
+      $cmd->setIsHistorized(0);
+      $cmd->setConfiguration('historizeMode', 'none');
+      $cmd->save();
+
     }
 
     public function preSave() {
@@ -296,11 +366,11 @@ class sequencing extends eqLogic {
     // fct appellée par Jeedom aprés l'enregistrement de la configuration
     public function postSave() {
 
-      //########## 1 - On va lire la configuration des capteurs dans le JS et on la stocke dans un grand tableau #########//
+      //########## 1 - On va lire la configuration des capteurs dans le JS et on la stocke dans un tableau #########//
 
       $jsSensors = array(
-        'alert_bt' => array(), // sous-tableau pour stocker toutes les infos des bouton d'alertes
-        'cancel_alert_bt' => array(), // boutons d'annulation alerte immédiate
+        'trigger' => array(), // sous-tableau pour stocker toutes les triggers
+        'trigger_cancel' => array(), // idem trigger_cancel
       );
 
       foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos types de capteurs pour recuperer les infos
@@ -320,10 +390,10 @@ class sequencing extends eqLogic {
 
       //########## 2 - On boucle dans toutes les cmd existantes, pour les modifier si besoin #########//
 
-      foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos différents types de capteurs. $key va prendre les valeurs suivantes : life_sign, alert_bt, confort puis security
+      foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos différents types de capteurs. $key va prendre les valeurs suivantes : trigger puis trigger_cancel
 
         foreach ($this->getCmd() as $cmd) {
-          if ($cmd->getLogicalId() == 'sensor_' . $key) {
+          if ($cmd->getLogicalId() == $key) {
             if (isset($jsSensor[$cmd->getName()])) { // on regarde si le nom correspond à un nom dans le tableau qu'on vient de recuperer du JS, si oui, on actualise les infos qui pourraient avoir bougé
 
               $sensor = $jsSensor[$cmd->getName()];
@@ -339,7 +409,7 @@ class sequencing extends eqLogic {
 
               unset($jsSensors[$key][$cmd->getName()]); // on a traité notre ligne, on la vire. Attention ici a ne pas remplacer $jsSensors[$key] par $jsSensor. C'est bien dans le tableau d'origine qu'on veut virer notre ligne
 
-            } else { // on a un sensor qui était dans la DB mais dont le nom n'est plus dans notre JS : on la supprime ! Attention, si on a juste changé le nom, on va le supprimer et le recreer, donc perdre l'historique éventuel. //TODO : voir si ça pose problème (est-il possible d'effectuer un transfert d'id préalable? --> la question est : comment tu sais que c'est le meme puisqu'il n'a plus le meme nom ?) Oui à améliorer, quand tout le reste sera ok ! ;-)
+            } else { // on a un sensor qui était dans la DB mais dont le nom n'est plus dans notre JS : on la supprime ! Attention, si on a juste changé le nom, on va le supprimer et le recreer, donc perdre l'historique éventuel. //TODO : voir si ça pose problème
               $cmd->remove();
             }
           }
@@ -348,7 +418,7 @@ class sequencing extends eqLogic {
 
       //########## 3 - Maintenant on va creer les cmd nouvelles de notre conf (= celles qui restent dans notre tableau) #########//
 
-      foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos types de capteurs. $key va prendre les valeurs suivantes : life_sign, alert_bt, confort puis security
+      foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos types de capteurs. $key va prendre les valeurs suivantes : trigger, puis trigger_cancel
 
         foreach ($jsSensor as $sensor) { // pour chacun des capteurs de ce type
 
@@ -358,7 +428,7 @@ class sequencing extends eqLogic {
 
           $cmd = new sequencingCmd();
           $cmd->setEqLogic_id($this->getId());
-          $cmd->setLogicalId('sensor_' . $key);
+          $cmd->setLogicalId($key);
           $cmd->setName($sensor['name']);
           $cmd->setValue($sensor['cmd']);
           $cmd->setType('info');
@@ -375,7 +445,7 @@ class sequencing extends eqLogic {
             $cmd->event($cmd->execute());
           }
 
-        } //*/ // fin foreach restant. A partir de maintenant on a des capteurs qui refletent notre config lue en JS
+        } //*/ // fin foreach restant. A partir de maintenant on a des triggers qui refletent notre config lue en JS
       }
 
       //########## 4 - Mise en place des listeners de capteurs pour réagir aux events #########//
@@ -389,10 +459,10 @@ class sequencing extends eqLogic {
         foreach ($this->getCmd() as $cmd) {
 
           // on assigne la fonction selon le type de capteur
-          if ($cmd->getLogicalId() == 'sensor_alert_bt'){
-            $listenerFunction = 'buttonAlert';
-          } else if ($cmd->getLogicalId() == 'sensor_cancel_alert_bt'){
-            $listenerFunction = 'buttonAlertCancel';
+          if ($cmd->getLogicalId() == 'trigger'){
+            $listenerFunction = 'triggerLaunch';
+          } else if ($cmd->getLogicalId() == 'trigger_cancel'){
+            $listenerFunction = 'triggerCancel';
           } else {
             continue; // sinon c'est que c'est pas un truc auquel on veut assigner un listener, on passe notre tour
           }
@@ -437,8 +507,8 @@ class sequencing extends eqLogic {
     public function preUpdate() {
 
       $sensorsType = array( // liste des types avec des champs a vérifier
-        'alert_bt',
-        'cancel_alert_bt',
+        'trigger',
+        'trigger_cancel',
       );
 
       foreach ($sensorsType as $type) {
@@ -517,10 +587,16 @@ class sequencingCmd extends cmd {
     public function execute($_options = array()) {
 
 
-      if ($this->getLogicalId() == 'alerte_bt_ar') {
+      if ($this->getLogicalId() == 'start') {
        // log::add('sequencing', 'debug', 'Appel de l AR via API');
         $eqLogic = $this->getEqLogic();
-        $eqLogic->btAlertAR();
+        $eqLogic->actionsLaunch();
+
+      } else if ($this->getLogicalId() == 'stop') {
+       // log::add('sequencing', 'debug', 'Appel de l AR via API');
+        $eqLogic = $this->getEqLogic();
+        $eqLogic->actionsCancel();
+
       } else { // sinon c'est un sensor et on veut juste sa valeur
 
         log::add('sequencing', 'debug', 'Fct execute pour : ' . $this->getLogicalId() . $this->getHumanName() . '- valeur renvoyée : ' . jeedom::evaluateExpression($this->getValue()));

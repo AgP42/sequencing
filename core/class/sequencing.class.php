@@ -26,33 +26,35 @@ class sequencing extends eqLogic {
 
     /*     * ***********************Methode static*************************** */
 
-    public static function actionDelayed($_options) { // fonction appelée par les cron qui servent a reporter l'execution des actions d'alerte. Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour executer l'action reportée, incluant le titre et message pour les messages
+    public static function actionDelayed($_options) { // fonction appelée par les cron qui servent a reporter l'execution des actions d'alerte.
+    // Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour executer l'action reportée, incluant le titre et message pour les messages
 
       log::add('sequencing', 'debug', 'Fct actionDelayed Appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
-      $sequencing->execAction($_options['action']);
+      $sequencing->execAction($_options['action'], $_options['trigger_name'], $_options['trigger_value']);
 
     }
 
-    public static function triggerLaunch($_option) { // fct appelée par le listener des triggers (mais pas la cmd start !)
+    public static function triggerLaunch($_option) { // fct appelée par le listener des triggers (mais pas par la cmd start qui elle, va bypasser l'évaluation des conditions !)
+    // dans _option on a toutes les infos du trigger (from les champs du JS)
 
-      log::add('sequencing', 'debug', '################ Trigger déclenché, on va évaluer les conditions ############');
+    //  log::add('sequencing', 'debug', '################ Trigger déclenché, on va évaluer les conditions ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
 
-      $sequencing->actionsLaunch();
+      $sequencing->evaluateTrigger($_option, 'trigger');
 
     }
 
-    public static function triggerCancel($_option) { // fct appelée par le listener des triggers d'annulation (mais pas la cmd stop !)
+    public static function triggerCancel($_option) { // fct appelée par le listener des triggers d'annulation (mais pas par la cmd stop !)
 
       log::add('sequencing', 'debug', '################ Trigger d\'annulation déclenché, on va évaluer les conditions ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche la personne correspondant au bouton
 
-      $sequencing->actionsCancel();
+      $sequencing->evaluateTrigger($_option, 'trigger_cancel');
 
     }
 
@@ -73,8 +75,51 @@ class sequencing extends eqLogic {
 
     /*     * *********************Méthodes d'instance************************* */
 
-    public function execAction($action) { // execution d'une seule action, avec son label si c'est une alerte
-    // $this doit rester l'eqLogic et non la commande elle meme, pour chopper les tags
+    public function evaluateTrigger($_option, $_type) {
+
+      // on cherche quel est l'event qui nous a déclenché pour pouvoir chopper toutes ses infos et évaluer les conditions
+      foreach ($this->getConfiguration($_type) as $trigger) { // on boucle direct dans tous les trigger ou trigger_cancel de la conf
+        if ('#' . $_option['event_id'] . '#' == $trigger['cmd']) { //TODO : gérer les variables ?
+
+          log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un trigger <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only']);
+
+          if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $_option['event_id']) != $_option['value']){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
+
+            if($trigger['condition_operator'] != ''){ // on a 2 conditions
+              log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $_option['value'] . $trigger['condition_operator2'] . $trigger['condition_test2']);
+              $check = jeedom::evaluateExpression($_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $_option['value'] . $trigger['condition_operator2'] . $trigger['condition_test2']);
+            } else {
+              log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1']);
+              $check = jeedom::evaluateExpression($_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1']);
+            }
+
+            log::add('sequencing', 'debug', 'Résultat évaluation : ' . $check);
+
+            if ($check == 1 || $check || $check == '1') {
+
+              if($_type == 'trigger') {
+                $this->actionsLaunch($trigger['name'], $_option['value']);
+              } else if ($_type == 'trigger_cancel'){
+                $this->actionsCancel($trigger['name'], $_option['value']);
+              }
+
+            } else {
+              log::add('sequencing', 'debug', 'Ce trigger ne valide pas les conditions d\'évaluation => on fait rien');
+            }
+
+          } else {
+            log::add('sequencing', 'debug', 'Ce trigger est une répétition et on a configuré qu\'on en voulait pas => on fait rien');
+          }
+
+          $this->setCache('trigger_' . $_type . $_option['event_id'], $_option['value']); // on garde la valeur en cache pour gestion de la repetition
+
+        }
+      }
+
+    }
+
+
+    public function execAction($action, $trigger_name, $trigger_value) { // execution d'une seule action avec ses infos de triggers pour les tags
 
       log::add('sequencing', 'debug', '################ Execution de l\' actions ' . $_config . ' pour ' . $this->getName() .  ' ############');
 
@@ -88,6 +133,33 @@ class sequencing extends eqLogic {
             $value = str_replace('#tag2#', $this->getConfiguration('tag2'), $value);
             $value = str_replace('#tag3#', $this->getConfiguration('tag3'), $value);
 
+            $value = str_replace('#action_label#', $action['action_label'], $value);
+            $value = str_replace('#action_timer#', $action['action_timer'], $value);
+            $value = str_replace('#action_label_liee#', $action['action_label_liee'], $value);
+
+            //trigger name et trigger value
+            $value = str_replace('#trigger_name#', $trigger_name, $value);
+            $value = str_replace('#trigger_value#', $trigger_value, $value); // attention, c'est un tag scenario existant
+
+/*            $return['#seconde#'] = (int) date('s');
+            $return['#heure#'] = (int) date('G');
+            $return['#heure12#'] = (int) date('g');
+            $return['#minute#'] = (int) date('i');
+            $return['#jour#'] = (int) date('d');
+            $return['#mois#'] = (int) date('m');
+            $return['#annee#'] = (int) date('Y');
+            $return['#time#'] = date('Gi');
+            $return['#timestamp#'] = time();
+            $return['#seconde#'] = (int) date('s');
+            $return['#date#'] = date('md');
+            $return['#semaine#'] = date('W');
+            $return['#sjour#'] = '"' . date_fr(date('l')) . '"';
+            $return['#smois#'] = '"' . date_fr(date('F')) . '"';
+            $return['#njour#'] = (int) date('w');
+            $return['#jeedom_name#'] = '"' . config::byKey('name') . '"';
+            $return['#hostname#'] = '"' . gethostname() . '"';
+            $return['#IP#'] = '"' . network::getNetworkAccess('internal', 'ip', '', false) . '"';*/
+
             $options[$key] = str_replace('#eq_name#', $this->getName(), $value);
           }
         }
@@ -95,7 +167,7 @@ class sequencing extends eqLogic {
 
         if(isset($action['action_label'])){ // si on avait un label (donc c'est une action), on memorise qu'on l'a lancé
           $this->setCache('execAction_'.$action['action_label'], 1);
-          log::add('sequencing', 'debug', 'setCache TRUE pour label : ' . $action['action_label']);
+      //    log::add('sequencing', 'debug', 'setCache TRUE pour label : ' . $action['action_label']);
         }
 
       } catch (Exception $e) {
@@ -106,7 +178,7 @@ class sequencing extends eqLogic {
     }
 
 
-    public function actionsLaunch() { // fct appelée par la cmd 'start' appelée par l'extérieur ou par un trigger valide (fonction triggerLaunch)
+    public function actionsLaunch($_trigger_name, $_trigger_value) { // fct appelée par la cmd 'start' appelée par l'extérieur ou par un trigger valide (via fonction triggerLaunch)
 
       log::add('sequencing', 'debug', '################ Exécution des actions ############');
 
@@ -129,6 +201,8 @@ class sequencing extends eqLogic {
 
               $options['eqLogic_id'] = intval($this->getId());
               $options['action'] = $action; //inclu tout le detail de l'action : sa cmd, ses options pour les messages, son label, ...
+              $options['trigger_name'] = $_trigger_name;
+              $options['trigger_value'] = $_trigger_value;
               $cron->setOption($options);
 
               log::add('sequencing', 'debug', 'Set CRON : ' . $options['eqLogic_id'] . ' - ' . $options['action']['cmd'] . ' - ' . $options['action']['action_label']);
@@ -152,14 +226,14 @@ class sequencing extends eqLogic {
 
           log::add('sequencing', 'debug', 'Pas de timer liée, on execute ' . $action['cmd']);
 
-          $this->execAction($action);
+          $this->execAction($action, $_trigger_name, $_trigger_value);
         }
 
       } // fin foreach toutes les actions
 
     }
 
-    public function actionsCancel() { // fct appelée par la cmd 'stop' appelée par l'extérieur ou par un trigger_cancel valide (fonction triggerCancel)
+    public function actionsCancel($_trigger_name, $_trigger_value) { // fct appelée par la cmd 'stop' appelée par l'extérieur ou par un trigger_cancel valide (via fonction triggerCancel)
 
       log::add('sequencing', 'debug', '################ Exécution des actions d\'annulation ############');
 
@@ -173,13 +247,13 @@ class sequencing extends eqLogic {
 
           log::add('sequencing', 'debug', 'Pas d\'action liée, on execute ' . $action['cmd']);
 
-          $this->execAction($action);
+          $this->execAction($action, $_trigger_name, $_trigger_value);
 
         }else if(isset($action['action_label_liee']) && $action['action_label_liee'] != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été executée => on execute notre action et on remet le cache de l'action liée à 0
 
           log::add('sequencing', 'debug', 'Action liée ('.$action['action_label_liee'].') executée précédemment, donc on execute ' . $action['cmd'] . ' et remise à 0 du cache d\'exec de l\'action origine');
 
-          $this->execAction($action);
+          $this->execAction($action, $_trigger_name, $_trigger_value);
 
           $this->setCache('execAction_'.$action['action_label_liee'], 0);
 
@@ -276,11 +350,11 @@ class sequencing extends eqLogic {
       //supprime les CRON des actions d'alertes non encore appelés, affiche une alerte s'il y en avait
       //sert à ne pas laisser trainer des CRONs en cours si on change le message ou le label puis en enregistre. Cas exceptionnel, mais au cas où...
 
-      $calculstarttime = date('H:i:s');
+  //    $calculstarttime = date('H:i:s');
 
       $this->cleanAllCron(true);
 
-      log::add('sequencing', 'debug', 'cleanAllCron start à ' . $calculstarttime . ' fin à : ' . date('H:i:s'));
+  //    log::add('sequencing', 'debug', 'cleanAllCron start à ' . $calculstarttime . ' fin à : ' . date('H:i:s'));
 
 
     }
@@ -428,26 +502,59 @@ class sequencing extends eqLogic {
     // ici on vérifie la présence de nos champs de config obligatoire
     public function preUpdate() {
 
-      $sensorsType = array( // liste des types avec des champs a vérifier
+      $triggersType = array( // liste des types avec des champs a vérifier
         'trigger',
         'trigger_cancel',
       );
 
-      foreach ($sensorsType as $type) {
+      foreach ($triggersType as $type) {
         if (is_array($this->getConfiguration($type))) {
-          foreach ($this->getConfiguration($type) as $sensor) { // pour tous les capteurs de tous les types, on veut un nom et une cmd
-            if ($sensor['name'] == '') {
+          foreach ($this->getConfiguration($type) as $trigger) { // pour tous les capteurs de tous les types, on veut un nom et une cmd
+            if ($trigger['name'] == '') {
               throw new Exception(__('Le champs Nom pour les capteurs ('.$type.') ne peut être vide',__FILE__));
             }
 
-            if ($sensor['cmd'] == '') { // TODO on pourrait aussi ici vérifier que notre commande existe pour pas avoir de problemes apres...
+            if ($trigger['cmd'] == '') {
               throw new Exception(__('Le champs Capteur ('.$type.') ne peut être vide',__FILE__));
+            }
+
+            // vérification de la cohérance des conditions de tests
+
+            // pas d'operateur entre les 2 conditions alors qu'on a des infos pour la condition 2
+            if ($trigger['condition_operator'] == '' && ($trigger['condition_operator2'] != '' || $trigger['condition_test2'] != '')) {
+              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : vous devez choisir un opérateur entre les conditions 1 et 2, ou supprimer les champs de la seconde condition',__FILE__));
+            }
+
+            // operateur entre les 2 conditions alors qu'il manque des infos pour la condition 2
+            if ($trigger['condition_operator'] != '' && ($trigger['condition_operator2'] == '' || $trigger['condition_test2'] == '')) {
+              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : condition 2 incomplète',__FILE__));
+            }
+
+            // condition 1 incomplete
+            if (($trigger['condition_operator1'] != '' && $trigger['condition_test1'] == '') || ($trigger['condition_operator1'] == '' && $trigger['condition_test1'] != ''))  {
+              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : condition 1 incomplète',__FILE__));
+            }
+
+            // condition 2 incomplete
+            if (($trigger['condition_operator2'] != '' && $trigger['condition_test2'] == '') || ($trigger['condition_operator2'] == '' && $trigger['condition_test2'] != ''))  {
+              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : condition 2 incomplète',__FILE__));
+            }
+
+            // condition 2 sans condition 1
+            if ($trigger['condition_operator1'] == '' && $trigger['condition_test1'] == '' && $trigger['condition_operator2'] != '' && $trigger['condition_test2'] != '') {
+              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : Si vous n\'avez qu\'une condition, utilisez la 1ère',__FILE__));
             }
 
           }
         }
       }
     }
+
+
+    //    $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $trigger['condition_operator2'] . $trigger['condition_test2']);
+
+
+
 
     public function postUpdate() {
 
@@ -510,18 +617,18 @@ class sequencingCmd extends cmd {
 
 
       if ($this->getLogicalId() == 'start') {
-       // log::add('sequencing', 'debug', 'Appel de l AR via API');
+       // log::add('sequencing', 'debug', 'Appel start');
         $eqLogic = $this->getEqLogic();
-        $eqLogic->actionsLaunch();
+        $eqLogic->actionsLaunch('Commande Déclencher', '');
 
       } else if ($this->getLogicalId() == 'stop') {
-       // log::add('sequencing', 'debug', 'Appel de l AR via API');
+       // log::add('sequencing', 'debug', 'Appel stop');
         $eqLogic = $this->getEqLogic();
-        $eqLogic->actionsCancel();
+        $eqLogic->actionsCancel('Commande Arrêter', '');
 
       } else { // sinon c'est un sensor et on veut juste sa valeur
 
-        log::add('sequencing', 'debug', 'Fct execute pour : ' . $this->getLogicalId() . $this->getHumanName() . '- valeur renvoyée : ' . jeedom::evaluateExpression($this->getValue()));
+        log::add('sequencing', 'debug', $this->getHumanName() .' fct execute pour : ' . $this->getLogicalId() . ' - valeur renvoyée : ' . jeedom::evaluateExpression($this->getValue()));
 
         return jeedom::evaluateExpression($this->getValue());
       }

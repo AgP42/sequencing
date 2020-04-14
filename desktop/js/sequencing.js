@@ -73,6 +73,7 @@ $("body").undelegate(".listAction", 'click').delegate(".listAction", 'click', fu
 });
 
 // chaque ligne de trigger ou trigger_cancel
+// TODO : checker la pertinence de toutes les class !!!
 function addTrigger(_action, _type) {
   var div = '<div class="' + _type + '">';
     div += '<div class="form-group ">';
@@ -88,7 +89,7 @@ function addTrigger(_action, _type) {
       div += '</div>';
 
       div += '<label class="col-sm-1 control-label">Capteur</label>';
-      div += '<div class="col-sm-1">';
+      div += '<div class="col-sm-2">';
         div += '<div class="input-group">';
           div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" />';
           div += '<span class="input-group-btn">';
@@ -97,9 +98,14 @@ function addTrigger(_action, _type) {
         div += '</div>';
       div += '</div>';
 
+      div += '<div class="col-sm-1">';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="new_value_only"/>{{Filtrer répétitions}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour ne prendre en compte que les changements de valeurs}}"></i></sup></label></span>';
+      div += '</div>';
+
       div += '<label class="col-sm-1 control-label">{{Conditions}}</label>';
       div += '<div class="col-sm-1">';
         div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1">'; // dans la class : ['condition_operator1']
+        div += '<option value="" select></option>';
         div += '<option value="==">{{égal}}</option>';
         div += '<option value=">=">{{supérieur ou égal}}</option>';
         div += '<option value=">">{{strictement supérieur}}</option>';
@@ -108,6 +114,7 @@ function addTrigger(_action, _type) {
         div += '<option value="!=">{{différent}}</option>';
         div += '</select>';
       div += '</div>';
+// TODO : ajouter matches et not() ? (donc ce cas c'est plus des types number dessous)
 
       div += '<div class="col-sm-1">';
         div += '<input type="number" class="expressionAttr form-control" data-l1key="condition_test1" />';
@@ -115,13 +122,16 @@ function addTrigger(_action, _type) {
 
       div += '<div class="col-sm-1">';
         div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator">';
-        div += '<option value="||">{{OU}}</option>';
+        div += '<option value="" select></option>';
         div += '<option value="&&">{{ET}}</option>';
+        div += '<option value="||">{{OU}}</option>';
+        div += '<option value="|^">{{OU Exclusif}}</option>';
         div += '</select>';
       div += '</div>';
 
       div += '<div class="col-sm-1">';
         div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2">';
+        div += '<option value="" select></option>';
         div += '<option value="==">{{égal}}</option>';
         div += '<option value=">=">{{supérieur ou égal}}</option>';
         div += '<option value=">">{{strictement supérieur}}</option>';

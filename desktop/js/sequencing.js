@@ -72,8 +72,14 @@ $("body").undelegate(".listAction", 'click').delegate(".listAction", 'click', fu
   });
 });
 
+// pop-up pour generer le cron de repetition des actions
+/*$('#bt_cronGenerator').off('click').on('click',function(){
+  jeedom.getCronSelectModal({},function (result) {
+    $('.eqLogicAttr[data-l1key=repeat_action_cron]').value(result.value);
+  });
+});
+*/
 // chaque ligne de trigger ou trigger_cancel
-// TODO : checker la pertinence de toutes les class !!!
 function addTrigger(_action, _type) {
   var div = '<div class="' + _type + '">';
     div += '<div class="form-group ">';
@@ -99,7 +105,7 @@ function addTrigger(_action, _type) {
       div += '</div>';
 
       div += '<div class="col-sm-1">';
-        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="new_value_only"/>{{Filtrer répétitions}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour ne prendre en compte que les changements de valeurs}}"></i></sup></label></span>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="new_value_only"/>{{Filtrer répétitions}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour ne prendre en compte que les nouvelles valeurs}}"></i></sup></label></span>';
       div += '</div>';
 
       div += '<label class="col-sm-1 control-label">{{Conditions}}</label>';
@@ -162,10 +168,21 @@ function addAction(_action, _type) {
           div += '<input type="text" class="expressionAttr form-control cmdInfo" data-l1key="action_label"/>';
         div += '</div>';
 
-        div += '<label class="col-sm-1 control-label">{{Délai avant exécution (min)}} <sup><i class="fas fa-question-circle tooltips" title="{{Le délai doit être donné par rapport au déclenchement de l\'alerte initiale et non par rapport à l\'action précédente. Ne pas remplir ou 0 pour déclenchement immédiat}}"></i></sup></label>';
+        div += '<label class="col-sm-1 control-label">{{Délai avant exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Le délai avant exécution doit être donné (en minutes) par rapport au déclenchement initial et non par rapport à l\'action précédente. Ne pas remplir ou 0 pour déclenchement immédiat.}}"></i></sup></label>';
         div += '<div class="col-sm-1">';
-          div += '<input type="number" class="expressionAttr form-control cmdInfo" data-l1key="action_timer"/>';
+            div += '<input type="number" class="expressionAttr form-control cmdInfo" data-l1key="action_timer" placeholder="{{en minutes}}"/>';
+/*            div += '<input type="number" class="expressionAttr form-control cmdInfo" data-l1key="action_repetition" placeholder="{{répétition}}"/>';
+
+
+            div += '<div class="input-group">';
+              div += '<input type="text" class="expressionAttr form-control jeeHelper" data-helper="cron" data-l1key="repeat_action_cron" placeholder="{{répétition}}"/>';
+              div += '<span class="input-group-btn">';
+                div += '<a class="btn btn-default btn-sm cursor jeeHelper" data-helper="cron"><i class="fas fa-question-circle"></i></a>';
+              div += '</span>';
+            div += '</div>';*/
+
         div += '</div>';
+
       } else { // pour les action_cancel on ajoute le label de l'action à lier
         div += '<label class="col-sm-2 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
         div += '<div class="col-sm-1">';
@@ -181,7 +198,6 @@ function addAction(_action, _type) {
           div += '</span>';
           div += '<input class="expressionAttr form-control cmdAction" data-l1key="cmd" data-type="' + _type + '" />';
           div += '<span class="input-group-btn">';
-          //TODO : à quoi ca sert ici de passer le _type ?
             div += '<a class="btn btn-default listAction" data-type="' + _type + '" title="{{Sélectionner un mot-clé}}"><i class="fa fa-tasks"></i></a>';
             div += '<a class="btn btn-default listCmdAction roundedRight" data-type="' + _type + '" title="{{Sélectionner une commande}}"><i class="fas fa-list-alt"></i></a>';
           div += '</span>';

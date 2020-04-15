@@ -33,9 +33,21 @@ class sequencing extends eqLogic {
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
-      $sequencing->execAction($_options['action'], $_options['trigger_name'], $_options['trigger_value']);
+      $sequencing->execAction($_options['action']);
 
     }
+
+/*    public static function actionRepeat($_options) { // fonction appelée par les cron qui servent a reporter l'execution des actions d'alerte.
+    // Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour executer l'action reportée, incluant le titre et message pour les messages
+
+      log::add('sequencing', 'debug', 'Fct actionRepeat Appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
+
+      $sequencing = sequencing::byId($_options['eqLogic_id']);
+
+      $sequencing->execAction($_options['action']);
+  //    $sequencing->setRepeatCron($_options['action']);
+
+    }*/
 
     public static function triggerLaunch($_option) { // fct appelée par le listener des triggers (mais pas par la cmd start qui elle, va bypasser l'évaluation des conditions !)
     // dans _option on a toutes les infos du trigger (from les champs du JS)
@@ -88,9 +100,11 @@ class sequencing extends eqLogic {
             if($trigger['condition_operator'] != ''){ // on a 2 conditions
               log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $_option['value'] . $trigger['condition_operator2'] . $trigger['condition_test2']);
               $check = jeedom::evaluateExpression($_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $_option['value'] . $trigger['condition_operator2'] . $trigger['condition_test2']);
-            } else {
+            } else if($trigger['condition_operator1'] != ''){
               log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1']);
               $check = jeedom::evaluateExpression($_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1']);
+            } else {
+              $check = 1; // sinon on a pas de condition : tout est valide
             }
 
             log::add('sequencing', 'debug', 'Résultat évaluation : ' . $check);
@@ -98,9 +112,9 @@ class sequencing extends eqLogic {
             if ($check == 1 || $check || $check == '1') {
 
               if($_type == 'trigger') {
-                $this->actionsLaunch($trigger['name'], $_option['value']);
+                $this->actionsLaunch();
               } else if ($_type == 'trigger_cancel'){
-                $this->actionsCancel($trigger['name'], $_option['value']);
+                $this->actionsCancel();
               }
 
             } else {
@@ -119,7 +133,7 @@ class sequencing extends eqLogic {
     }
 
 
-    public function execAction($action, $trigger_name, $trigger_value) { // execution d'une seule action avec ses infos de triggers pour les tags
+    public function execAction($action) { // execution d'une seule action avec ses infos de triggers pour les tags
 
       log::add('sequencing', 'debug', '################ Execution de l\' actions ' . $_config . ' pour ' . $this->getName() .  ' ############');
 
@@ -137,28 +151,26 @@ class sequencing extends eqLogic {
             $value = str_replace('#action_timer#', $action['action_timer'], $value);
             $value = str_replace('#action_label_liee#', $action['action_label_liee'], $value);
 
-            //trigger name et trigger value
-            $value = str_replace('#trigger_name#', $trigger_name, $value);
-            $value = str_replace('#trigger_value#', $trigger_value, $value); // attention, c'est un tag scenario existant
+/*            $value = str_replace('#trigger_name#', $trigger_name, $value);
+            $value = str_replace('#trigger_value#', $trigger_value, $value); // attention, c'est un tag scenario existant*/
 
-/*            $return['#seconde#'] = (int) date('s');
-            $return['#heure#'] = (int) date('G');
-            $return['#heure12#'] = (int) date('g');
-            $return['#minute#'] = (int) date('i');
-            $return['#jour#'] = (int) date('d');
-            $return['#mois#'] = (int) date('m');
-            $return['#annee#'] = (int) date('Y');
-            $return['#time#'] = date('Gi');
-            $return['#timestamp#'] = time();
-            $return['#seconde#'] = (int) date('s');
-            $return['#date#'] = date('md');
-            $return['#semaine#'] = date('W');
-            $return['#sjour#'] = '"' . date_fr(date('l')) . '"';
-            $return['#smois#'] = '"' . date_fr(date('F')) . '"';
-            $return['#njour#'] = (int) date('w');
-            $return['#jeedom_name#'] = '"' . config::byKey('name') . '"';
-            $return['#hostname#'] = '"' . gethostname() . '"';
-            $return['#IP#'] = '"' . network::getNetworkAccess('internal', 'ip', '', false) . '"';*/
+            $value = str_replace('#seconde#', (int) date('s'), $value);
+            $value = str_replace('#minute#', (int) date('i'), $value);
+            $value = str_replace('#heure#', (int) date('G'), $value);
+            $value = str_replace('#heure12#', (int) date('g'), $value);
+            $value = str_replace('#jour#', (int) date('d'), $value);
+            $value = str_replace('#semaine#', date('W'), $value);
+            $value = str_replace('#mois#', (int) date('m'), $value);
+            $value = str_replace('#annee#', (int) date('Y'), $value);
+            $value = str_replace('#date#', (int) date('md'), $value);
+            $value = str_replace('#time#', date('Gi'), $value);
+            $value = str_replace('#timestamp#', time(), $value);
+            $value = str_replace('#sjour#', '"' . date_fr(date('l')) . '"', $value);
+            $value = str_replace('#smois#', '"' . date_fr(date('F')) . '"', $value);
+            $value = str_replace('#njour#', (int) date('w'), $value);
+            $value = str_replace('#jeedom_name#', '"' . config::byKey('name') . '"', $value);
+            $value = str_replace('#hostname#', '"' . gethostname() . '"', $value);
+            $value = str_replace('#IP#', '"' . network::getNetworkAccess('internal', 'ip', '', false) . '"', $value);
 
             $options[$key] = str_replace('#eq_name#', $this->getName(), $value);
           }
@@ -178,13 +190,13 @@ class sequencing extends eqLogic {
     }
 
 
-    public function actionsLaunch($_trigger_name, $_trigger_value) { // fct appelée par la cmd 'start' appelée par l'extérieur ou par un trigger valide (via fonction triggerLaunch)
+    public function actionsLaunch() { // fct appelée par la cmd 'start' appelée par l'extérieur ou par un trigger valide (via fonction triggerLaunch)
 
       log::add('sequencing', 'debug', '################ Exécution des actions ############');
 
       foreach ($this->getConfiguration('action') as $action) { // pour toutes les actions définies
 
-        log::add('sequencing', 'debug', 'Config Action - action_label : ' . $action['action_label'] . ' - action_timer : ' . $action['action_timer']);
+        log::add('sequencing', 'debug', 'Config Action - action_label : ' . $action['action_label'] . ' - action_timer : ' . $action['action_timer'] . ' - action_repetition : ' . $action['action_repetition']);
 
         if(is_numeric($action['action_timer']) && $action['action_timer'] > 0){ // si on a un timer bien defini et > 0 min, on va lancer un cron pour l'execution retardée de l'action
           // si le CRON existe deja, on ne l'update pas pour ne pas retarder l'alerte en cas de multi appui d'alerte. Et on veut pas non plus setter plusieurs CRON pour la meme action..
@@ -201,8 +213,8 @@ class sequencing extends eqLogic {
 
               $options['eqLogic_id'] = intval($this->getId());
               $options['action'] = $action; //inclu tout le detail de l'action : sa cmd, ses options pour les messages, son label, ...
-              $options['trigger_name'] = $_trigger_name;
-              $options['trigger_value'] = $_trigger_value;
+          //    $options['trigger_name'] = $_trigger_name;
+          //    $options['trigger_value'] = $_trigger_value;
               $cron->setOption($options);
 
               log::add('sequencing', 'debug', 'Set CRON : ' . $options['eqLogic_id'] . ' - ' . $options['action']['cmd'] . ' - ' . $options['action']['action_label']);
@@ -214,26 +226,102 @@ class sequencing extends eqLogic {
               $cron->setSchedule(cron::convertDateToCron($delai));
 
               $cron->setOnce(1); //permet qu'il s'auto supprime une fois executé
-              // TODO : gerer les repetitions ?
               $cron->save();
 
           } else {
 
-            log::add('sequencing', 'debug', 'CRON existe deja pour : ' . $cron->getOption()['eqLogic_id'] . ' - ' . $cron->getOption()['action']['cmd'] . ' - ' . $cron->getOption()['action']['action_label'] . ' => on ne fait rien !');
+            log::add('sequencing', 'debug', 'CRON existe déjà pour : ' . $cron->getOption()['eqLogic_id'] . ' - ' . $cron->getOption()['action']['cmd'] . ' - ' . $cron->getOption()['action']['action_label'] . ' => on ne fait rien !');
           }
 
         }else{ // pas de timer valide defini, on execute l'action immédiatement
 
           log::add('sequencing', 'debug', 'Pas de timer liée, on execute ' . $action['cmd']);
 
-          $this->execAction($action, $_trigger_name, $_trigger_value);
+          $this->execAction($action);
+    //      $this->setRepeatCron($action);
+
         }
 
       } // fin foreach toutes les actions
 
     }
 
-    public function actionsCancel($_trigger_name, $_trigger_value) { // fct appelée par la cmd 'stop' appelée par l'extérieur ou par un trigger_cancel valide (via fonction triggerCancel)
+/*    public function setRepeatCron($action) {
+
+      if($action['action_repetition'] != ''){
+
+        log::add('sequencing', 'debug', 'On veut une repetition de ' . $action['action_repetition'] . ' min');
+
+        $cron = cron::byClassAndFunction('sequencing', 'actionRepeat', array('eqLogic_id' => intval($this->getId()), 'action' => $action)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (personne, action (qui contient cmd, option (les titres et messages notamment) et label))" Si on change le label ou le message, c'est plus le meme "action" et donc cette fonction ne le trouve pas et un nouveau cron sera crée !
+        // lors d'une sauvegarde ou suppression de l'eqLogic, si des crons sont existants, ils seront supprimés avec un message d'alerte
+
+        if (is_object($cron)) { // pas de cron trouvé, on le cree
+          log::add('sequencing', 'debug', 'CRON repetition existe déjà pour : ' . $cron->getFunction() . ' - ' . $cron->getOption()['action']['cmd'] . ' - ' . $cron->getOption()['action']['action_label'] . ' => on le vire !');
+          $cron->remove();
+        }
+
+        $cron = new cron();
+        $cron->setClass('sequencing');
+        $cron->setFunction('actionRepeat');
+
+        $options['eqLogic_id'] = intval($this->getId());
+        $options['action'] = $action; //inclu tout le detail de l'action : sa cmd, ses options pour les messages, son label, ...
+
+        $cron->setOption($options);
+
+        log::add('sequencing', 'debug', 'Set CRON repetition : ' . $options['eqLogic_id'] . ' - ' . $options['action']['cmd'] . ' - ' . $options['action']['action_label']);
+
+        $cron->setEnable(1);
+        $cron->setTimeout(5); //minutes
+
+        $delai = strtotime(date('Y-m-d H:i:s', strtotime('+'.$action['action_repetition'].' min ' . date('Y-m-d H:i:s')))); // on lui dit de se déclencher dans 'action_timer' min
+        $cron->setSchedule(cron::convertDateToCron($delai));
+
+        $cron->setOnce(1); //permet qu'il s'auto supprime une fois executé
+        $cron->save();
+
+
+      }
+
+      if($action['repeat_action_cron'] != ''){
+
+        log::add('sequencing', 'debug', 'On veut une repetition de ' . $action['repeat_action_cron']);
+
+        $cron = cron::byClassAndFunction('sequencing', 'actionRepeat', array('eqLogic_id' => intval($this->getId()), 'action' => $action)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (personne, action (qui contient cmd, option (les titres et messages notamment) et label))" Si on change le label ou le message, c'est plus le meme "action" et donc cette fonction ne le trouve pas et un nouveau cron sera crée !
+        // lors d'une sauvegarde ou suppression de l'eqLogic, si des crons sont existants, ils seront supprimés avec un message d'alerte
+
+        if (!is_object($cron)) { // pas de cron trouvé, on le cree
+
+            $cron = new cron();
+            $cron->setClass('sequencing');
+            $cron->setFunction('actionRepeat');
+
+            $options['eqLogic_id'] = intval($this->getId());
+            $options['action'] = $action; //inclu tout le detail de l'action : sa cmd, ses options pour les messages, son label, ...
+
+            $cron->setOption($options);
+
+            log::add('sequencing', 'debug', 'Set CRON repetition : ' . $options['eqLogic_id'] . ' - ' . $options['action']['cmd'] . ' - ' . $options['action']['action_label']);
+
+            $cron->setEnable(1);
+            $cron->setTimeout(5); //minutes
+        //    $cron->setLastRun(date('Y-m-d H:i:s', strtotime('now')));
+        //    $cron->setCache('lastRun', date('Y-m-d H:i:s'));
+            $cron->setSchedule($action['repeat_action_cron']);
+
+        //    $cron->setLastRun(date('Y-m-d H:i:s'));
+            $cron->setLastRun('2020-04-15 20:09:50');
+            $cron->save();
+
+        } else {
+
+          log::add('sequencing', 'debug', 'CRON repetition existe déjà pour : ' . $cron->getFunction() . ' - ' . $cron->getOption()['action']['cmd'] . ' - ' . $cron->getOption()['action']['action_label'] . ' => on ne fait rien !');
+        }
+
+      }
+    }*/
+
+    public function actionsCancel() { // fct appelée par la cmd 'stop' appelée par l'extérieur ou par un trigger_cancel valide (via fonction triggerCancel)
 
       log::add('sequencing', 'debug', '################ Exécution des actions d\'annulation ############');
 
@@ -247,13 +335,13 @@ class sequencing extends eqLogic {
 
           log::add('sequencing', 'debug', 'Pas d\'action liée, on execute ' . $action['cmd']);
 
-          $this->execAction($action, $_trigger_name, $_trigger_value);
+          $this->execAction($action);
 
         }else if(isset($action['action_label_liee']) && $action['action_label_liee'] != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été executée => on execute notre action et on remet le cache de l'action liée à 0
 
           log::add('sequencing', 'debug', 'Action liée ('.$action['action_label_liee'].') executée précédemment, donc on execute ' . $action['cmd'] . ' et remise à 0 du cache d\'exec de l\'action origine');
 
-          $this->execAction($action, $_trigger_name, $_trigger_value);
+          $this->execAction($action);
 
           $this->setCache('execAction_'.$action['action_label_liee'], 0);
 
@@ -286,6 +374,22 @@ class sequencing extends eqLogic {
         $cron->remove();
         $cron = cron::byClassAndFunction('sequencing', 'actionDelayed');
       }
+
+
+/*      $cron = cron::byClassAndFunction('sequencing', 'actionRepeat'); //on cherche le 1er cron pour ce plugin et cette action (il n'existe pas de fonction core renvoyant un array avec tous les cron de la class, comme pour les listeners... dommage...)
+
+      while (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId()) { // s'il existe et que l'id correspond, on le vire puis on cherche le suivant et tant qu'il y a un suivant on boucle
+
+        log::add('sequencing', 'debug', 'Cron trouvé à supprimer pour eqLogic_id : ' . $cron->getOption()['eqLogic_id'] . ' - cmd : ' . ' - ' . $cron->getOption()['action']['cmd'] . ' - action_label : ' . $cron->getOption()['action']['action_label']);
+
+        if($displayWarningMessage){
+
+          log::add('sequencing', 'error', 'Attention, des actions d\'alerte avec un délai avant exécution sont en cours et vont être supprimées, merci de vous assurer que la personne associée n\'a pas besoin d\'assistance ! Il s\'agit de ' . $this->getConfiguration('senior_name') . ' - pour l\'eqLogic ' . $this->getName() . ', action supprimée : ' . $cron->getOption()['action']['cmd'] . ' - action_label : ' . $cron->getOption()['action']['action_label']);
+        }
+
+        $cron->remove();
+        $cron = cron::byClassAndFunction('sequencing', 'actionRepeat');
+      }*/
 
 
     }
@@ -324,6 +428,7 @@ class sequencing extends eqLogic {
       $cmd->setEqLogic_id($this->getId());
       $cmd->setType('action');
       $cmd->setSubType('other');
+      $cmd->setOrder(0);
       $cmd->setIsVisible(1);
       $cmd->setIsHistorized(0);
       $cmd->setConfiguration('historizeMode', 'none');
@@ -338,6 +443,7 @@ class sequencing extends eqLogic {
       $cmd->setEqLogic_id($this->getId());
       $cmd->setType('action');
       $cmd->setSubType('other');
+      $cmd->setOrder(1);
       $cmd->setIsVisible(1);
       $cmd->setIsHistorized(0);
       $cmd->setConfiguration('historizeMode', 'none');
@@ -619,12 +725,12 @@ class sequencingCmd extends cmd {
       if ($this->getLogicalId() == 'start') {
        // log::add('sequencing', 'debug', 'Appel start');
         $eqLogic = $this->getEqLogic();
-        $eqLogic->actionsLaunch('Commande Déclencher', '');
+        $eqLogic->actionsLaunch();
 
       } else if ($this->getLogicalId() == 'stop') {
        // log::add('sequencing', 'debug', 'Appel stop');
         $eqLogic = $this->getEqLogic();
-        $eqLogic->actionsCancel('Commande Arrêter', '');
+        $eqLogic->actionsCancel();
 
       } else { // sinon c'est un sensor et on veut juste sa valeur
 

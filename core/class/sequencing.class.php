@@ -24,12 +24,11 @@ Les valeurs en cache utilisés :
 * Les exécutions d'actions, pour gere les actions d'annulation associées
   $this->setCache('execAction_'.$action['action_label'], 1);
 
-* le nom, la valeur et l'heure du dernier trigger et trigger_cancel
-  $this->setCache($_type . '_name', $trigger['name']);
-  $this->setCache($_type . '_cmd', $trigger['cmd']);
-  $this->setCache($_type . '_value', $_option['value']);
-  $this->setCache($_type . '_datetime', date('Y-m-d H:i:s'));
-  $this->setCache($_type . '_time', date('H:i:s'));
+* le nom, la valeur et l'heure du dernier trigger OU trigger_cancel
+  $this->setCache('trigger_name', $trigger['name']);
+  $this->setCache('trigger_value', $_option['value']);
+  $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
+  $this->setCache('trigger_time', date('H:i:s'));
 
 */
 
@@ -59,7 +58,6 @@ class sequencing extends eqLogic {
       log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appellée par le CRON');
 
       $sequencing->setCache('trigger_name', 'programmé');
-      $sequencing->setCache('trigger_cmd', '');
       $sequencing->setCache('trigger_value', '');
       $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
       $sequencing->setCache('trigger_time', date('H:i:s'));
@@ -128,11 +126,10 @@ class sequencing extends eqLogic {
 
             if ($check == 1 || $check || $check == '1') {
 
-              $this->setCache($_type . '_name', $trigger['name']);
-              $this->setCache($_type . '_cmd', $trigger['cmd']);
-              $this->setCache($_type . '_value', $_option['value']);
-              $this->setCache($_type . '_datetime', date('Y-m-d H:i:s'));
-              $this->setCache($_type . '_time', date('H:i:s'));
+              $this->setCache('trigger_name', $trigger['name']);
+              $this->setCache('trigger_value', $_option['value']);
+              $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
+              $this->setCache('trigger_time', date('H:i:s'));
 
               if($_type == 'trigger') {
                 $this->actionsLaunch();
@@ -174,11 +171,12 @@ class sequencing extends eqLogic {
             $value = str_replace('#action_timer#', $action['action_timer'], $value);
             $value = str_replace('#action_label_liee#', $action['action_label_liee'], $value);
 
-            //TODO : trouver un moyen de gerer ces tags sans que ca soit le bordel ! Attention on peut pas les passer dans le cron... ca serait trop simple...
-/*            $value = str_replace('#trigger_name#', $trigger_name, $value);
-            $value = str_replace('#trigger_value#', $trigger_value, $value); // attention, c'est un tag scenario existant*/
+            $value = str_replace('#trigger_name#', $this->getCache('trigger_name'), $value);
+            $value = str_replace('#trigger_value#', $this->getCache('trigger_value'), $value);
+            $value = str_replace('#trigger_datetime#', $this->getCache('trigger_datetime'), $value);
+            $value = str_replace('#trigger_time#', $this->getCache('trigger_time'), $value);
 
-            // reprise des tags jeedom pour les scenatios
+            // reprise des tags jeedom des scenatios
             $value = str_replace('#seconde#', (int) date('s'), $value);
             $value = str_replace('#minute#', (int) date('i'), $value);
             $value = str_replace('#heure#', (int) date('G'), $value);
@@ -197,9 +195,8 @@ class sequencing extends eqLogic {
             $value = str_replace('#hostname#', '"' . gethostname() . '"', $value);
             $value = str_replace('#IP#', '"' . network::getNetworkAccess('internal', 'ip', '', false) . '"', $value);
 
-            $value = str_replace('#eq_full_name#', $action['action_label_liee'], $value); //TODO : à tester celui la
-
-            $options[$key] = str_replace('#eq_name#', $this->getHumanName(), $value);
+            $value = str_replace('#eq_full_name#', $this->getHumanName(), $value);
+            $options[$key] = str_replace('#eq_name#', $this->getName(), $value);
           }
         }
         scenarioExpression::createAndExec('action', $action['cmd'], $options);
@@ -707,7 +704,6 @@ class sequencingCmd extends cmd {
         $eqLogic = $this->getEqLogic();
 
         $eqLogic->setCache('trigger_name', 'user/api');
-        $eqLogic->setCache('trigger_cmd', '');
         $eqLogic->setCache('trigger_value', '');
         $eqLogic->setCache('trigger_datetime', date('Y-m-d H:i:s'));
         $eqLogic->setCache('trigger_time', date('H:i:s'));
@@ -718,11 +714,10 @@ class sequencingCmd extends cmd {
        // log::add('sequencing', 'debug', 'Appel stop');
         $eqLogic = $this->getEqLogic();
 
-        $eqLogic->setCache('trigger_cancel_name', 'user/api');
-        $eqLogic->setCache('trigger_cancel_cmd', '');
-        $eqLogic->setCache('trigger_cancel_value', '');
-        $eqLogic->setCache('trigger_cancel_datetime', date('Y-m-d H:i:s'));
-        $eqLogic->setCache('trigger_cancel_time', date('H:i:s'));
+        $eqLogic->setCache('trigger_name', 'user/api');
+        $eqLogic->setCache('trigger_value', '');
+        $eqLogic->setCache('trigger_datetime', date('Y-m-d H:i:s'));
+        $eqLogic->setCache('trigger_time', date('H:i:s'));
 
         $eqLogic->actionsCancel();
 

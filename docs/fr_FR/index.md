@@ -10,7 +10,7 @@ Les principales fonctionnalités sont les suivantes :
 * Déclenchement :
    * Quantité illimitée de déclencheurs, avec chacun jusqu'à 2 conditions selon leur valeur, et la possibiliter de filtrer les répétitions de valeur
    * Programmation du déclenchement (cron) à une date/horaire ou périodiquement
-   * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scenario, appel API, via le dashboard, ...)
+   * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scenario, appel API, le dashboard, ...)
    * Historisation des capteurs de déclenchements
 * En cas de multidéclenchement, choix de garder la programmation initiale de chaque action ou de les reporter
 * Gestion annulation de la séquence et liste d'actions associées
@@ -19,9 +19,9 @@ Les principales fonctionnalités sont les suivantes :
 
 Les déclencheurs internes peuvent être n'importe quelle commande Jeedom de type "Info" (capteur, bouton, info virtuelle, ...)
 
-Les actions peuvent être n'importe quelle action Jeedom : lampe, avertisseur sonore, notification sur smartphone, messages, déclenchement d'un scenario, ...
+Les actions peuvent être n'importe quelle commande Jeedom de type "action" (lampe, avertisseur sonore, notification sur smartphone, messages, ...) ou "mot clé" (alerte, scenario, variable, évènement, redemarrer Jeedom, ...)
 
-Ce plugin est payant (2€) pour soutenir mes developpements (0,8€) ainsi que Jeedom (1,2€ pour Jeedom, Paypal et nos impôts ;-)) mais je laisse les sources ouvertes à tous, vous pouvez ainsi le tester gratuitement ou l'utiliser gratuitement si vous ne souhaitez pas le payer.
+Ce plugin est payant (2€) pour soutenir Jeedom (1,2€) ainsi que mes developpements (0,8€) mais je laisse les sources ouvertes à tous, vous pouvez ainsi le tester gratuitement ou l'utiliser gratuitement si vous ne souhaitez pas le payer.
 Lien vers le code source : [https://github.com/AgP42/sequencing/](https://github.com/AgP42/sequencing/)
 
 Changelog
@@ -34,7 +34,7 @@ Seules les modifications ayant un impact fonctionnel sur le plugin sont listées
 Configuration du plugin
 ========================
 
-Ajouter les différentes personnes à suivre, puis pour chacune configurer les différents onglets.
+Ajouter un équipement, puis pour configurer les différents onglets.
 
 Onglet **Général**
 ---
@@ -42,25 +42,87 @@ Onglet **Général**
 ![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletGeneral.png)
 
 * **Informations Jeedom**
-   * Indiquer le nom de la personne
-   * Objet parent : il s'agit de l'objet Jeedom auquel rattacher la personne. Il doit être différent de "Aucun"
-   * Activer le plugin pour cette personne
-   * Visible sert a visualiser les infos sur le dashboard, il n'y a rien a visualiser pour ce plugin
+   * Indiquer le nom de l'équipement
+   * Objet parent : il s'agit de l'objet Jeedom auquel rattacher l'équipement
+   * Catégorie : catégorie Jeedom à laquelle rattacher l'équipement
+   * Activer le plugin
+   * Visible sert a visualiser les infos sur le dashboard, par défaut vous aurez uniquement les commandes pour Déclencher et Arrêter la séquence. Vous pouvez choisir (onglet **Avancé - Commandes**) de visualiser les capteurs de déclenchement et d'annulation. Le plugin n'a pas besoin d'être visible sur le dashboard pour fonctionner.
 
-* **Informations concernant la personne dépendante**
+* **Tags messages**
 
-Vous pouvez saisir ici des informations sur la personne dépendante. Ces informations seront utilisées uniquement pour la saisie de tags dans les messages d'alertes, tous ces champs sont facultatifs.
+Vous pouvez saisir ici des tags personnalisés pour cet équipement. Ces informations peuvent être utilisées pour les messages, ces champs sont facultatifs.
+Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez définir en #tag1# un texte personnalisé contenant plusieurs autres tags ('#action_label# exécutée à #time# suite déclenchement de #trigger_name# à #trigger_time# et après un délais de #action_timer# min') et réutiliser ce #tag1# dans plusieurs autres actions du plugin.
 
-Onglet **Boutons d'alerte**
+Détail des tags (utilisables dans toutes les actions, sauf indication contraire):
+
+* #tag1# : tag personnalisé 1
+* #tag2# : tag personnalisé 2 (#tag2# ne peut pas reprendre #tag1#)
+* #tag3# : tag personnalisé 3 (#tag3# ne peut reprendre ni #tag1# ni #tag2#)
+
+* #eq_full_name# : le nom Jeedom complet (Objet parent et nom) de votre équipement ("[Maison][SequenceTest]")
+* #eq_name# : le nom Jeedom de votre équipement ("SequenceTest"), tel que défini dans l'onglet **Général**
+
+* #action_label# : le label de votre action courante. Vide si non défini. Uniquement pour les **Actions**
+* #action_timer# : le délai avant exécution de votre action courante. Vide si non défini. Uniquement pour les **Actions**
+* #action_label_liee# : le label de votre action de référence. Vide si non défini. Uniquement pour les **Actions d'annulation**
+
+* Tags selon les déclencheurs :
+   * Infos :
+      * les informations correspondront toujours au dernier déclencheur valide
+      * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décallée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle est été initialement lancée par le déclencheur 1).
+   * Tags disponibles :
+      * #trigger_name# : plusieurs possibilitées :
+         * le **Nom** du déclencheur s'il s'agit d'un déclencheur interne du plugin.
+         * "user/api" si déclenché par l'API ou par la commande du dashboard ou via un autre plugin.
+         * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
+      * #trigger_value# : la valeur du déclencheur, uniquement pour les déclenchements par un déclencheur interne du plugin. Sera vide dans les autres cas.
+      * #trigger_datetime# : La date et l'heure du déclenchement au format "2020-04-16 18:50:18". Il ne s'agit donc pas de la date et heure de l'action s'il s'agit d'une action retardée.
+      * #trigger_time# : idem uniquement l'heure "18:50:18"
+
+* Tags jeedom (idem scenarios) - les infos de date et heure correspondent à l'instant de l'exécution effective de l'action :
+  * #seconde# : Seconde courante (sans les zéros initiaux, ex : 6 pour 08:07:06),
+  * #minute# : Minute courante (sans les zéros initiaux, ex : 7 pour 08:07:06),
+  * #heure# : Heure courante au format 24h (sans les zéros initiaux, ex : 8 pour 08:07:06 ou 17 pour 17:15),
+  * #heure12# : Heure courante au format 12h (sans les zéros initiaux, ex : 8 pour 08:07:06),
+  * #jour# : Jour courant (sans les zéros initiaux, ex : 6 pour 06/07/2017),
+  * #semaine# : Numéro de la semaine (ex : 51),
+  * #mois# : Mois courant (sans les zéros initiaux, ex : 7 pour 06/07/2017),
+  * #annee# : Année courante,
+  * #date# : Jour et mois. Attention, le premier nombre est le mois. (ex : 1215 pour le 15 décembre),
+  * #time# : Heure et minute courante (ex : 1715 pour 17h15),
+  * #timestamp# : Nombre de secondes depuis le 1er janvier 1970,
+  * #sjour# : Nom du jour de la semaine (ex : Samedi),
+  * #smois# : Nom du mois (ex : Janvier),
+  * #njour# : Numéro du jour de 0 (dimanche) à 6 (samedi),
+  * #jeedom_name# : Nom que vous avez donné à votre Jeedom,
+  * #hostname# : Nom de la machine Jeedom (ex : "raspberrypi"),
+  * #IP# : IP interne de Jeedom,
+
+Onglet **Déclencheurs**
+---
+
+A jour
+-----------------------------------------------------------------
+Pas à jour
+
+
+Onglet **Actions**
 ---
 
 Cet onglet permet de regrouper différents boutons d'alertes immédiates que la personne pourra activer pour demander de l'aide. Il peut s'agir d'un bouton à porter sur soi ou de boutons dans une zone particulière. Il n'y a pas de limite de nombre de boutons.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletBoutons.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActions.png)
 
 * Cliquer sur "ajouter un bouton" pour définir un ou plusieurs capteurs de type "bouton" ou "interrupteur"
 * **Nom** : champs obligatoire
 * **Capteur** : champs obligatoire
+
+Onglet **Déclencheurs d'annulation**
+---
+
+Onglet **Actions d'annulation**
+---
+
 
 
 Onglet **Actions d'alerte**
@@ -122,76 +184,41 @@ Lors d'une annulation, toutes les actions d'alertes "futures" sont annulées.
 
 Si l'une de vos action est de type "message", vous pouvez utiliser les tags configurés dans l'onglet "Général".
 
+Pas à jour
+-----------------------------------------------------------------
+A jour
 
 Onglet **Avancé - Commandes Jeedom**
 ---
 
-Vous pouvez configurer ici les commandes utilisées par ce plugin. Vous pouvez notamment définir la visibilité du bouton d'accusé de réception sur le dashboard Jeedom (pour tests notamment)
+Vous pouvez configurer ici les commandes utilisées par ce plugin. Vous pouvez notamment définir la visibilité des boutons de déclenchement et d'arrêt sur le dashboard Jeedom (visibles par défaut), et la visibilité des valeurs des déclencheurs (non-visibles par défaut, mais historisés).
 
 Remarques sur le comportement du plugin
 ======
 
-Dans les exemples ci-dessous, nous considérons que les actions à la réception d'un AR et les actions d'annulation sont correctement liées aux actions d'alerte (via un label).
-D'une manière générale le plugin a été conçu pour aller dans le sens de la sécurité de la personne, en cas de mode dégradés le comportement sera celui de relancer une alerte (éventuellement à tort) plutôt que de ne rien faire.
-
 Au démarrage et après redémarrage Jeedom
 ---
-* Si des actions d'alerte avaient été programmées pendant la coupure de Jeedom, elles seront exécutées au démarrage. Les actions enregistrées ne sont pas perdues par un redémarrage de Jeedom.
+* Si des actions avaient été programmées pendant la coupure de Jeedom, elles seront exécutées au démarrage (immédiatement si l'heure prévu est dépassé ou à leur heure initialement prévue). Les actions enregistrées ne sont pas perdues par un redémarrage de Jeedom.
 
-En cas d'appuis multiple sur le bouton d'alerte
----
-### Avant qu'un accusé de réception extérieur ait été reçu
-
-* Toutes les actions à déclenchement immédiat seront relancées à chaque appui
-* Les actions différées ne sont pas décalées par ces appui multiples (ce qui serai l'inverse de l'effet recherché par la personne), la programmation initiale reste. Les actions différées ne sont pas non plus multipliées par chaque appui.
-* Dans le cas où le nouvel appui serait réalisé après que certaines actions différées ai eu lieu, ces actions seront reprogrammées (à partir de la date courante).
-
-### Après qu'un accusé de réception extérieur ait été reçu
-
-* Toutes les actions à déclenchement immédiat seront relancées à chaque appui
-* Les actions différées (qui ont été annulées par la réception de l'AR) seront reprogrammées (1 fois) par rapport à l'heure du 1er nouvel appui après la réception de l'AR
-* Le statut de l'état des alertes envoyées n'est pas impacté.
-* Exemple :
-   * Il y a 5 personnes dans la chaîne de transmission de l'alerte
-   * Les 3 premières personnes ont reçu l'alerte avant qu'un AR soit émis (les 3 personnes reçoivent l'info qu'un AR a été reçu)
-   * La personne âgée relance l'alerte par appui sur son bouton, la chaîne d'alerte complète est relancée : les actions immédiates ainsi que les actions différées.
-   * La première personne accuse à nouveau réception, les 3 personnes ayant reçues l'alerte initiale seront a nouveau notifiées qu'un AR a été reçu. La chaîne des messages d’alerte est à nouveau coupée.
-   * Lors de l'annulation finale de l'alerte, les 3 personnes avant reçu un message initialement seront notifiées
-Ainsi le fait de relancer le bouton d'alerte en cours du processus n’exclut pas les personnes ayant reçu l'alerte initiale des infos suivantes sur la prise en compte de l'alerte. Seule l’annulation de l’alerte remet à 0 la liste des actions déjà exécutées.
-
-En cas de multiples Accusé de réceptions reçus
----
-* Toutes les actions de la liste des actions AR seront relancées à chaque réception de la commande d'AR. Si elles dépendent d'une action d'alerte de référence (via un label), elles seront réalisées si l'action initiale a été réalisée uniquement.
-* Les actions différées sont annulées à la réception du premier AR.
-
-Exemple :
-* 3 personnes ont reçu des messages d'alerte
-* Lorsqu'une de ces personnes accuse réception de l'alerte, chacun reçoit la notification d'AR
-* Si une seconde personne accuse aussi réception, chacun reçoit a nouveau une notification d'AR
-* Si d'autres personnes dans la chaîne d'alerte n'avaient pas encore été alertées, elles ne recevront rien, ni l'alerte initiale, ni les messages d'AR, ni les messages d'annulation de l'alerte
-
-Il est à noter que la personne à l’origine de l’AR recevra elle aussi la notification que qu’AR à été reçu.
-
-Si l'annulation d'alerte n'est jamais appelée
+En cas de déclenchement multiples
 ---
 
-Par exemple si l'aidant ne désactive pas l'alerte en arrivant dans le logement.
+* Toutes les actions à déclenchement immédiat seront relancées à chaque déclenchement
+* Les actions différées dont la case "reporter" n'est pas cochée ne sont pas décalées, la programmation initiale reste. Ces actions différées ne sont pas non plus multipliées par chaque nouveau déclenchement, seul le délai initialement prévu reste.
+* Les actions différées dont la case "reporter" est cochée : la programmation initiale est reportée pour correspondre au nouveau délai.
+* Dans le cas d'un nouveau déclenchement après que certaines actions différées ai eu lieu, ces actions seront reprogrammées (à partir de la date courante). Ainsi si vos actions ne sont pas toutes en mode "Reporter", il est possible d'avoir des comportements où l'ordre de déclenchement n'est plus respecté.
 
-* Le comportement sera identique au cas de l'appui multiple. L'alerte sera donc relancée et les actions différées (si déjà exécutées lors de l'alerte précédente) seront a nouveau programmées.
-
-Si un AR ou une annulation d'alerte est appelée sans qu'une alerte ait été précédemment initiées
+Si une annulation est déclenchée sans qu'un déclenchement ait été précédemment initiée
 ---
 
 Le comportement dépendra de la configuration du plugin :
-* si toutes les actions sont liées à des label, alors il ne se passera rien.
-* si certaines actions ne sont pas conditionnées : elles seront exécutées.
+* si toutes les actions d'annulation sont liées à des label, alors il ne se passera rien.
+* si certaines actions d'annulation ne sont pas conditionnées : elles seront exécutées.
 
 Infos capteurs
 ---
 
-* Pour les capteurs "bouton d'alerte" et "bouton d'annulation d'alerte", c'est le changement de valeur du capteur qui est détecté et déclenche les actions, la valeur en elle-même n'est pas prise en compte !
-* Si vous voulez utiliser un capteur complexe, comme un accéléromètre, vous pouvez utiliser un équipement "Virtuel" dans Jeedom pour définir des seuils et déclencher l'alerte du présent plugin en conséquence.
-* L'ensemble des capteurs définis dans le plugin doivent avoir un nom unique. Le changement de nom d'un capteur revient à le supprimer et à en créer un nouveau. L'historique associé à ce capteur sera donc perdue.
+* L'ensemble des capteurs définis dans le plugin doivent avoir un nom unique. Le changement de nom d'un capteur revient à le supprimer et à en créer un nouveau. L'historique associé à ce capteur sera donc perdu.
 
 Support
 ===

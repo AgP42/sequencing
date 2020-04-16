@@ -178,6 +178,21 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
       <form class="form-horizontal">
         <fieldset>
+          <legend><i class="fas fa-clock"></i> {{Programmation}}</legend>
+          <label class="col-sm-3 control-label">{{Déclenchement programmé ou périodique}}</label>
+          <div class="input-group col-sm-2">
+            <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="programmation" placeholder="{{Déclenchement programmé ou périodique}}"/>
+            <span class="input-group-btn">
+              <a class="btn btn-default cursor jeeHelper" data-helper="cron">
+                <i class="fas fa-question-circle"></i>
+              </a>
+            </span>
+          </div>
+        </fieldset>
+      </form>
+
+      <form class="form-horizontal">
+        <fieldset>
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheur}}
             <a class="btn btn-success btn-sm addTrigger" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter un déclencheur}}</a>
           </legend>

@@ -1,33 +1,26 @@
 Présentation
 ============
 
-Ce plugin fait parti d'un ensemble de plugins pour Jeedom permettant l'aide au maintien à domicile des personnes âgées : SeniorCare.
+Ce plugin permet de déclencher des actions séquencées (actions immédiates ou actions retardées) suite à l'activation d'un ou plusieurs déclencheurs, ou via appel externe (par un autre plugin, un scenario, un appel API, ...).
 
-La demande initiale vient de ce sujet sur le forum : [Développer un logiciel d’Analyse comportementale](https://community.jeedom.com/t/developper-un-logiciel-danalyse-comportementale/19111).
+Des déclencheurs d'annulation permettent de stopper la séquence et d'exécuter des actions d'annulation spécifiques selon les actions déjà réalisées ou non.
 
-Ce plugin permet la gestion de boutons d’alertes, ses principales fonctionnalités sont les suivantes :
-* Gestion d'une quantité illimitée de boutons d'alertes
-* Gestion d'actions d'alertes séquentielles
-* Gestion Accusé de Réception de l'alerte et liste d'actions associées
-* Gestion annulation de l'alerte et liste d'actions associées
+Les principales fonctionnalités sont les suivantes :
+* Gestion d'une quantité illimitée de déclencheurs, avec chacun jusqu'à 2 conditions de déclenchement selon leur valeur, et la possibiliter de filtrer les répétitions de valeur
+* Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scenario, appel API, via le dashboard, ...)
+* Historisation des capteurs de déclenchements
+* Gestion illimitée d'actions séquentielles
+* En cas de multidéclenchement, choix de garder la programmation initiale de chaque action ou de les reporter
+* Gestion annulation de la séquence et liste d'actions associées
+* Les actions d'annulation peuvent être conditionnées par l'exécution ou non d'une action de la séquence initiale
+* Tags dans les messages pour les personnaliser selon le contexte
 
-Les boutons d'alerte peuvent être de n'importe quel type : bouton à porter, interrupteur mural, détecteur de mouvement, ...
+Les déclencheurs internes peuvent être n'importe quelle commande Jeedom de type "Info" (capteur, bouton, info virtuelle, ...)
 
-Les actions peuvent être n'importe quelle action Jeedom : gestion lampe, avertisseur sonore, notification sur smartphone, sms, email, message vocal, ...
+Les actions peuvent être n'importe quelle action Jeedom : lampe, avertisseur sonore, notification sur smartphone, messages, déclenchement d'un scenario, ...
 
-Il est aussi possible d'utiliser ce plugin comme simple bouton d'appel.
-
+Ce plugin est payant (2€) pour soutenir mes developpements (0,8€) ainsi que Jeedom (1,2€ pour Jeedom, Paypal et nos impôts ;-)) mais je laisse les sources ouvertes à tous, vous pouvez ainsi le tester gratuitement ou l'utiliser gratuitement si vous ne souhaitez pas le payer.
 Lien vers le code source : [https://github.com/AgP42/sequencing/](https://github.com/AgP42/sequencing/)
-
-Si vous souhaitez participer au projet, n’hésitez pas à le faire savoir ici [Développer un logiciel d’Analyse comportementale](https://community.jeedom.com/t/developper-un-logiciel-danalyse-comportementale/19111)
-
-Avertissement
-==========
-
-Ce plugin a été conçu pour apporter une aide aux personnes souhaitant rester chez elles et à leurs aidants.
-Nous ne pouvons toutefois pas garantir son bon fonctionnement ni qu'un dysfonctionnement de l’équipement domotique n'arrive au mauvais moment.
-Merci de l'utiliser en tant que tel et de ne pas prendre de risque pour la santé de ceux que nous cherchons à aider !
-Ce plugin est gratuit et open source, il est fourni sans garanti de bon fonctionnement.
 
 Changelog
 ==========
@@ -35,14 +28,6 @@ Changelog
 Voir le [Changelog](https://agp42.github.io/sequencing/fr_FR/changelog)
 
 Seules les modifications ayant un impact fonctionnel sur le plugin sont listées dans le changelog.
-
-Principe de fonctionnement
-========================
-
-Le principe est le suivant :
-* La personne âgée dispose d'un ou plusieurs boutons d'alerte, au déclenchement de l'un d'eux, le mécanisme d'alerte est lancé. Vous pouvez alors définir des actions à réaliser dans le logement (changement de couleur d'une lampe, alerte sonore, ...) ainsi que des actions vers un ou plusieurs aidants extérieurs. Ces actions peuvent être des notifications sur leur téléphone, un sms, un email, ... Ces différentes actions peuvent être réalisées immédiatement ou être retardées. Ceci permet de définir plusieurs personnes à avertir successivement tant que l'alerte n'a pas été prise en compte par l'un d'eux
-* Les aidants peuvent accuser réception de l'alerte, ce qui aura pour effet de déclencher des actions spécifiques (changer la couleur de la lampe dans le logement de la personne pour la prévenir que son alerte a été prise en compte par exemple). A la réception d'un AR, les actions d'alerte programmés qui n'ont pas encore été exécutées sont annulées. Ceci permet de couper la chaîne d'alerte. Il est possible de définir des actions à ne réaliser que si une action d'alerte précédente a été exécutée. Ceci permet de prévenir les autres personnes ayant reçu l'alerte que quelqu'un en a accusé réception par exemple.
-* Une fois l’aidant sur place ou si la personne réalise avoir déclenché une alerte par erreur, des boutons d'annulation d'alerte et actions associées sont définis.
 
 Configuration du plugin
 ========================
@@ -209,5 +194,5 @@ Infos capteurs
 Support
 ===
 
-* Pour toute demande de support ou d'information : [Forum Jeedom](https://community.jeedom.com/c/plugins/security/86)
+* Pour toute demande de support ou d'information : [Forum Jeedom](https://community.jeedom.com/c/plugins/automatisation/48)
 * Pour un bug ou une demande d'évolution, merci de passer de préférence par [Github](https://github.com/AgP42/sequencing/issues)

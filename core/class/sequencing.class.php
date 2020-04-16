@@ -16,6 +16,23 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+Les valeurs en cache utilisés :
+* Les valeurs des triggers, pour la gestion de repetition :
+  $this->setCache('trigger_' . $_type . $_option['event_id'], $_option['value']); // $_type peut etre trigger ou trigger_cancel
+
+* Les exécutions d'actions, pour gere les actions d'annulation associées
+  $this->setCache('execAction_'.$action['action_label'], 1);
+
+* le nom, la valeur et l'heure du dernier trigger et trigger_cancel
+  $this->setCache($_type . '_name', $trigger['name']);
+  $this->setCache($_type . '_cmd', $trigger['cmd']);
+  $this->setCache($_type . '_value', $_option['value']);
+  $this->setCache($_type . '_datetime', date('Y-m-d H:i:s'));
+  $this->setCache($_type . '_time', date('H:i:s'));
+
+*/
+
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
@@ -29,18 +46,24 @@ class sequencing extends eqLogic {
     public static function actionDelayed($_options) { // fonction appelée par les cron qui servent a reporter l'execution des actions
     // Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour executer l'action reportée, incluant le titre et message pour les messages
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct actionDelayed appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
-
       $sequencing = sequencing::byId($_options['eqLogic_id']);
+      log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct actionDelayed appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
+
       $sequencing->execAction($_options['action']);
 
     }
 
     public static function startProgrammed($_options) { // fonction appelée par le cron de programmation start
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct startProgrammed appellée par le CRON');
-
       $sequencing = sequencing::byId($_options['eqLogic_id']);
+      log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appellée par le CRON');
+
+      $sequencing->setCache('trigger_name', 'programmé');
+      $sequencing->setCache('trigger_cmd', '');
+      $sequencing->setCache('trigger_value', '');
+      $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
+      $sequencing->setCache('trigger_time', date('H:i:s'));
+
       $sequencing->actionsLaunch();
 
     }
@@ -104,6 +127,12 @@ class sequencing extends eqLogic {
             log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation : ' . $check);
 
             if ($check == 1 || $check || $check == '1') {
+
+              $this->setCache($_type . '_name', $trigger['name']);
+              $this->setCache($_type . '_cmd', $trigger['cmd']);
+              $this->setCache($_type . '_value', $_option['value']);
+              $this->setCache($_type . '_datetime', date('Y-m-d H:i:s'));
+              $this->setCache($_type . '_time', date('H:i:s'));
 
               if($_type == 'trigger') {
                 $this->actionsLaunch();
@@ -676,11 +705,25 @@ class sequencingCmd extends cmd {
       if ($this->getLogicalId() == 'start') {
        // log::add('sequencing', 'debug', 'Appel start');
         $eqLogic = $this->getEqLogic();
+
+        $eqLogic->setCache('trigger_name', 'user/api');
+        $eqLogic->setCache('trigger_cmd', '');
+        $eqLogic->setCache('trigger_value', '');
+        $eqLogic->setCache('trigger_datetime', date('Y-m-d H:i:s'));
+        $eqLogic->setCache('trigger_time', date('H:i:s'));
+
         $eqLogic->actionsLaunch();
 
       } else if ($this->getLogicalId() == 'stop') {
        // log::add('sequencing', 'debug', 'Appel stop');
         $eqLogic = $this->getEqLogic();
+
+        $eqLogic->setCache('trigger_cancel_name', 'user/api');
+        $eqLogic->setCache('trigger_cancel_cmd', '');
+        $eqLogic->setCache('trigger_cancel_value', '');
+        $eqLogic->setCache('trigger_cancel_datetime', date('Y-m-d H:i:s'));
+        $eqLogic->setCache('trigger_cancel_time', date('H:i:s'));
+
         $eqLogic->actionsCancel();
 
       } else { // sinon c'est un sensor et on veut juste sa valeur

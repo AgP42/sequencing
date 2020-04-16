@@ -1,15 +1,17 @@
 Présentation
 ============
 
-Ce plugin permet de déclencher des actions séquencées (actions immédiates ou actions retardées) suite à l'activation d'un ou plusieurs déclencheurs, ou via appel externe (par un autre plugin, un scenario, un appel API, ...).
+Ce plugin permet de déclencher des actions séquencées (actions immédiates ou actions retardées) suite à l'activation d'un ou plusieurs déclencheurs, par programmation, ou via appel externe (par un autre plugin, un scenario, un appel API, ...).
 
 Des déclencheurs d'annulation permettent de stopper la séquence et d'exécuter des actions d'annulation spécifiques selon les actions déjà réalisées ou non.
 
 Les principales fonctionnalités sont les suivantes :
-* Gestion d'une quantité illimitée de déclencheurs, avec chacun jusqu'à 2 conditions de déclenchement selon leur valeur, et la possibiliter de filtrer les répétitions de valeur
-* Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scenario, appel API, via le dashboard, ...)
-* Historisation des capteurs de déclenchements
-* Gestion illimitée d'actions séquentielles
+* Gestion illimitée d'actions séquentielles (immédiates ou retardées)
+* Déclenchement :
+   * Quantité illimitée de déclencheurs, avec chacun jusqu'à 2 conditions selon leur valeur, et la possibiliter de filtrer les répétitions de valeur
+   * Programmation du déclenchement (cron) à une date/horaire ou périodiquement
+   * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scenario, appel API, via le dashboard, ...)
+   * Historisation des capteurs de déclenchements
 * En cas de multidéclenchement, choix de garder la programmation initiale de chaque action ou de les reporter
 * Gestion annulation de la séquence et liste d'actions associées
 * Les actions d'annulation peuvent être conditionnées par l'exécution ou non d'une action de la séquence initiale

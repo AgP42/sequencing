@@ -188,58 +188,24 @@ Vous pouvez configurer une liste infinie de déclencheurs, pour chacun :
 Onglet **Actions d'annulation**
 ---
 
-Par exemple si vous aviez déclenché l'activation d'une cafetière avec un délai de 5 min, vous pouvez choisir de couper l'appareil, uniquement s'il a été effectivement déclenché.
+Cet onglet permet de définir des actions d'annulation de la séquence. Les actions d'annulation sont facultatives selon votre usage.
+
+Par exemple :
+* si vous aviez déclenché l'activation d'un appareil avec un délai de 5 min, vous pouvez choisir de couper l'appareil, uniquement s'il a été effectivement déclenché.
+* si vous aviez une chaîne de message, vous pouvez choisir d'envoyer un message d'annulation uniquement aux personnes ayant recu le message initial.
+
+Vous pouvez aussi avoir des actions d'annulation systèmatiques (non conditionnées).
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActionsAnnulation.png)
 
-
-
-Onglet **Actions d'alerte**
----
-
-Cet onglet permet de définir les actions à déclencher lorsqu'un bouton d'alerte est activé.
-
-
-
-
-Onglet **Accusé de réception**
----
-Cet onglet fourni l'URL à appeler pour déclencher l'Accusé de Réception ainsi que définir les actions à réaliser lors de la réception de l'AR
-
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletAR.png)
-
-* **Commande à appeler depuis l'extérieur pour accuser réception de l'alerte**
-   * "Réglages/Système/Configuration/Réseaux" doit être correctement renseigné pour que l'adresse affichée soit fonctionnelle.
-   * Vous pouvez cliquer sur le lien pour tester son bon fonctionnement
-   * Cet URL peut être appelé par n'importe quel équipement extérieur, notamment un smartphone
-* **Actions à la réception d'un accusé de réception (pour prévenir la personne qu'un aidant arrive, je dois ?)**
-   * **Label action de référence** :
-      * Vous pouvez ici saisir le label de l'action de référence de l'onglet "Actions d'alerte".
-      * Le label saisi doit être strictement identique, attention aux espaces.
-      * Lorsque le label est renseigné et correspond à une action d'alerte, il faut que l'action d'alerte de référence ait été précédemment lancée pour que la présente action s'exécute.
-      * Attention, si vous renseignez un label qui n'existe pas (et donc ne sera jamais exécuté), l'action liée ne s'exécutera jamais.
-      * Exemple 1 : l'action d'alerte est d'envoyer un message à Mr x, 30 min après le déclenchement du bouton d'alerte (une alerte immédiate vers un autre aidant étant définie par ailleurs). L'action lors de l'AR est d'envoyer un message à Mr x pour le prévenir que quelqu'un a accusé réception de l'alerte. L'action d'AR ne sera exécutée que si l'action d'alerte initiale avait été exécutée à la fin de son délai de 30min. Ceci permet de ne pas envoyer des messages lors d'un AR alors que la personne n'avait pas reçu le message d'alerte initial.
-      * Exemple 2 : l'action d'alerte est d'allumer immédiatement une lampe en orange (signaler à la personne que son bouton fonctionne et que l'alerte est envoyée). L'action d'AR est de passer cette lampe en vert lorsqu'un aidant a accusé réception de l'alerte. Il n'est ici pas nécessaire de définir un label pour les lier, car l'action initiale étant immédiate, il n'y a pas de risque d'annuler une action n'ayant jamais eu lieu.
-   * **Action** : la commande jeedom correspondant à l'action voulue. L'action peut être de n'importe quel type : une lampe du logement, un message vers les aidants, l'appel d'un scenario jeedom, ... Si l'une de vos action est de type "message", vous pouvez utiliser les tags définis dans l'onglet **Général**
-
-Lors de la réception d'un accusé de réception, toutes les actions d'alertes "futures" sont annulées.
-
-Onglet **Annulation d'alerte**
----
-Cet onglet permet de configurer des boutons et actions d'annulation d'alerte. Il s'agit ici de désactiver le mécanisme d'alerte lorsqu'un aidant arrive dans le logement ou si la personne se rend compte qu'elle a appuyé par erreur sur son bouton d'alerte.
-
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletAnnulation.png)
-
-* Définir un ou plusieurs capteurs de type "bouton" ou "interrupteur" qui serviront à annuler l'alerte. Il est aussi possible de définir le capteur de porte du logement par exemple, mais alors il faut bien définir des labels pour toutes les actions, sinon les actions seront réalisées à chaque ouverture de porte du logement même si l'alerte n'a pas été déclenchée précédemment.
-* Définir les actions qui seront réalisées à l'activation des capteurs d'annulation. Le fonctionnement des labels est identique aux actions de l'onglet **Accusé de réception**.
-
-Lors d'une annulation, toutes les actions d'alertes "futures" sont annulées.
-
-Si l'une de vos action est de type "message", vous pouvez utiliser les tags configurés dans l'onglet "Général".
-
-Pas à jour
------------------------------------------------------------------
-A jour
+Cliquer sur "ajouter une action" pour définir une ou plusieurs actions d'annulation puis les configurer :
+* **Label action de référence** :
+   * Vous pouvez ici saisir le label de l'action de référence de l'onglet **Actions**.
+   * Le label saisi doit être strictement identique, attention aux espaces.
+   * Lorsque le label est renseigné et correspond à une action d'alerte, il faut que l'action d'alerte de référence ait été précédemment exécutée pour que la présente action s'exécute.
+   * Attention, si vous renseignez un label qui n'existe pas (et donc ne sera jamais exécuté), l'action liée ne s'exécutera jamais. Vous ne pouvez donc pas utiliser ce champs pour personnaliser un tag liée à cette action uniquement.
+   * Laissez le champs vide pour exécuter l'action d'annulation sans condition (à chaque déclenchement d'annulation)
+* **Action** : la commande jeedom correspondant à l'action voulue. Pour les actions de type "message", vous pouvez utiliser les tags définis ci-dessus. Les actions peuvent être des "mot-clé" jeedom, pour lancer un scenario ou définir la valeur d'une variable par exemple.
 
 Onglet **Avancé - Commandes Jeedom**
 ---

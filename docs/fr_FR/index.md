@@ -21,7 +21,7 @@ Les déclencheurs internes peuvent être n'importe quelle commande Jeedom de typ
 
 Les actions peuvent être n'importe quelle commande Jeedom de type "action" (lampe, avertisseur sonore, notification sur smartphone, messages, ...) ou "mot clé" (alerte, scenario, variable, évènement, redémarrer Jeedom, ...)
 
-Ce plugin est payant (2€) pour soutenir Jeedom (1,2€) ainsi que mes développements (0,8€) mais je laisse les sources ouvertes à tous, vous pouvez ainsi le tester gratuitement ou l'utiliser gratuitement si vous ne souhaitez pas le payer.
+Ce plugin est payant (2€) pour soutenir Jeedom (1,2€) ainsi que mes développements (0,8€) mais je laisse les sources ouvertes à tous, vous pouvez ainsi le tester gratuitement ou l'utiliser gratuitement si vous ne souhaitez pas nous soutenir.
 Lien vers le code source : [https://github.com/AgP42/sequencing/](https://github.com/AgP42/sequencing/)
 
 Changelog
@@ -122,7 +122,7 @@ Vous pouvez programmer un cron directement via le plugin pour une exécution sim
 
 Vous pouvez configurer une liste infinie de déclencheurs, pour chacun :
 
-* **Nom** : chaque déclencheur doit avoir un nom unique. Champs obligatoire.
+* **Nom** : chaque déclencheur doit avoir un nom unique. Champs obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu.
 * **Capteur** : la commande Jeedom du déclencheur. Champs obligatoire.
 * **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
 * **Conditions** : 1 ou 2 conditions possible sur la valeur du capteur
@@ -150,6 +150,7 @@ Remarques :
 * Lors de l'enregistrement ou de la suppression de l'équipement, si des actions étaient enregistrées, elles seront supprimées avec un message d'erreur donnant le nom de l'action supprimée
 * Les mots-clé spécifiques des scenarios jeedom comme "pause" ou "attendre" n'auront pas d'effet ici
 * Vous pouvez choisir plusieurs actions ayant le même délai, elles seront alors exécutées simultanément après le délai voulu
+* Attention, vous ne pouvez pas utiliser une action avec un délai pour couper votre propre séquence. Utilisez pour cela un scenario Jeedom.
 
 
 Onglet **Déclencheurs d'annulation**
@@ -178,7 +179,7 @@ L'annulation consiste à :
 
 Vous pouvez configurer une liste infinie de déclencheurs, pour chacun :
 
-* **Nom** : chaque déclencheur doit avoir un nom unique. Champs obligatoire.
+* **Nom** : chaque déclencheur doit avoir un nom unique. Champs obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu.
 * **Capteur** : la commande Jeedom du déclencheur. Champs obligatoire.
 * **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
 * **Conditions** : 1 ou 2 conditions possible sur la valeur du capteur
@@ -192,9 +193,9 @@ Cet onglet permet de définir des actions d'annulation de la séquence. Les acti
 
 Par exemple :
 * si vous aviez déclenché l'activation d'un appareil avec un délai de 5 min, vous pouvez choisir de couper l'appareil, uniquement s'il a été effectivement déclenché.
-* si vous aviez une chaîne de message, vous pouvez choisir d'envoyer un message d'annulation uniquement aux personnes ayant recu le message initial.
+* si vous aviez une chaîne de message, vous pouvez choisir d'envoyer un message d'annulation uniquement aux personnes ayant reçu le message initial.
 
-Vous pouvez aussi avoir des actions d'annulation systèmatiques (non conditionnées).
+Vous pouvez aussi avoir des actions d'annulation systématiques (non conditionnées).
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActionsAnnulation.png)
 
@@ -234,10 +235,53 @@ Le comportement dépendra de la configuration du plugin :
 * si toutes les actions d'annulation sont liées à des label, alors il ne se passera rien.
 * si certaines actions d'annulation ne sont pas conditionnées : elles seront exécutées.
 
-Infos capteurs
+Exemples d'utilisation
+===
+
+Cloche 2.0
 ---
 
-* L'ensemble des capteurs définis dans le plugin doivent avoir un nom unique. Le changement de nom d'un capteur revient à le supprimer et à en créer un nouveau. L'historique associé à ce capteur sera donc perdu.
+Quand j'étais enfant ma grand-mère nous appelait pour les repas en sonnant la cloche. Aujourd'hui elle aurait un bouton dans sa cuisine avec la séquence suivante :
+* Immédiatement : mémoriser les états des lampes et faire clignotter toutes les lampes de la maison (label : lampes)
+* Immédiatement : envoyer une notification sur les smartphones des grands
+* Délai 1 min : couper le clignottement des lampes et retour état précédent
+* Délai 5 min : couper le courant de la télé, des consoles de jeux et des radios (label : tv)
+
+Annulation (un autre bouton ou 2 appuis sur le même bouton) :
+* Si "lampe" : couper le clignottement des lampes et retour état précédent
+* Si "tv" : rallumer le courant de la télé, des consoles de jeux et des radios
+
+Réveil
+---
+
+Séquence programmée tous les matins à 6h (pour un réveil effectif vers 7h en semaine):
+* Délai 5 min : changer le thermostat pour baisser le chauffage dans les chambres et l'augmenter dans les pièces de vie (label : thermostat)
+* Délai 60 min : allumer progressivement la lumière (label : lumiere)
+* Délai 60 min : ouvrir les volets (label : volets)
+* Délai 65 min : activer la machine a café (label : cafe)
+
+Annulation :
+* Si "thermostat" : remettre le thermostat en "nuit"
+* Si "lumiere" : couper la lumière
+* Si "volets" : fermer les volets
+* Si "cafe" : couper la machine a café
+
+Pour le week-end et les jours fériés : un scenario à 6h02 pour lancer l'annulation
+Pour les matins difficiles : un bouton sur la table de nuit pour annuler la séquence !
+
+Départ maison
+---
+
+Séquence déclenchée par le plugin "mode" ou "presence" :
+* Immédiatement : fermer les volets
+* Immédiatement : couper les lumières
+* Immédiatement : baisser le chauffage
+* Délai 5 min : activer l'alarme
+
+Annulation, déclenchée par le plugin "mode" ou "presence" :
+* Ouvrir les volets
+* Relancer le chauffage
+* Désactiver l'alarme
 
 Support
 ===

@@ -34,7 +34,7 @@ Seules les modifications ayant un impact fonctionnel sur le plugin sont listées
 Configuration du plugin
 ========================
 
-Ajouter un équipement, puis pour configurer les différents onglets.
+Ajouter un équipement, puis configurer les différents onglets.
 
 Onglet **Général**
 ---
@@ -58,25 +58,23 @@ Détail des tags (utilisables dans toutes les actions, sauf indication contraire
 * #tag1# : tag personnalisé 1
 * #tag2# : tag personnalisé 2 (#tag2# ne peut pas reprendre #tag1#)
 * #tag3# : tag personnalisé 3 (#tag3# ne peut reprendre ni #tag1# ni #tag2#)
-
 * #eq_full_name# : le nom Jeedom complet (Objet parent et nom) de votre équipement ("[Maison][SequenceTest]")
 * #eq_name# : le nom Jeedom de votre équipement ("SequenceTest"), tel que défini dans l'onglet **Général**
-
 * #action_label# : le label de votre action courante. Vide si non défini. Uniquement pour les **Actions**
 * #action_timer# : le délai avant exécution de votre action courante. Vide si non défini. Uniquement pour les **Actions**
 * #action_label_liee# : le label de votre action de référence. Vide si non défini. Uniquement pour les **Actions d'annulation**
 
 * Tags selon les déclencheurs :
    * Infos :
-      * les informations correspondront toujours au dernier déclencheur valide
-      * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décallée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle est été initialement lancée par le déclencheur 1).
+      * les informations correspondent au dernier déclencheur valide
+      * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décallée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle ait été initialement lancée par le déclencheur 1).
    * Tags disponibles :
       * #trigger_name# : plusieurs possibilitées :
          * le **Nom** du déclencheur s'il s'agit d'un déclencheur interne du plugin.
          * "user/api" si déclenché par l'API ou par la commande du dashboard ou via un autre plugin.
          * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
       * #trigger_value# : la valeur du déclencheur, uniquement pour les déclenchements par un déclencheur interne du plugin. Sera vide dans les autres cas.
-      * #trigger_datetime# : La date et l'heure du déclenchement au format "2020-04-16 18:50:18". Il ne s'agit donc pas de la date et heure de l'action s'il s'agit d'une action retardée.
+      * #trigger_datetime# : La date et l'heure du déclenchement au format "2020-04-16 18:50:18". Il ne s'agit pas de la date et heure de l'action s'il s'agit d'une action retardée.
       * #trigger_time# : idem uniquement l'heure "18:50:18"
 
 * Tags jeedom (idem scenarios) - les infos de date et heure correspondent à l'instant de l'exécution effective de l'action :
@@ -100,6 +98,16 @@ Détail des tags (utilisables dans toutes les actions, sauf indication contraire
 
 Onglet **Déclencheurs**
 ---
+
+Cet onglet regroupe les différentes facon de déclencher la séquence d'action.
+
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletDeclencheurs.png)
+
+1. Via l'API, un autre plugin ou un scenario
+
+* Pour l'API, utilisez le lien donné. Vous pouvez le tester en cliquant directement dessus
+* Pour un appel via un scenario ou un autre plugin, utilisez la commande Jeedom donnée
+* Cette commande de déclenchement est aussi disponible via un bouton sur le dashboard
 
 A jour
 -----------------------------------------------------------------

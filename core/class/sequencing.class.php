@@ -287,8 +287,7 @@ class sequencing extends eqLogic {
 
           $options['eqLogic_id'] = intval($this->getId());
           $options['action'] = $action; //inclu tout le detail de l'action : sa cmd, ses options pour les messages, son label, ...
-      //    $options['trigger_name'] = $_trigger_name; // si on les ajoute dans les options, chaque nouveau trigger change le cron et on le retrouve plus ci-dessus, donc c'est la mysere...
-      //    $options['trigger_value'] = $_trigger_value;
+
           $cron->setOption($options);
 
           log::add('sequencing', 'debug', $this->getHumanName() . ' - Set CRON : ' . $options['eqLogic_id'] . ' - ' . $options['action']['cmd'] . ' - ' . $options['action']['action_label']);
@@ -319,6 +318,8 @@ class sequencing extends eqLogic {
     public function cleanAllCron($displayWarningMessage = false) { // pas tous tous en fait, juste ceux des actions différés (pas celui de la programmation)
 
       log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct cleanAllCron');
+
+  //    cron::clean();
 
       $cron = cron::byClassAndFunction('sequencing', 'actionDelayed'); //on cherche le 1er cron pour ce plugin et cette action (il n'existe pas de fonction core renvoyant un array avec tous les cron de la class, comme pour les listeners... dommage...)
 

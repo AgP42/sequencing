@@ -126,6 +126,8 @@ class sequencing extends eqLogic {
 
             if ($check == 1 || $check || $check == '1') {
 
+              log::add('sequencing', 'info', $this->getHumanName() . ' => Detection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']);
+
               $this->setCache('trigger_name', $trigger['name']);
               $this->setCache('trigger_value', $_option['value']);
               $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));

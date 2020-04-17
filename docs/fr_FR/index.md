@@ -8,7 +8,7 @@ Des déclencheurs d'annulation permettent de stopper la séquence et d'exécuter
 Les principales fonctionnalités sont les suivantes :
 * Gestion illimitée d'actions séquentielles (immédiates ou retardées)
 * Déclenchement :
-   * Quantité illimitée de déclencheurs, avec chacun jusqu'à 2 conditions selon leur valeur, et la possibiliter de filtrer les répétitions de valeur
+   * Quantité illimitée de déclencheurs, avec chacun jusqu'à 2 conditions selon leur valeur, et la possibilité de filtrer les répétitions de valeur
    * Programmation du déclenchement (cron) à une date/horaire ou périodiquement
    * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scenario, appel API, le dashboard, ...)
    * Historisation des capteurs de déclenchements
@@ -19,9 +19,9 @@ Les principales fonctionnalités sont les suivantes :
 
 Les déclencheurs internes peuvent être n'importe quelle commande Jeedom de type "Info" (capteur, bouton, info virtuelle, ...)
 
-Les actions peuvent être n'importe quelle commande Jeedom de type "action" (lampe, avertisseur sonore, notification sur smartphone, messages, ...) ou "mot clé" (alerte, scenario, variable, évènement, redemarrer Jeedom, ...)
+Les actions peuvent être n'importe quelle commande Jeedom de type "action" (lampe, avertisseur sonore, notification sur smartphone, messages, ...) ou "mot clé" (alerte, scenario, variable, évènement, redémarrer Jeedom, ...)
 
-Ce plugin est payant (2€) pour soutenir Jeedom (1,2€) ainsi que mes developpements (0,8€) mais je laisse les sources ouvertes à tous, vous pouvez ainsi le tester gratuitement ou l'utiliser gratuitement si vous ne souhaitez pas le payer.
+Ce plugin est payant (2€) pour soutenir Jeedom (1,2€) ainsi que mes développements (0,8€) mais je laisse les sources ouvertes à tous, vous pouvez ainsi le tester gratuitement ou l'utiliser gratuitement si vous ne souhaitez pas le payer.
 Lien vers le code source : [https://github.com/AgP42/sequencing/](https://github.com/AgP42/sequencing/)
 
 Changelog
@@ -53,7 +53,7 @@ Onglet **Général**
 Vous pouvez saisir ici des tags personnalisés pour cet équipement. Ces informations peuvent être utilisées pour les messages, ces champs sont facultatifs.
 Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez définir en #tag1# un texte personnalisé contenant plusieurs autres tags ('#action_label# exécutée à #time# suite déclenchement de #trigger_name# à #trigger_time# et après un délais de #action_timer# min') et réutiliser ce #tag1# dans plusieurs autres actions du plugin.
 
-Détail des tags (utilisables dans toutes les actions, sauf indication contraire):
+**Détail des tags** (utilisables dans toutes les actions, sauf indication contraire):
 
 * #tag1# : tag personnalisé 1
 * #tag2# : tag personnalisé 2 (#tag2# ne peut pas reprendre #tag1#)
@@ -65,17 +65,17 @@ Détail des tags (utilisables dans toutes les actions, sauf indication contraire
 * #action_label_liee# : le label de votre action de référence. Vide si non défini. Uniquement pour les **Actions d'annulation**
 
 * Tags selon les déclencheurs :
-   * Infos :
-      * les informations correspondent au dernier déclencheur valide
-      * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décallée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle ait été initialement lancée par le déclencheur 1).
+   * les informations correspondent au dernier déclencheur valide
+   * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décalée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle ait été initialement lancée par le déclencheur 1).
    * Tags disponibles :
-      * #trigger_name# : plusieurs possibilitées :
+      * #trigger_name# : plusieurs possibilités :
          * le **Nom** du déclencheur s'il s'agit d'un déclencheur interne du plugin.
          * "user/api" si déclenché par l'API ou par la commande du dashboard ou via un autre plugin.
          * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
       * #trigger_value# : la valeur du déclencheur, uniquement pour les déclenchements par un déclencheur interne du plugin. Sera vide dans les autres cas.
       * #trigger_datetime# : La date et l'heure du déclenchement au format "2020-04-16 18:50:18". Il ne s'agit pas de la date et heure de l'action s'il s'agit d'une action retardée.
       * #trigger_time# : idem uniquement l'heure "18:50:18"
+
 
 * Tags jeedom (idem scenarios) - les infos de date et heure correspondent à l'instant de l'exécution effective de l'action :
   * #seconde# : Seconde courante (sans les zéros initiaux, ex : 6 pour 08:07:06),
@@ -94,36 +94,63 @@ Détail des tags (utilisables dans toutes les actions, sauf indication contraire
   * #njour# : Numéro du jour de 0 (dimanche) à 6 (samedi),
   * #jeedom_name# : Nom que vous avez donné à votre Jeedom,
   * #hostname# : Nom de la machine Jeedom (ex : "raspberrypi"),
-  * #IP# : IP interne de Jeedom,
+  * #IP# : IP interne de Jeedom
 
 Onglet **Déclencheurs**
 ---
 
-Cet onglet regroupe les différentes facon de déclencher la séquence d'action.
+Cet onglet regroupe les différentes façon de déclencher la séquence d'action.
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletDeclencheurs.png)
 
-1. Via l'API, un autre plugin ou un scenario
+### Via l'API, un autre plugin ou un scenario
 
-    * Pour l'API, utilisez le lien donné. Vous pouvez le tester en cliquant directement dessus
-    * Pour un appel via un scenario ou un autre plugin, utilisez la commande Jeedom donnée
-    * Cette commande de déclenchement est aussi disponible via un bouton sur le dashboard
+* Pour l'API, utilisez le lien donné (actualiser ou sauvegarder si l'URL ne s'affiche pas directement)
+   * "Réglages/Système/Configuration/Réseaux" doit être correctement renseigné pour que l'adresse affichée soit fonctionnelle.
+   * Vous pouvez cliquer sur le lien pour tester son bon fonctionnement
+   * Cet URL peut être appelé par n'importe quel équipement extérieur, notamment un smartphone
+* Pour un appel via un scenario ou un autre plugin (Mode, Agenda, Presence, ...), utilisez la commande Jeedom donnée.
+* La commande de déclenchement manuelle est aussi disponible via un bouton sur le dashboard
 
-A jour
------------------------------------------------------------------
-Pas à jour
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/widget.png)
 
+### Par programmation
+
+Vous pouvez programmer un cron directement via le plugin pour une exécution simple retardée ou une exécution périodique
+
+### Par déclencheur
+
+Vous pouvez configurer une liste infinie de déclencheurs, pour chacun :
+
+* **Nom** : chaque déclencheur doit avoir un nom unique. Champs obligatoire.
+* **Capteur** : la commande Jeedom du déclencheur. Champs obligatoire.
+* **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
+* **Conditions** : 1 ou 2 conditions possible sur la valeur du capteur
+
+> Activez les logs en mode "Info" pour tester vos conditions de déclencheurs.
 
 Onglet **Actions**
 ---
 
-Cet onglet permet de regrouper différents boutons d'alertes immédiates que la personne pourra activer pour demander de l'aide. Il peut s'agir d'un bouton à porter sur soi ou de boutons dans une zone particulière. Il n'y a pas de limite de nombre de boutons.
+Cet onglet permet de définir les actions de la séquence.
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActions.png)
 
-* Cliquer sur "ajouter un bouton" pour définir un ou plusieurs capteurs de type "bouton" ou "interrupteur"
-* **Nom** : champs obligatoire
-* **Capteur** : champs obligatoire
+Cliquer sur "ajouter une action" pour définir une ou plusieurs actions puis les configurer :
+* **Label** : Champs facultatif permettant de lier cette action à une ou plusieurs actions d'annulation. Vous pouvez aussi utiliser ce champ pour personnaliser le tag liée à cette action (#action_label#)
+* **Délai avant exécution (min)** :
+   * ne pas remplir ou 0 : cette action sera exécutée immédiatement. En cas de multiples déclenchement, ces actions seront déclenchées à chaque appel.
+   * délai supérieure à 0 : cette action sera enregistrée dans le moteur de tâches Jeedom (cron) pour une exécution différée selon le délai voulu.
+   * le délai doit être saisi par rapport au déclenchement. Si vous souhaitez 3 actions, l'une immédiate puis 10 min après puis 10 min après, il faudra saisir 0, 10 et 20.
+   * **Reporter** : permet de définir le comportement de l'action différée dans le cas d'un déclenchement multiple : laisser l'action à sa programmation initiale ou la reporter pour correspondre au dernier déclenchement.
+* **Action** : la commande jeedom correspondant à l'action voulue. Pour les actions de type "message", vous pouvez utiliser les tags définis ci-dessus. Les actions peuvent être des "mot-clé" jeedom, pour lancer un scenario ou définir la valeur d'une variable par exemple.
+
+Remarques :
+* Dans le cas d'un redémarrage de Jeedom alors que des actions sont enregistrées, les actions seront réalisées dès le lancement de Jeedom (si l'heure de l'action est dépassée) ou à leur programmation prévue.
+* Lors de l'enregistrement ou de la suppression de l'équipement, si des actions étaient enregistrées, elles seront supprimées avec un message d'erreur donnant le nom de l'action supprimée
+* Les mots-clé spécifiques des scenarios jeedom comme "pause" ou "attendre" n'auront pas d'effet ici
+* Vous pouvez choisir plusieurs actions ayant le même délai, elles seront alors exécutées simultanément après le délai voulu
+
 
 Onglet **Déclencheurs d'annulation**
 ---
@@ -140,21 +167,6 @@ Cet onglet permet de définir les actions à déclencher lorsqu'un bouton d'aler
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActions.png)
 
-* Cliquer sur "ajouter une action" pour définir une ou plusieurs actions
-* **Label** : Champs facultatif permettant de lier cette action aux actions lors de la réception d'un accusé de réception ou d'annulation.
-* **Délai avant exécution (min)** :
-   * ne pas remplir ou 0 : cette action sera exécutée immédiatement. En cas de multiples appels sur le bouton d'alerte, ces actions seront déclenchées à chaque appel.
-   * valeur supérieure à 0 : cette action sera enregistrée dans le moteur de tâches Jeedom (cron) pour une exécution différée selon le délai saisi.
-   * le délai doit être saisi par rapport au déclenchement du bouton d'alerte. Si vous souhaitez 3 actions, l'une immédiate puis 10 min après puis 10 min après, il faudra saisir 0, 10 et 20.
-* **Action** : la commande jeedom correspondant à l'action voulue. L'action peut etre de n'importe quel type : une lampe du logement, un message vers les aidants, l'appel d'un scenario jeedom, ...
-
-Remarques :
-* Dans le cas d'un redémarrage de Jeedom alors que des actions sont enregistrées, les actions seront réalisées dès le lancement de Jeedom (si l'heure de l'action est dépassée).
-* Lors de l'enregistrement ou de la suppression, si des actions étaient enregistrées, elles seront supprimées avec un message d'erreur donnant le nom de la personne :
-
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/msgcron.png)
-
-* Si l'une de vos action est de type "message", vous pouvez utiliser les tags définis dans l'onglet **Général**
 
 
 Onglet **Accusé de réception**

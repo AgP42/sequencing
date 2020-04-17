@@ -155,8 +155,42 @@ Remarques :
 Onglet **Déclencheurs d'annulation**
 ---
 
+Cet onglet regroupe les différentes façon d'annuler la séquence d'action.
+
+L'annulation consiste à :
+* Annuler la programmation des actions programmées et non exécutées
+* Déclencher des actions d'annulation, qui peuvent être conditionnées selon l'exécution précédente d'une **Action** (voir onglet **Actions d'annulation**)
+
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletAnnulationDeclencheurs.png)
+
+### Via l'API, un autre plugin ou un scenario
+
+* Pour l'API, utilisez le lien donné (actualiser ou sauvegarder si l'URL ne s'affiche pas directement)
+   * "Réglages/Système/Configuration/Réseaux" doit être correctement renseigné pour que l'adresse affichée soit fonctionnelle.
+   * Vous pouvez cliquer sur le lien pour tester son bon fonctionnement
+   * Cet URL peut être appelé par n'importe quel équipement extérieur, notamment un smartphone
+* Pour un appel via un scenario ou un autre plugin (Mode, Agenda, Presence, ...), utilisez la commande Jeedom donnée.
+* La commande de déclenchement manuelle est aussi disponible via un bouton sur le dashboard
+
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/widget.png)
+
+### Par déclencheur
+
+Vous pouvez configurer une liste infinie de déclencheurs, pour chacun :
+
+* **Nom** : chaque déclencheur doit avoir un nom unique. Champs obligatoire.
+* **Capteur** : la commande Jeedom du déclencheur. Champs obligatoire.
+* **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
+* **Conditions** : 1 ou 2 conditions possible sur la valeur du capteur
+
+> Activez les logs en mode "Info" pour tester vos conditions de déclencheurs.
+
 Onglet **Actions d'annulation**
 ---
+
+Par exemple si vous aviez déclenché l'activation d'une cafetière avec un délai de 5 min, vous pouvez choisir de couper l'appareil, uniquement s'il a été effectivement déclenché.
+
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActionsAnnulation.png)
 
 
 
@@ -165,7 +199,6 @@ Onglet **Actions d'alerte**
 
 Cet onglet permet de définir les actions à déclencher lorsqu'un bouton d'alerte est activé.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActions.png)
 
 
 

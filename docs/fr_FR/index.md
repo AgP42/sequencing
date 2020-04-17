@@ -53,7 +53,7 @@ Onglet **Général**
 Vous pouvez saisir ici des tags personnalisés pour cet équipement. Ces informations peuvent être utilisées pour les messages, ces champs sont facultatifs.
 Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez définir en #tag1# un texte personnalisé contenant plusieurs autres tags ('#action_label# exécutée à #time# suite déclenchement de #trigger_name# à #trigger_time# et après un délais de #action_timer# min') et réutiliser ce #tag1# dans plusieurs autres actions du plugin.
 
-**Détail des tags** (utilisables dans toutes les actions, sauf indication contraire):
+#### **Détail des tags** (utilisables dans toutes les actions, sauf indication contraire):
 
 * #tag1# : tag personnalisé 1
 * #tag2# : tag personnalisé 2 (#tag2# ne peut pas reprendre #tag1#)
@@ -242,13 +242,13 @@ Cloche 2.0
 ---
 
 Quand j'étais enfant ma grand-mère nous appelait pour les repas en sonnant la cloche. Aujourd'hui elle aurait un bouton dans sa cuisine avec la séquence suivante :
-* Immédiatement : mémoriser les états des lampes et faire clignotter toutes les lampes de la maison (label : lampes)
+* Immédiatement : mémoriser les états des lampes et faire clignoter toutes les lampes de la maison (label : lampes)
 * Immédiatement : envoyer une notification sur les smartphones des grands
-* Délai 1 min : couper le clignottement des lampes et retour état précédent
+* Délai 1 min : couper le clignotement des lampes et retour état précédent
 * Délai 5 min : couper le courant de la télé, des consoles de jeux et des radios (label : tv)
 
 Annulation (un autre bouton ou 2 appuis sur le même bouton) :
-* Si "lampe" : couper le clignottement des lampes et retour état précédent
+* Si "lampe" : couper le clignotement des lampes et retour état précédent
 * Si "tv" : rallumer le courant de la télé, des consoles de jeux et des radios
 
 Réveil

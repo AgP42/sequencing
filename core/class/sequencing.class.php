@@ -19,7 +19,7 @@
 /*
 Les valeurs en cache utilisés :
 * Les valeurs des triggers, pour la gestion de repetition :
-  $this->setCache('trigger_' . $_type . $_option['event_id'], $_option['value']); // $_type peut etre trigger ou trigger_cancel
+  $this->setCache('trigger_' . $_type . $trigger['name'], $_option['value']); // $_type peut etre trigger ou trigger_cancel
 
 * Les exécutions d'actions, pour gere les actions d'annulation associées
   $this->setCache('execAction_'.$action['action_label'], 1);
@@ -110,7 +110,7 @@ class sequencing extends eqLogic {
 
           log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only']);
 
-          if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $_option['event_id']) != $_option['value']){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
+          if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $trigger['name']) != $_option['value']){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
 
             if($trigger['condition_operator'] != ''){ // on a 2 conditions
               log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $_option['value'] . $trigger['condition_operator2'] . $trigger['condition_test2']);
@@ -147,8 +147,7 @@ class sequencing extends eqLogic {
             log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce trigger est une répétition et on a configuré qu\'on en voulait pas => on fait rien');
           }
 
-          $this->setCache('trigger_' . $_type . $_option['event_id'], $_option['value']); // on garde la valeur en cache pour gestion de la repetition
-          //TODO : a tester : comment ca se passe si on a plusieurs fois le meme declencheur avec des conditions différentes ? Et notamment si repetition ou pas selon les conditions... utiliser plutot le nom que l'event_id ??
+          $this->setCache('trigger_' . $_type . $trigger['name'], $_option['value']); // on garde la valeur en cache pour gestion de la repetition
 
         }
       }
@@ -577,6 +576,8 @@ class sequencing extends eqLogic {
         }
 
       }
+
+      log::add('sequencing', 'info', $this->getHumanName() . ' - Fin sauvegarde');
 
     } // fin fct postSave
 

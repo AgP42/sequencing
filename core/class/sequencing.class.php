@@ -122,11 +122,11 @@ class sequencing extends eqLogic {
               $check = 1;
             }
 
-            log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation : ' . $check);
+          //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation : ' . $check);
 
             if ($check == 1 || $check || $check == '1') {
 
-              log::add('sequencing', 'info', $this->getHumanName() . ' => Detection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']);
+              log::add('sequencing', 'info', $this->getHumanName() . ' => Detection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd'] . ' - valeur : ' . $_option['value']);
 
               $this->setCache('trigger_name', $trigger['name']);
               $this->setCache('trigger_value', $_option['value']);
@@ -704,8 +704,9 @@ class sequencingCmd extends cmd {
 
 
       if ($this->getLogicalId() == 'start') {
-       // log::add('sequencing', 'debug', 'Appel start');
         $eqLogic = $this->getEqLogic();
+
+        log::add('sequencing', 'debug', $this->getHumanName() . 'Appel start');
 
         $eqLogic->setCache('trigger_name', 'user/api');
         $eqLogic->setCache('trigger_value', '');
@@ -715,8 +716,9 @@ class sequencingCmd extends cmd {
         $eqLogic->actionsLaunch();
 
       } else if ($this->getLogicalId() == 'stop') {
-       // log::add('sequencing', 'debug', 'Appel stop');
         $eqLogic = $this->getEqLogic();
+
+        log::add('sequencing', 'debug', $this->getHumanName() . 'Appel stop');
 
         $eqLogic->setCache('trigger_name', 'user/api');
         $eqLogic->setCache('trigger_value', '');

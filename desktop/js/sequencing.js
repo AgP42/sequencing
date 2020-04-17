@@ -72,13 +72,17 @@ $("body").undelegate(".listAction", 'click').delegate(".listAction", 'click', fu
   });
 });
 
-// pop-up pour generer le cron de repetition des actions
-/*$('#bt_cronGenerator').off('click').on('click',function(){
-  jeedom.getCronSelectModal({},function (result) {
-    $('.eqLogicAttr[data-l1key=repeat_action_cron]').value(result.value);
+//sert à charger les champs quand on clique dehors -> A garder !!!
+$('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focusout','.cmdAction.expressionAttr[data-l1key=cmd]',function (event) {
+  var type = $(this).attr('data-type');
+  var expression = $(this).closest('.' + type).getValues('.expressionAttr');
+  var el = $(this);
+  jeedom.cmd.displayActionOption($(this).value(), init(expression[0].options), function (html) {
+    el.closest('.' + type).find('.actionOptions').html(html);
   });
+
 });
-*/
+
 // chaque ligne de trigger ou trigger_cancel
 function addTrigger(_action, _type) {
   var div = '<div class="' + _type + '">';

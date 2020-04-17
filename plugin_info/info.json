@@ -1,6 +1,6 @@
 {
 	"id" : "sequencing",
-	"name" : "Séquencement",
+	"name" : "Séquencement d'actions",
 	"description" : "Plugin pour gérer des actions séquencées",
 	"licence" : "AGPL",
 	"author" : "Agp42",

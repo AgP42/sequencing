@@ -41,14 +41,14 @@ Onglet **Général**
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletGeneral.png)
 
-* **Informations Jeedom**
+### **Informations Jeedom**
    * Indiquer le nom de l'équipement
    * Objet parent : il s'agit de l'objet Jeedom auquel rattacher l'équipement
    * Catégorie : catégorie Jeedom à laquelle rattacher l'équipement
    * Activer le plugin
    * Visible sert a visualiser les infos sur le dashboard, par défaut vous aurez uniquement les commandes pour Déclencher et Arrêter la séquence. Vous pouvez choisir (onglet **Avancé - Commandes**) de visualiser les capteurs de déclenchement et d'annulation. Le plugin n'a pas besoin d'être visible sur le dashboard pour fonctionner.
 
-* **Tags messages**
+### **Tags messages**
 
 Vous pouvez saisir ici des tags personnalisés pour cet équipement. Ces informations peuvent être utilisées pour les messages, ces champs sont facultatifs.
 Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez définir en #tag1# un texte personnalisé contenant plusieurs autres tags ('#action_label# exécutée à #time# suite déclenchement de #trigger_name# à #trigger_time# et après un délais de #action_timer# min') et réutiliser ce #tag1# dans plusieurs autres actions du plugin.
@@ -105,9 +105,9 @@ Cet onglet regroupe les différentes facon de déclencher la séquence d'action.
 
 1. Via l'API, un autre plugin ou un scenario
 
-* Pour l'API, utilisez le lien donné. Vous pouvez le tester en cliquant directement dessus
-* Pour un appel via un scenario ou un autre plugin, utilisez la commande Jeedom donnée
-* Cette commande de déclenchement est aussi disponible via un bouton sur le dashboard
+    * Pour l'API, utilisez le lien donné. Vous pouvez le tester en cliquant directement dessus
+    * Pour un appel via un scenario ou un autre plugin, utilisez la commande Jeedom donnée
+    * Cette commande de déclenchement est aussi disponible via un bouton sur le dashboard
 
 A jour
 -----------------------------------------------------------------

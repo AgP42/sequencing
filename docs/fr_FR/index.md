@@ -116,7 +116,9 @@ Cet onglet regroupe les différentes façon de déclencher la séquence d'action
 
 ### Par programmation
 
-Vous pouvez programmer un cron directement via le plugin pour une exécution simple retardée ou une exécution périodique
+Vous pouvez programmer un cron directement via le plugin pour une exécution simple retardée ou une exécution périodique.
+
+Info : lors de la première sauvegarde d'une programmation périodique, le déclenchement se lance dans la 1ère minute après la sauvegarde, puis il se lance comme programmé. Vous devez arrêter la séquence manuellement dans ce cas. Ceci est du au fait que le cron ne connaissant pas l'heure de son précédent déclenchement, il se croit "en retard" et s'exécute. Ceci peut aussi se produire lorsque vous réduisez la valeur de programmation périodique.
 
 ### Par déclencheur
 
@@ -219,6 +221,11 @@ Remarques sur le comportement du plugin
 Au démarrage et après redémarrage Jeedom
 ---
 * Si des actions avaient été programmées pendant la coupure de Jeedom, elles seront exécutées au démarrage (immédiatement si l'heure prévu est dépassé ou à leur heure initialement prévue). Les actions enregistrées ne sont pas perdues par un redémarrage de Jeedom.
+
+Lors d'une sauvegarde (nouvelle configuration ou non)
+---
+* Toutes les **actions** programmées sont supprimées, avec un message d'erreur pour chacune
+* La programmation du déclenchement n'est pas impactée (elle est mise à jour si elle a été modifiée)
 
 En cas de déclenchement multiples
 ---

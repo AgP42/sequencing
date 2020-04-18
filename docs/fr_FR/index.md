@@ -122,8 +122,11 @@ Info : lors de la première sauvegarde d'une programmation périodique, le décl
 
 ### Par déclencheur
 
-Vous pouvez configurer une liste infinie de déclencheurs, pour chacun :
+Cliquez sur **Ajouter un bouton** pour ajouter un déclencheur.
 
+**Tous les déclencheurs doivent être valides** : cochez cette case si vous voulez que tous vos déclencheurs soient dans leur condition pour déclencher la séquence (le plugin va donc faire une condition **ET** entre tous les déclencheurs). Si la case n'est pas cochée, chaque déclencheur est évalué individuellement (condition **OU** entre les déclencheurs).
+
+Pour chaque déclencheur :
 * **Nom** : chaque déclencheur doit avoir un nom unique. Champs obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu.
 * **Capteur** : la commande Jeedom du déclencheur. Champs obligatoire.
 * **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
@@ -179,8 +182,11 @@ L'annulation consiste à :
 
 ### Par déclencheur
 
-Vous pouvez configurer une liste infinie de déclencheurs, pour chacun :
+Cliquez sur **Ajouter un bouton** pour ajouter un déclencheur.
 
+**Tous les déclencheurs doivent être valides** : cochez cette case si vous voulez que tous vos déclencheurs soient dans leur condition pour annuler la séquence (le plugin va donc faire une condition **ET** entre tous les déclencheurs). Si la case n'est pas cochée, chaque déclencheur est évalué individuellement (condition **OU** entre les déclencheurs).
+
+Pour chaque déclencheur :
 * **Nom** : chaque déclencheur doit avoir un nom unique. Champs obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu.
 * **Capteur** : la commande Jeedom du déclencheur. Champs obligatoire.
 * **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.

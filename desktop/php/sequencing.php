@@ -203,6 +203,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
         <fieldset>
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheur}}
             <a class="btn btn-success btn-sm addTrigger" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter un déclencheur}}</a>
+            <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour déclencher la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label>
           </legend>
           <div id="div_trigger"></div>
         </fieldset>
@@ -268,6 +269,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
         <fieldset>
           <legend><i class="fas fa-toggle-off"></i> {{Déclencheurs d'annulation}} <!-- <sup><i class="fas fa-question-circle tooltips" title="{{Bouton de désactivation d'alerte}}"></i></sup> -->
             <a class="btn btn-success btn-sm addTrigger" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter un bouton}}</a>
+            <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_cancel_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour annuler la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label>
           </legend>
           <div id="div_trigger_cancel"></div>
         </fieldset>

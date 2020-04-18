@@ -47,13 +47,14 @@ class sequencing extends eqLogic {
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
-      if (!is_object($sequencing)) {
-         throw new Exception(__('EqLogic inconnu. Vérifiez l\'ID', __FILE__));
+      if (is_object($sequencing)) {
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct actionDelayed appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
+
+        $sequencing->execAction($_options['action']);
+      } else {
+        log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution d\'une action différée - EqLogic inconnu. Vérifiez l\'ID');
       }
 
-      log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct actionDelayed appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
-
-      $sequencing->execAction($_options['action']);
 
     }
 
@@ -61,18 +62,19 @@ class sequencing extends eqLogic {
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
-      if (!is_object($sequencing)) {
-         throw new Exception(__('EqLogic inconnu. Vérifiez l\'ID', __FILE__));
+      if (is_object($sequencing)) {
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appellée par le CRON');
+
+        $sequencing->setCache('trigger_name', 'programmé');
+        $sequencing->setCache('trigger_value', '');
+        $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
+        $sequencing->setCache('trigger_time', date('H:i:s'));
+
+        $sequencing->actionsLaunch();
+      } else {
+        log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
       }
 
-      log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appellée par le CRON');
-
-      $sequencing->setCache('trigger_name', 'programmé');
-      $sequencing->setCache('trigger_value', '');
-      $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
-      $sequencing->setCache('trigger_time', date('H:i:s'));
-
-      $sequencing->actionsLaunch();
 
     }
 
@@ -83,11 +85,11 @@ class sequencing extends eqLogic {
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
 
-      if (!is_object($sequencing)) {
-         throw new Exception(__('EqLogic inconnu. Vérifiez l\'ID', __FILE__));
+      if (is_object($sequencing)) {
+        $sequencing->evaluateTrigger($_option, 'trigger');
+      } else {
+        log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'appel d\'un trigger - EqLogic inconnu. Vérifiez l\'ID');
       }
-
-      $sequencing->evaluateTrigger($_option, 'trigger');
 
     }
 
@@ -97,11 +99,11 @@ class sequencing extends eqLogic {
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
 
-      if (!is_object($sequencing)) {
-         throw new Exception(__('EqLogic inconnu. Vérifiez l\'ID', __FILE__));
+      if (is_object($sequencing)) {
+        $sequencing->evaluateTrigger($_option, 'trigger_cancel');
+      } else {
+        log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'appel d\'un trigger d\'annulation - EqLogic inconnu. Vérifiez l\'ID');
       }
-
-      $sequencing->evaluateTrigger($_option, 'trigger_cancel');
 
     }
 
@@ -122,27 +124,31 @@ class sequencing extends eqLogic {
 
     /*     * *********************Méthodes d'instance************************* */
 
-    public function evaluateTrigger($_option, $_type) {
+    public function evaluateTrigger($_option, $_type) { // $_option nous donne l'event_id et la valeur du trigger, $_type nous dit si c'est un trigger ou trigger_cancel
 
-      // on cherche quel est l'event qui nous a déclenché pour pouvoir chopper toutes ses infos et évaluer les conditions
-      foreach ($this->getConfiguration($_type) as $trigger) { // on boucle direct dans tous les trigger ou trigger_cancel de la conf
-        if ('#' . $_option['event_id'] . '#' == $trigger['cmd']) { //TODO : gérer les variables ?
+      foreach ($this->getConfiguration($_type) as $trigger) { // on boucle dans tous les trigger ou trigger_cancel de la conf
+        if ('#' . $_option['event_id'] . '#' == $trigger['cmd']) {// on cherche quel est l'event qui nous a déclenché pour pouvoir chopper ses infos et évaluer les conditions
+        //TODO : gérer les variables ?
+        // dans tous les cas on cherche qui nous a declenché pour évaluer la repetition et chopper les infos pour les tags, meme si on doit évaluer tous les triggers de ce _type !
 
           log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only']);
 
           if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $trigger['name']) != $_option['value']){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
 
-            if($trigger['condition_operator'] != ''){ // on a 2 conditions
-              log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $_option['value'] . $trigger['condition_operator2'] . $trigger['condition_test2']);
-              $check = jeedom::evaluateExpression($_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $_option['value'] . $trigger['condition_operator2'] . $trigger['condition_test2']);
-            } else if($trigger['condition_operator1'] != ''){ // une seule condition
-              log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1']);
-              $check = jeedom::evaluateExpression($_option['value'] . $trigger['condition_operator1'] . $trigger['condition_test1']);
-            } else { // sinon on a pas de condition : tout est valide
-              $check = 1;
-            }
+            if(($_type == 'trigger' && $this->getConfiguration('trigger_and')) || ($_type == 'trigger_cancel' && $this->getConfiguration('trigger_cancel_and'))) { // si on veut évaluer tous les triggers ("ET")
+              log::add('sequencing', 'debug', $this->getHumanName() . ' - ' . $_type . ' et case ET cochée');
 
-          //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation : ' . $check);
+              $check = 1;
+              foreach ($this->getConfiguration($_type) as $trigger2) { // c'est pas tres joli...
+
+                $value = jeedom::evaluateExpression($trigger2['cmd']); // la valeur courante de cette commande
+                $check *= $this->evaluateConditions($trigger2, $value); // on évalue sa condition et si 1 seul retour 0, $check passera a 0
+                log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat total apres evaluation de : ' . $trigger2['name'] . ' : ' . $check);
+              }
+
+            } else {
+              $check = $this->evaluateConditions($trigger, $_option['value']);
+            }
 
             if ($check == 1 || $check || $check == '1') {
 
@@ -160,7 +166,7 @@ class sequencing extends eqLogic {
               }
 
             } else {
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce trigger ne valide pas les conditions voulues => on fait rien');
+              log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce ou ces trigger(s) ne valide(nt) pas les conditions voulues => on fait rien');
             }
 
           } else {
@@ -171,6 +177,24 @@ class sequencing extends eqLogic {
 
         }
       }
+
+    }
+
+    public function evaluateConditions($trigger, $value) {
+
+      if($trigger['condition_operator'] != ''){ // on a 2 conditions
+        log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $value . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $value . $trigger['condition_operator2'] . $trigger['condition_test2']);
+        $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $value . $trigger['condition_operator2'] . $trigger['condition_test2']);
+      } else if($trigger['condition_operator1'] != ''){ // une seule condition
+        log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+        $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+      } else { // sinon on a pas de condition : tout est valide
+        $check = 1;
+      }
+
+      log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat evaluateConditions pour : ' . $trigger['name'] . ' : ' . $check);
+
+      return $check;
 
     }
 

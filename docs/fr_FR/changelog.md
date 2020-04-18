@@ -23,4 +23,5 @@
 * Ajout vérification existence des commandes "start" et "stop" au cas où l'utilisateur les auraient supprimées manuellement
 * Ajout vérifications lors des appels byId (robustification du code)
 * Update liens Jeedom dans le template docs
-*
+* Ajout possibilité de vérifier que tous les triggers ou trigger_cancel soient valides pour déclencher (évaluation en ET)
+* Mise à jour documentation

@@ -164,8 +164,16 @@ $eqLogics = eqLogic::byType($plugin->getId());
               <?php
               if(init('id') != ''){
                 $eqLogic = eqLogic::byId(init('id'));
-                $cmd = $eqLogic->getCmd(null, 'start');
-                echo '<p>N\'importe où dans Jeedom, appelez cette commande : <i class="fas fa-code-branch"></i><b>  '. $cmd->getHumanName() . '</b><br>Où via l\'extérieur : <a href="' . $cmd->getDirectUrlAccess() . '" target="_blank"><i class="fas fa-external-link-alt"></i>  '. $cmd->getDirectUrlAccess() . '</a></p>';
+                if(is_object($eqLogic)){
+                  $cmd = $eqLogic->getCmd(null, 'start');
+                  if(is_object($cmd)){
+                    echo '<p>N\'importe où dans Jeedom, appelez cette commande : <i class="fas fa-code-branch"></i><b>  '. $cmd->getHumanName() . '</b><br>Où via l\'extérieur : <a href="' . $cmd->getDirectUrlAccess() . '" target="_blank"><i class="fas fa-external-link-alt"></i>  '. $cmd->getDirectUrlAccess() . '</a></p>';
+                  } else {
+                    echo 'Hum... vous n\'auriez pas supprimé manuellement la commande "start" par hasard ? Il vous reste plus qu\'à supprimer cet équipement et recommencer !';
+                  }
+                } else {
+                  echo 'Erreur : cet eqLogic n\'existe pas';
+                }
               } else {
                 echo 'Sauvegarder ou rafraichir la page pour afficher les infos';
               }
@@ -236,8 +244,16 @@ $eqLogics = eqLogic::byType($plugin->getId());
               <?php
               if(init('id') != ''){
                 $eqLogic = eqLogic::byId(init('id'));
-                $cmd = $eqLogic->getCmd(null, 'stop');
-                echo '<p>N\'importe où dans Jeedom, appelez cette commande : <i class="fas fa-code-branch"></i><b>  '. $cmd->getHumanName() . '</b><br>Où via l\'extérieur : <a href="' . $cmd->getDirectUrlAccess() . '" target="_blank"><i class="fas fa-external-link-alt"></i>  '. $cmd->getDirectUrlAccess() . '</a></p>';
+                if(is_object($eqLogic)){
+                  $cmd = $eqLogic->getCmd(null, 'stop');
+                  if(is_object($cmd)){
+                    echo '<p>N\'importe où dans Jeedom, appelez cette commande : <i class="fas fa-code-branch"></i><b>  '. $cmd->getHumanName() . '</b><br>Où via l\'extérieur : <a href="' . $cmd->getDirectUrlAccess() . '" target="_blank"><i class="fas fa-external-link-alt"></i>  '. $cmd->getDirectUrlAccess() . '</a></p>';
+                  } else {
+                    echo 'Hum... vous n\'auriez pas supprimé manuellement la commande "stop" par hasard ? Il vous reste plus qu\'à supprimer cet équipement et recommencer !';
+                  }
+                } else {
+                  echo 'Erreur : cet eqLogic n\'existe pas';
+                }
               } else {
                 echo 'Sauvegarder ou rafraichir la page pour afficher les infos';
               }

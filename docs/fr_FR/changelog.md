@@ -16,3 +16,11 @@
     * Tags dans les messages pour les personnaliser selon le contexte
 * Création documentation
 * Création changelog
+
+0.0.2 - 18 avril 2020
+---
+
+* Ajout vérification existence des commandes "start" et "stop" au cas où l'utilisateur les auraient supprimées manuellement
+* Ajout vérifications lors des appels byId (robustification du code)
+* Update liens Jeedom dans le template docs
+*

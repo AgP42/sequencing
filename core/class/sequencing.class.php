@@ -46,6 +46,11 @@ class sequencing extends eqLogic {
     // Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour executer l'action reportée, incluant le titre et message pour les messages
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
+
+      if (!is_object($sequencing)) {
+         throw new Exception(__('EqLogic inconnu. Vérifiez l\'ID', __FILE__));
+      }
+
       log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct actionDelayed appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
 
       $sequencing->execAction($_options['action']);
@@ -55,6 +60,11 @@ class sequencing extends eqLogic {
     public static function startProgrammed($_options) { // fonction appelée par le cron de programmation start
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
+
+      if (!is_object($sequencing)) {
+         throw new Exception(__('EqLogic inconnu. Vérifiez l\'ID', __FILE__));
+      }
+
       log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appellée par le CRON');
 
       $sequencing->setCache('trigger_name', 'programmé');
@@ -72,6 +82,11 @@ class sequencing extends eqLogic {
     //  log::add('sequencing', 'debug', '################ Trigger déclenché, on va évaluer les conditions ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
+
+      if (!is_object($sequencing)) {
+         throw new Exception(__('EqLogic inconnu. Vérifiez l\'ID', __FILE__));
+      }
+
       $sequencing->evaluateTrigger($_option, 'trigger');
 
     }
@@ -81,6 +96,11 @@ class sequencing extends eqLogic {
     //  log::add('sequencing', 'debug', '################ Trigger d\'annulation déclenché, on va évaluer les conditions ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
+
+      if (!is_object($sequencing)) {
+         throw new Exception(__('EqLogic inconnu. Vérifiez l\'ID', __FILE__));
+      }
+
       $sequencing->evaluateTrigger($_option, 'trigger_cancel');
 
     }

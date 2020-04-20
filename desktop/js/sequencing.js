@@ -127,7 +127,7 @@ function addTrigger(_action, _type) {
 // TODO : ajouter matches et not() ? (donc ce cas c'est plus des types number dessous)
 
       div += '<div class="col-sm-1">';
-        div += '<input type="number" class="expressionAttr form-control" data-l1key="condition_test1" />';
+        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test1" />';
       div += '</div>';
 
       div += '<div class="col-sm-1">';
@@ -152,7 +152,7 @@ function addTrigger(_action, _type) {
       div += '</div>';
 
       div += '<div class="col-sm-1">';
-        div += '<input type="number" class="expressionAttr form-control" data-l1key="condition_test2" />';
+        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test2" />';
       div += '</div>';
 
     div += '</div>';

@@ -30,3 +30,6 @@
 ---
 
 * Débug affichage champ label et label action de reference
+* Ajout possibilité d'évaluer des "string" dans les conditions de declenchements
+* Ajout exception si enregistrement avec des capteurs qui ne sont pas des commandes Jeedom
+* Mise à jour doc en conséquence

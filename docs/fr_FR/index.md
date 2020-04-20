@@ -122,15 +122,15 @@ Info : lors de la première sauvegarde d'une programmation périodique, le décl
 
 ### Par déclencheur
 
-Cliquez sur **Ajouter un bouton** pour ajouter un déclencheur.
+Cliquez sur **Ajouter un déclencheur** pour ajouter un déclencheur.
 
-**Tous les déclencheurs doivent être valides** : cochez cette case si vous voulez que tous vos déclencheurs soient dans leur condition pour déclencher la séquence (le plugin va donc faire une condition **ET** entre tous les déclencheurs). Si la case n'est pas cochée, chaque déclencheur est évalué individuellement (condition **OU** entre les déclencheurs).
+**Tous les déclencheurs doivent être valides** : cochez cette case si vous voulez que tous vos déclencheurs (de la liste des déclencheurs, hors programmation et déclenchement manuel) valident leur(s) condition(s) pour déclencher la séquence (le plugin va donc faire une condition **ET** entre tous les déclencheurs). Si la case n'est pas cochée, chaque déclencheur est évalué individuellement (condition **OU** entre les déclencheurs).
 
 Pour chaque déclencheur :
 * **Nom** : chaque déclencheur doit avoir un nom unique. Champ obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu.
-* **Capteur** : la commande Jeedom du déclencheur. Champ obligatoire.
+* **Capteur** : la commande Jeedom du déclencheur. Champ obligatoire. Il ne peut s'agir que d'une commande, les variables ou autre ne fonctionnent pas.
 * **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
-* **Conditions** : 1 ou 2 condition(s) possible(s) sur la valeur du capteur
+* **Conditions** : 1 ou 2 condition(s) possible(s) sur la valeur du capteur. Il peut s'agit d'une valeur numérique ou d'un texte. Pour un texte, ajouter des "guillemets".
 
 > Activez les logs en mode "Info" pour tester vos conditions de déclencheurs.
 
@@ -182,15 +182,15 @@ L'annulation consiste à :
 
 ### Par déclencheur
 
-Cliquez sur **Ajouter un bouton** pour ajouter un déclencheur.
+Cliquez sur **Ajouter un déclencheur** pour ajouter un déclencheur.
 
-**Tous les déclencheurs doivent être valides** : cochez cette case si vous voulez que tous vos déclencheurs soient dans leur condition pour annuler la séquence (le plugin va donc faire une condition **ET** entre tous les déclencheurs). Si la case n'est pas cochée, chaque déclencheur est évalué individuellement (condition **OU** entre les déclencheurs).
+**Tous les déclencheurs doivent être valides** : cochez cette case si vous voulez que tous vos déclencheurs (de la liste des déclencheurs, hors programmation et déclenchement manuel) valident leur(s) condition(s) pour déclencher l'annulation (le plugin va donc faire une condition **ET** entre tous les déclencheurs). Si la case n'est pas cochée, chaque déclencheur est évalué individuellement (condition **OU** entre les déclencheurs).
 
 Pour chaque déclencheur :
 * **Nom** : chaque déclencheur doit avoir un nom unique. Champ obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu.
-* **Capteur** : la commande Jeedom du déclencheur. Champ obligatoire.
+* **Capteur** : la commande Jeedom du déclencheur. Champ obligatoire. Il ne peut s'agir que d'une commande, les variables ou autre ne fonctionnent pas.
 * **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
-* **Conditions** : 1 ou 2 conditions possible sur la valeur du capteur
+* **Conditions** : 1 ou 2 condition(s) possible(s) sur la valeur du capteur. Il peut s'agit d'une valeur numérique ou d'un texte. Pour un texte, ajouter des "guillemets".
 
 > Activez les logs en mode "Info" pour tester vos conditions de déclencheurs.
 

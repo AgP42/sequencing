@@ -32,6 +32,8 @@ Les valeurs en cache utilisés :
 
 */
 
+//TODO : ajouter trim() pour les labels (supprime les espaces et caracteres invisibles en debut et fin de chaine)
+
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
@@ -81,7 +83,7 @@ class sequencing extends eqLogic {
     public static function triggerLaunch($_option) { // fct appelée par le listener des triggers (mais pas par la cmd start qui elle, va bypasser l'évaluation des conditions !)
     // dans _option on a toutes les infos du trigger (from les champs du JS)
 
-      log::add('sequencing', 'debug', '################ Trigger déclenché, on va évaluer les conditions ############');
+    //  log::add('sequencing', 'debug', '################ Trigger déclenché, on va évaluer les conditions ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
 
@@ -126,7 +128,7 @@ class sequencing extends eqLogic {
 
     public function evaluateTrigger($_option, $_type) { // $_option nous donne l'event_id et la valeur du trigger, $_type nous dit si c'est un trigger ou trigger_cancel
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un trigger encore inconnu');
+    //  log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un trigger encore inconnu');
 
       foreach ($this->getConfiguration($_type) as $trigger) { // on boucle dans tous les trigger ou trigger_cancel de la conf
         if ('#' . $_option['event_id'] . '#' == $trigger['cmd']) {// on cherche quel est l'event qui nous a déclenché pour pouvoir chopper ses infos et évaluer les conditions
@@ -186,7 +188,7 @@ class sequencing extends eqLogic {
 
       if(!is_numeric($value)){
         log::add('sequencing', 'debug', $this->getHumanName() . ' Notre valeur à évaluer n\'est pas numerique');
-        $value = '"'.$value.'"';
+        $value = '"'.$value.'"'; // parfois ca marche sans, parfois ca marche pas... mais ca marche a tous les coup avec !
       }
 
       if($trigger['condition_operator'] != ''){ // on a 2 conditions
@@ -652,6 +654,10 @@ class sequencing extends eqLogic {
               throw new Exception(__('Le champs Capteur ('.$type.') ne peut être vide',__FILE__));
             }
 
+            if (substr_count($trigger['cmd'], '#') < 2) {
+              throw new Exception(__('Attention : '.$trigger['cmd'].' pour : ' . $trigger['name'] . 'n\'est pas être une commande jeedom valide',__FILE__));
+            }
+
             // vérification de la cohérance des conditions de tests
 
             // pas d'operateur entre les 2 conditions alors qu'on a des infos pour la condition 2
@@ -780,10 +786,12 @@ class sequencingCmd extends cmd {
 
       } else { // sinon c'est un sensor et on veut juste sa valeur
 
-        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . str_replace('#', '', jeedom::evaluateExpression($this->getValue())));
+        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . jeedom::evaluateExpression($this->getValue()));
+        return jeedom::evaluateExpression($this->getValue());
 
-      //  return jeedom::evaluateExpression($this->getValue());
-        return str_replace('#', '', jeedom::evaluateExpression($this->getValue())); // s'il y a encore des '#' apres évaluation(cas d'une variable), on les vire et on prend que le resultat
+        //pour la gestion des variables
+        //log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . str_replace('#', '', jeedom::evaluateExpression($this->getValue())));
+        //return str_replace('#', '', jeedom::evaluateExpression($this->getValue())); // s'il y a encore des '#' apres évaluation(cas d'une variable), on les vire et on prend que le resultat
       }
 
     }

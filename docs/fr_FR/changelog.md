@@ -25,3 +25,8 @@
 * Update liens Jeedom dans le template docs
 * Ajout possibilité de vérifier que tous les triggers ou trigger_cancel soient valides pour déclencher (évaluation en ET)
 * Mise à jour documentation
+
+0.0.3 - 20 avril 2020
+---
+
+* Débug affichage champ label et label action de reference

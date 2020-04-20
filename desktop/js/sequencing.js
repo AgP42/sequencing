@@ -169,7 +169,7 @@ function addAction(_action, _type) {
       if(_type == 'action'){ // pour les actions, on ajoute un label et un timer
         div += '<label class="col-sm-1 control-label">{{Label}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner un label si vous voulez lier des actions de désactivations à cette action}}"></i></sup></label>';
         div += '<div class="col-sm-1">';
-          div += '<input type="text" class="expressionAttr form-control cmdInfo" data-l1key="action_label"/>';
+          div += '<input type="" class="expressionAttr form-control cmdInfo" data-l1key="action_label"/>'; // type = "text" fait un bug d'affichage sur le theme noir...
         div += '</div>';
 
         div += '<label class="col-sm-1 control-label">{{Délai avant exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Le délai avant exécution doit être donné (en minutes) par rapport au déclenchement initial et non par rapport à l\'action précédente. Ne pas remplir ou 0 pour déclenchement immédiat.}}"></i></sup></label>';
@@ -181,7 +181,7 @@ function addAction(_action, _type) {
       } else { // pour les action_cancel on ajoute le label de l'action à lier
         div += '<label class="col-sm-2 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
         div += '<div class="col-sm-1">';
-          div += '<input type="text" class="expressionAttr form-control cmdInfo" data-l1key="action_label_liee"/>';
+          div += '<input type="" class="expressionAttr form-control cmdInfo" data-l1key="action_label_liee"/>';
         div += '</div>';
       }
 

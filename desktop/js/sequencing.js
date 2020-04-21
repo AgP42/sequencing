@@ -117,11 +117,12 @@ function addTrigger(_action, _type) {
         div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1">'; // dans la class : ['condition_operator1']
         div += '<option value="" select></option>';
         div += '<option value="==">{{égal}}</option>';
+        div += '<option value="!=">{{différent}}</option>';
         div += '<option value=">=">{{supérieur ou égal}}</option>';
         div += '<option value=">">{{strictement supérieur}}</option>';
         div += '<option value="<=">{{inférieur ou égal}}</option>';
         div += '<option value="<">{{strictement inférieur}}</option>';
-        div += '<option value="!=">{{différent}}</option>';
+    //    div += '<option value="matches">{{contient (matches)}}</option>';
         div += '</select>';
       div += '</div>';
 // TODO : ajouter matches et not() ? (donc ce cas c'est plus des types number dessous)

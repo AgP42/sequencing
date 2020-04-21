@@ -135,9 +135,11 @@ class sequencing extends eqLogic {
         //TODO : gérer les variables ?
         // dans tous les cas on cherche qui nous a declenché pour évaluer la repetition et chopper les infos pour les tags, meme si on doit évaluer tous les triggers de ce _type !
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only']);
+          $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux...
 
-          if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $trigger['name']) != $_option['value']){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
+          log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only'] . ' - valeur : ' . $value);
+
+          if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $trigger['name']) != $value){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
 
             if(($_type == 'trigger' && $this->getConfiguration('trigger_and')) || ($_type == 'trigger_cancel' && $this->getConfiguration('trigger_cancel_and'))) { // si on veut évaluer tous les triggers ("ET")
               log::add('sequencing', 'debug', $this->getHumanName() . ' - ' . $_type . ' et case ET cochée');
@@ -145,21 +147,21 @@ class sequencing extends eqLogic {
               $check = 1;
               foreach ($this->getConfiguration($_type) as $trigger2) { // c'est pas tres joli...
 
-                $value = jeedom::evaluateExpression($trigger2['cmd']); // la valeur courante de cette commande
-                $check *= $this->evaluateConditions($trigger2, $value); // on évalue sa condition et si 1 seul retour 0, $check passera a 0
-                log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat total apres evaluation de : ' . $trigger2['name'] . ' : ' . $check);
+                $value2 = jeedom::evaluateExpression($trigger2['cmd']); // la valeur courante de cette commande
+                $check *= $this->evaluateConditions($trigger2, $value2); // on évalue sa condition et si 1 seul retour 0, $check passera a 0
+                log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat total après évaluation de : ' . $trigger2['name'] . ' : ' . $check);
               }
 
             } else {
-              $check = $this->evaluateConditions($trigger, $_option['value']);
+              $check = $this->evaluateConditions($trigger, $value);
             }
 
             if ($check == 1 || $check || $check == '1') {
 
-              log::add('sequencing', 'info', $this->getHumanName() . ' => Detection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd'] . ' - valeur : ' . $_option['value']);
+              log::add('sequencing', 'info', $this->getHumanName() . ' => Detection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd'] . ' - valeur : ' . $value);
 
               $this->setCache('trigger_name', $trigger['name']);
-              $this->setCache('trigger_value', $_option['value']);
+              $this->setCache('trigger_value', $value);
               $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
               $this->setCache('trigger_time', date('H:i:s'));
 
@@ -177,7 +179,7 @@ class sequencing extends eqLogic {
             log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce trigger est une répétition et on a configuré qu\'on en voulait pas => on fait rien');
           }
 
-          $this->setCache('trigger_' . $_type . $trigger['name'], $_option['value']); // on garde la valeur en cache pour gestion de la repetition
+          $this->setCache('trigger_' . $_type . $trigger['name'], $value); // on garde la valeur en cache pour gestion de la repetition
 
         }
       }
@@ -187,7 +189,7 @@ class sequencing extends eqLogic {
     public function evaluateConditions($trigger, $value) {
 
       if(!is_numeric($value)){
-        log::add('sequencing', 'debug', $this->getHumanName() . ' Notre valeur à évaluer n\'est pas numerique');
+        log::add('sequencing', 'debug', $this->getHumanName() . ' Notre valeur à évaluer n\'est pas numerique : ' . $value);
         $value = '"'.$value.'"'; // parfois ca marche sans, parfois ca marche pas... mais ca marche a tous les coup avec !
       }
 
@@ -195,8 +197,14 @@ class sequencing extends eqLogic {
         log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $value . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $value . $trigger['condition_operator2'] . $trigger['condition_test2']);
         $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $value . $trigger['condition_operator2'] . $trigger['condition_test2']);
       } else if($trigger['condition_operator1'] != ''){ // une seule condition
+
         log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+
         $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+
+    //    $check2 = evaluate($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+    //    log::add('sequencing', 'debug', $this->getHumanName() . ' resultat 1 et 2 : ' . $check . ' - ' . $check2);
+
       } else { // sinon on a pas de condition : tout est valide
         $check = 1;
       }
@@ -282,7 +290,7 @@ class sequencing extends eqLogic {
 
         }else{ // pas de timer valide defini, on execute l'action immédiatement
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Pas de timer liée, on execute ' . $action['cmd']);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Pas de timer lié, on execute ' . $action['cmd']);
 
           $this->execAction($action);
 
@@ -655,7 +663,7 @@ class sequencing extends eqLogic {
             }
 
             if (substr_count($trigger['cmd'], '#') < 2) {
-              throw new Exception(__('Attention : '.$trigger['cmd'].' pour : ' . $trigger['name'] . 'n\'est pas être une commande jeedom valide',__FILE__));
+              throw new Exception(__('Attention : '.$trigger['cmd'].' pour : ' . $trigger['name'] . ' n\'est pas être une commande jeedom valide',__FILE__));
             }
 
             // vérification de la cohérance des conditions de tests

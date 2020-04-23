@@ -1,5 +1,12 @@
 # Beta
 
+0.0.5 - 22 avril 2020
+---
+
+* Changement ordre évaluation d'un || pour éviter un warning
+* Ajout lancement de la saugevarde lors de l'activation du plugin pour relancer les listeners et cron (à voir à l'usage si c'est une vrai bonne idée...)
+* Debug cas où l'annulation est appelée en différée par la liste des actions - et réécriture de la fonction cleanAllCron()
+
 0.0.4 - 21 avril 2020
 ---
 

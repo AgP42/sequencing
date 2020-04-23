@@ -381,11 +381,28 @@ class sequencing extends eqLogic {
 
       log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct cleanAllCron');
 
-  //    cron::clean();
+      $crons = cron::searchClassAndFunction('sequencing','actionDelayed'); // on prend tous nos crons de ce plugin, cette fonction, pour tous les equipements
+      if (is_array($crons) && count($crons) > 0) {
+        foreach ($crons as $cron) {
+          if (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId() && $cron->getState() != 'run') { // si l'id correspond et qu'il est pas en cours, on le vire
 
-      $cron = cron::byClassAndFunction('sequencing', 'actionDelayed'); //on cherche le 1er cron pour ce plugin et cette action (il n'existe pas de fonction core renvoyant un array avec tous les cron de la class, comme pour les listeners... dommage...)
+            log::add('sequencing', 'debug', $this->getHumanName() . ' - Cron trouvé à supprimer pour eqLogic_id : ' . $cron->getOption()['eqLogic_id'] . ' - cmd : ' . ' - ' . $cron->getOption()['action']['cmd'] . ' - action_label : ' . $cron->getOption()['action']['action_label']);
 
-      while (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId()) { // s'il existe et que l'id correspond, on le vire puis on cherche le suivant et tant qu'il y a un suivant on boucle
+            if($displayWarningMessage){
+
+              log::add('sequencing', 'error', $this->getHumanName() . ' - Attention, des actions avec un délai avant exécution étaient en cours et vont être supprimées, action supprimée : ' . $cron->getOption()['action']['cmd'] . ' - action_label : ' . $cron->getOption()['action']['action_label']);
+            }
+
+            $cron->remove();
+
+          }
+        }
+      }
+
+
+/*      $cron = cron::byClassAndFunction('sequencing', 'actionDelayed'); //on cherche le 1er cron pour ce plugin et cette action (il n'existe pas de fonction core renvoyant un array avec tous les cron de la class, comme pour les listeners... dommage...) => en fait si : searchClassAndFunction, voir new fct ci-dessus
+
+      while (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId() && $cron->getState() != 'run') { // s'il existe et que l'id correspond et qu'il est pas en cours, on le vire puis on cherche le suivant et tant qu'il y a un suivant on boucle
 
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Cron trouvé à supprimer pour eqLogic_id : ' . $cron->getOption()['eqLogic_id'] . ' - cmd : ' . ' - ' . $cron->getOption()['action']['cmd'] . ' - action_label : ' . $cron->getOption()['action']['action_label']);
 
@@ -396,7 +413,7 @@ class sequencing extends eqLogic {
 
         $cron->remove();
         $cron = cron::byClassAndFunction('sequencing', 'actionDelayed'); // on cherche le suivant
-      }
+      }*/
 
     }
 
@@ -502,7 +519,7 @@ class sequencing extends eqLogic {
               $cmd->save();
 
               // va chopper la valeur de la commande puis la suivre a chaque changement
-              if (is_nan($cmd->execCmd()) || $cmd->execCmd() == '') {
+              if ($cmd->execCmd() == '' || is_nan($cmd->execCmd())) {
                 $cmd->setCollectDate('');
                 $cmd->event($cmd->execute());
               }
@@ -538,7 +555,7 @@ class sequencing extends eqLogic {
           $cmd->save();
 
           // va chopper la valeur de la commande puis la suivre a chaque changement
-          if (is_nan($cmd->execCmd()) || $cmd->execCmd() == '') {
+          if ($cmd->execCmd() == '' || is_nan($cmd->execCmd())) {
             $cmd->setCollectDate('');
             $cmd->event($cmd->execute());
           }
@@ -600,9 +617,11 @@ class sequencing extends eqLogic {
             $cron->setTimeout(5); //minutes
             $cron->setSchedule(checkAndFixCron($prog));
 
+            $cron->setLastRun(date('Y-m-d H:i:s'));
+
             $cron->save();
 
-            log::add('sequencing', 'debug', $this->getHumanName() . ' - Set CRON start programmation : ' . $prog);
+            log::add('sequencing', 'debug', $this->getHumanName() . ' - Set CRON start programmation : ' . $prog . ' lastrun : ' . $cron->getLastRun());
 
         } else if(is_object($cron) && $prog != '') { // si cron existant et programmation non vide, on le met à jour
 
@@ -610,7 +629,7 @@ class sequencing extends eqLogic {
 
           $cron->save();
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Update CRON start programmation : ' . $prog);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Update CRON start programmation : ' . $prog . ' lastrun : ' . $cron->getLastRun());
 
         } else if (is_object($cron) && $prog == '') { // le cron existe mais on veut plus de programmation : on va le virer
 

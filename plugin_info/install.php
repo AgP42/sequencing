@@ -20,6 +20,13 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 function sequencing_install() {
 
+  $eqLogics = eqLogic::byType('sequencing');
+  foreach ($eqLogics as $eqLogic) {
+    if ($eqLogic->getIsEnable() == 1) {
+      $eqLogic->postSave();
+    }
+  }
+
 }
 
 function sequencing_update() {

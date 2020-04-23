@@ -155,8 +155,6 @@ Remarques :
 * Lors de l'enregistrement ou de la suppression de l'équipement, si des actions étaient enregistrées, elles seront supprimées avec un message d'erreur donnant le nom de l'action supprimée
 * Les mots-clés spécifiques des scénarios Jeedom comme "pause" ou "attendre" n'auront pas d'effet ici
 * Vous pouvez choisir plusieurs actions ayant le même délai, elles seront alors exécutées simultanément après le délai voulu
-* Attention, vous ne pouvez pas utiliser une action avec un délai pour couper votre propre séquence. Utilisez pour cela un scénario Jeedom.
-
 
 Onglet **Déclencheurs d'annulation**
 ---

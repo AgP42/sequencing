@@ -69,7 +69,11 @@ Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez d
    * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décalée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle ait été initialement lancée par le déclencheur 1).
    * Tags disponibles :
       * #trigger_name# : plusieurs possibilités :
-         * le **Nom** du déclencheur s'il s'agit d'un déclencheur interne du plugin.
+         * le **Nom** du déclencheur (celui que vous avez saisi dans l'onglet Déclencheur ou Déclencheur d'annulation) s'il s'agit d'un déclencheur interne du plugin.
+         * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
+         * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
+      * #trigger_full_name# : plusieurs possibilités :
+         * le **HumanName** Jeedom du déclencheur s'il s'agit d'un déclencheur interne du plugin ([Objet][Equipement][cmd])
          * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
          * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
       * #trigger_value# : la valeur du déclencheur, uniquement pour les déclenchements par un déclencheur interne du plugin. Sera vide dans les autres cas.

@@ -1,5 +1,12 @@
 # Beta
 
+0.0.6 - 24 avril 2020
+---
+
+* Correction coquilles dans les logs
+* Changement log info pour ajouter le humanName
+* Ajout du tag #trigger_full_name#
+
 0.0.5 - 23 avril 2020
 ---
 

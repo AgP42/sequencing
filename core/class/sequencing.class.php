@@ -26,6 +26,7 @@ Les valeurs en cache utilisés :
 
 * le nom, la valeur et l'heure du dernier trigger OU trigger_cancel
   $this->setCache('trigger_name', $trigger['name']);
+  $eqLogic->setCache('trigger_full_name', 'user/api');
   $this->setCache('trigger_value', $_option['value']);
   $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
   $this->setCache('trigger_time', date('H:i:s'));
@@ -44,13 +45,13 @@ class sequencing extends eqLogic {
 
     /*     * ***********************Methode static*************************** */
 
-    public static function actionDelayed($_options) { // fonction appelée par les cron qui servent a reporter l'execution des actions
-    // Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour executer l'action reportée, incluant le titre et message pour les messages
+    public static function actionDelayed($_options) { // fonction appelée par les cron qui servent a reporter l'exécution des actions
+    // Dans les options on trouve le eqLogic_id et 'action' qui lui meme contient tout ce qu'il faut pour exécuter l'action reportée, incluant le titre et message pour les messages
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
       if (is_object($sequencing)) {
-        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct actionDelayed appellée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct actionDelayed appelée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . $_options['action']['action_label']);
 
         $sequencing->execAction($_options['action']);
       } else {
@@ -65,9 +66,10 @@ class sequencing extends eqLogic {
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
       if (is_object($sequencing)) {
-        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appellée par le CRON');
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appelée par le CRON');
 
         $sequencing->setCache('trigger_name', 'programmé');
+        $eqLogic->setCache('trigger_full_name', 'programmé');
         $sequencing->setCache('trigger_value', '');
         $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
         $sequencing->setCache('trigger_time', date('H:i:s'));
@@ -128,7 +130,7 @@ class sequencing extends eqLogic {
 
     public function evaluateTrigger($_option, $_type) { // $_option nous donne l'event_id et la valeur du trigger, $_type nous dit si c'est un trigger ou trigger_cancel
 
-    //  log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un trigger encore inconnu');
+    //  log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un trigger encore inconnu');
 
       foreach ($this->getConfiguration($_type) as $trigger) { // on boucle dans tous les trigger ou trigger_cancel de la conf
         if ('#' . $_option['event_id'] . '#' == $trigger['cmd']) {// on cherche quel est l'event qui nous a déclenché pour pouvoir chopper ses infos et évaluer les conditions
@@ -137,7 +139,7 @@ class sequencing extends eqLogic {
 
           $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux...
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' => Detection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only'] . ' - valeur : ' . $value);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only'] . ' - valeur : ' . $value);
 
           if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $trigger['name']) != $value){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
 
@@ -158,10 +160,14 @@ class sequencing extends eqLogic {
 
             if ($check == 1 || $check || $check == '1') {
 
-              log::add('sequencing', 'info', $this->getHumanName() . ' => Detection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd'] . ' - valeur : ' . $value);
+              $trigger_cmd = cmd::byId($_option['event_id']);
+              $trigger_full_name = $trigger_cmd->getHumanName();
+
+              log::add('sequencing', 'info', $this->getHumanName() . ' => Détection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - Déclencheur : ' . $trigger_full_name . ' - valeur : ' . $value);
 
               $this->setCache('trigger_name', $trigger['name']);
               $this->setCache('trigger_value', $value);
+              $this->setCache('trigger_full_name', $trigger_full_name);
               $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
               $this->setCache('trigger_time', date('H:i:s'));
 
@@ -215,9 +221,9 @@ class sequencing extends eqLogic {
 
     }
 
-    public function execAction($action) { // execution d'une seule action
+    public function execAction($action) { // exécution d'une seule action
 
-      log::add('sequencing', 'debug', $this->getHumanName() . '################ Execution de l\' action ' . $action['action_label'] . ' ############');
+      log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\' action ' . $action['action_label'] . ' ############');
 
       try {
         $options = array(); // va permettre d'appeler les options de configuration des actions, par exemple un scenario ou les textes pour un message
@@ -234,6 +240,7 @@ class sequencing extends eqLogic {
             $value = str_replace('#action_label_liee#', $action['action_label_liee'], $value);
 
             $value = str_replace('#trigger_name#', $this->getCache('trigger_name'), $value);
+            $value = str_replace('#trigger_full_name#', $this->getCache('trigger_full_name'), $value);
             $value = str_replace('#trigger_value#', $this->getCache('trigger_value'), $value);
             $value = str_replace('#trigger_datetime#', $this->getCache('trigger_datetime'), $value);
             $value = str_replace('#trigger_time#', $this->getCache('trigger_time'), $value);
@@ -278,13 +285,13 @@ class sequencing extends eqLogic {
 
     public function actionsLaunch() { // fct appelée par la cmd 'start' appelée par l'extérieur ou par un trigger valide (via fonction triggerLaunch) ou via le cron de programmation
 
-      log::add('sequencing', 'debug', $this->getHumanName() . '################ Evaluation timers et lancement des actions ############');
+      log::add('sequencing', 'debug', $this->getHumanName() . '################ Évaluation timers et lancement des actions ############');
 
       foreach ($this->getConfiguration('action') as $action) { // pour toutes les actions définies
 
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Config Action - action_label : ' . $action['action_label'] . ' - action_timer : ' . $action['action_timer'] . ' - reporter : ' . $action['reporter']);
 
-        if(is_numeric($action['action_timer']) && $action['action_timer'] > 0){ // si on a un timer bien defini et > 0 min, on va lancer un cron pour l'execution retardée de l'action
+        if(is_numeric($action['action_timer']) && $action['action_timer'] > 0){ // si on a un timer bien defini et > 0 min, on va lancer un cron pour l'exécution retardée de l'action
 
           $this->setCronDelay($action);
 
@@ -307,9 +314,9 @@ class sequencing extends eqLogic {
 
       foreach ($this->getConfiguration('action_cancel') as $action) { // pour toutes les actions d'annulation définies
 
-        $execActionLiee = $this->getCache('execAction_'.$action['action_label_liee']); // on va lire le cache d'execution de l'action liée, savoir si deja lancé ou non...
+        $execActionLiee = $this->getCache('execAction_'.$action['action_label_liee']); // on va lire le cache d'exécution de l'action liée, savoir si déjà lancé ou non...
 
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Config Action Annulation, action : '. $action['cmd'] .', label action liée : ' . $action['action_label_liee'] . ' - action liée deja executée : ' . $execActionLiee);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Config Action Annulation, action : '. $action['cmd'] .', label action liée : ' . $action['action_label_liee'] . ' - action liée déjà exécutée : ' . $execActionLiee);
 
         if($action['action_label_liee'] == ''){ // si pas d'action liée, on execute direct
 
@@ -317,16 +324,16 @@ class sequencing extends eqLogic {
 
           $this->execAction($action);
 
-        }else if(isset($action['action_label_liee']) && $action['action_label_liee'] != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été executée => on execute notre action et on remet le cache de l'action liée à 0
+        }else if(isset($action['action_label_liee']) && $action['action_label_liee'] != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été exécutée => on execute notre action et on remet le cache de l'action liée à 0
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.$action['action_label_liee'].') executée précédemment, donc on execute ' . $action['cmd'] . ' et remise à 0 du cache d\'exec de l\'action origine');
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.$action['action_label_liee'].') exécutée précédemment, donc on execute ' . $action['cmd'] . ' et remise à 0 du cache d\'exéc de l\'action origine');
 
           $this->execAction($action);
 
           $this->setCache('execAction_'.$action['action_label_liee'], 0);
 
         }else{ // sinon, on log qu'on n'execute pas l'action et la raison
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.$action['action_label_liee'].') non executée précédemment, donc on execute pas ' . $action['cmd']);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.$action['action_label_liee'].') non exécutée précédemment, donc on execute pas ' . $action['cmd']);
         }
 
       } // fin foreach toutes les actions
@@ -360,7 +367,7 @@ class sequencing extends eqLogic {
           $delai = strtotime(date('Y-m-d H:i:s', strtotime('+'.$action['action_timer'].' min ' . date('Y-m-d H:i:s')))); // on lui dit de se déclencher dans 'action_timer' min
           $cron->setSchedule(cron::convertDateToCron($delai));
 
-          $cron->setOnce(1); //permet qu'il s'auto supprime une fois executé
+          $cron->setOnce(1); //permet qu'il s'auto supprime une fois exécuté
           $cron->save();
 
       } else if($action['reporter']) { // si on a bien trouvé notre cron mais on a un new trigger et on a choisi dans ce cas de reporter l'actions
@@ -452,7 +459,7 @@ class sequencing extends eqLogic {
 
     }
 
-    // Méthode appellée après la création de votre objet --> on va créer les cmd de déclenchement et annulation
+    // Méthode appelée après la création de votre objet --> on va créer les cmd de déclenchement et annulation
     public function postInsert() {
 
       $cmd = $this->getCmd(null, 'start');
@@ -495,7 +502,7 @@ class sequencing extends eqLogic {
 
     }
 
-    // fct appellée par Jeedom aprés l'enregistrement de la configuration
+    // fct appelée par Jeedom aprés l'enregistrement de la configuration
     public function postSave() {
 
       //########## 1 - On va lire la configuration des capteurs dans le JS et on la stocke dans un tableau #########//
@@ -603,7 +610,7 @@ class sequencing extends eqLogic {
           if (!is_object($listener)) { // s'il existe pas, on le cree, sinon on le reprend
             $listener = new listener();
             $listener->setClass('sequencing');
-            $listener->setFunction($listenerFunction); // la fct qui sera appellée a chaque evenement sur une des sources écoutée
+            $listener->setFunction($listenerFunction); // la fct qui sera appelée a chaque evenement sur une des sources écoutée
             $listener->setOption(array('sequencing_id' => intval($this->getId())));
           }
           $listener->addEvent($cmd->getValue()); // on ajoute les event à écouter de chacun des capteurs definis. On cherchera le trigger a l'appel de la fonction si besoin
@@ -668,7 +675,7 @@ class sequencing extends eqLogic {
 
     } // fin fct postSave
 
-    // preUpdate ⇒ Méthode appellée avant la mise à jour de votre objet
+    // preUpdate ⇒ Méthode appelée avant la mise à jour de votre objet
     // ici on vérifie la présence de nos champs de config obligatoire
     public function preUpdate() {
 
@@ -793,6 +800,7 @@ class sequencingCmd extends cmd {
         log::add('sequencing', 'debug', $this->getHumanName() . 'Appel start');
 
         $eqLogic->setCache('trigger_name', 'user/api');
+        $eqLogic->setCache('trigger_full_name', 'user/api');
         $eqLogic->setCache('trigger_value', '');
         $eqLogic->setCache('trigger_datetime', date('Y-m-d H:i:s'));
         $eqLogic->setCache('trigger_time', date('H:i:s'));
@@ -805,6 +813,7 @@ class sequencingCmd extends cmd {
         log::add('sequencing', 'debug', $this->getHumanName() . 'Appel stop');
 
         $eqLogic->setCache('trigger_name', 'user/api');
+        $eqLogic->setCache('trigger_full_name', 'user/api');
         $eqLogic->setCache('trigger_value', '');
         $eqLogic->setCache('trigger_datetime', date('Y-m-d H:i:s'));
         $eqLogic->setCache('trigger_time', date('H:i:s'));

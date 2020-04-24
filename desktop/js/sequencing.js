@@ -168,9 +168,14 @@ function addAction(_action, _type) {
     div += '<div class="form-group ">';
 
       if(_type == 'action'){ // pour les actions, on ajoute un label et un timer
-        div += '<label class="col-sm-1 control-label">{{Label}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner un label si vous voulez lier des actions de désactivations à cette action}}"></i></sup></label>';
+      //  div += '<label class="col-sm-1 control-label">{{Label}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner un label si vous voulez lier des actions de désactivations à cette action}}"></i></sup></label>';
         div += '<div class="col-sm-1">';
-          div += '<input type="" class="expressionAttr form-control cmdInfo" data-l1key="action_label"/>'; // type = "text" fait un bug d'affichage sur le theme noir...
+          div += '<div class="input-group">';
+            div += '<span class="input-group-btn">';
+              div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
+            div += '</span>';
+            div += '<input type="" class="expressionAttr form-control cmdInfo" data-l1key="action_label" placeholder="{{Label}}"/>'; // type = "text" fait un bug d'affichage sur le theme noir...
+          div += '</div>';
         div += '</div>';
 
         div += '<label class="col-sm-1 control-label">{{Délai avant exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Le délai avant exécution doit être donné (en minutes) par rapport au déclenchement initial et non par rapport à l\'action précédente. Ne pas remplir ou 0 pour déclenchement immédiat.}}"></i></sup></label>';
@@ -180,19 +185,30 @@ function addAction(_action, _type) {
         div += '</div>';
 
       } else { // pour les action_cancel on ajoute le label de l'action à lier
-        div += '<label class="col-sm-2 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
-        div += '<div class="col-sm-1">';
-          div += '<input type="" class="expressionAttr form-control cmdInfo" data-l1key="action_label_liee"/>';
-        div += '</div>';
-      }
 
-      div += '<label class="col-sm-1 control-label">Action</label>';
-      div += '<div class="col-sm-2">';
+       //   div += '<label class="col-sm-2 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
+          div += '<div class="col-sm-2">';
         div += '<div class="input-group">';
           div += '<span class="input-group-btn">';
             div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
           div += '</span>';
-          div += '<input class="expressionAttr form-control cmdAction" data-l1key="cmd" data-type="' + _type + '" />';
+            div += '<input type="" class="expressionAttr form-control cmdInfo" data-l1key="action_label_liee" placeholder="{{Label action de référence}}"/>';
+          div += '</div>';
+        div += '</div>';
+      }
+
+      div += '<label class="col-sm-1 control-label">{{Limiter exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Si vous souhaitez limiter le nombre d\'exécution sur une période donnée (en minutes). Ne pas remplir ou 0 pour exécuter systèmatiquement.}}"></i></sup></label>';
+      div += '<div class="col-sm-1">';
+          div += '<input type="number" class="expressionAttr form-control" data-l1key="action_time_limit" placeholder="{{en minutes}}"/>';
+      div += '</div>';
+
+    //  div += '<label class="col-sm-1 control-label">Action</label>';
+      div += '<div class="col-sm-3">';
+        div += '<div class="input-group">';
+      //    div += '<span class="input-group-btn">';
+      //      div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
+      //    div += '</span>';
+          div += '<input class="expressionAttr form-control cmdAction" data-l1key="cmd" data-type="' + _type + '" placeholder="{{Action}}"/>';
           div += '<span class="input-group-btn">';
             div += '<a class="btn btn-default listAction" data-type="' + _type + '" title="{{Sélectionner un mot-clé}}"><i class="fa fa-tasks"></i></a>';
             div += '<a class="btn btn-default listCmdAction roundedRight" data-type="' + _type + '" title="{{Sélectionner une commande}}"><i class="fas fa-list-alt"></i></a>';
@@ -200,7 +216,7 @@ function addAction(_action, _type) {
         div += '</div>';
       div += '</div>';
 
-      div += '<div class="col-sm-5 actionOptions">'; // on laisse la place pour afficher les champs "message" ou autre selon les options associées à l'action choisie par l'utilisateur si besoin
+      div += '<div class="col-sm-4 actionOptions">'; // on laisse la place pour afficher les champs "message" ou autre selon les options associées à l'action choisie par l'utilisateur si besoin
         div += jeedom.cmd.displayActionOption(init(_action.cmd, ''), _action.options);
       div += '</div>';
 

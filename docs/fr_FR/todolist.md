@@ -12,7 +12,7 @@
         ◦ Ajout des conditions d’évaluation Regex (matches)
         ◦ Conditionner selon plage horaire (datetime picker de début et fin de période pour commencer, en verra après si début/fin peuvent être des commandes (heure de levé du soleil, …) -> sera utilisé en condition uniquement, en complément d’autres déclencheurs. Ne sera pas un déclencheur en soit.
         ◦ Séquencement des conditions : il faut condition 1 puis condition 2 puis condition 3 pour déclencher
-        ◦ pouvoir appliquer un délai d’exécution sur une action annulation
+        ◦ pouvoir appliquer un délai d’exécution sur une action annulation => NON
     • Priorité 3 (en gros : je le ferais pas sauf si plébiscité sur le forum…) :
         ◦ Conditions personnalisée entre les déclencheurs (« cond1 ET (cond1 OU cond2) OU (cond3 XOR cond1) »)
         ◦ Déclenchement sur condition valide plus de xx minutes

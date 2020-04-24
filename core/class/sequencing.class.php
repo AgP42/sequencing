@@ -69,7 +69,7 @@ class sequencing extends eqLogic {
         log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appelée par le CRON');
 
         $sequencing->setCache('trigger_name', 'programmé');
-        $eqLogic->setCache('trigger_full_name', 'programmé');
+        $sequencing->setCache('trigger_full_name', 'programmé');
         $sequencing->setCache('trigger_value', '');
         $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
         $sequencing->setCache('trigger_time', date('H:i:s'));
@@ -223,7 +223,21 @@ class sequencing extends eqLogic {
 
     public function execAction($action) { // exécution d'une seule action
 
-      log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\' action ' . $action['action_label'] . ' ############');
+      log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action ' . $action['action_label'] . ' ############');
+
+      if(isset($action['action_time_limit'])){ // si on veut limiter la fréquence d'exécution
+
+        $now = time();
+        $tempsDepuisAction = $now - $this->getCache('execAction_'.$action['cmd'].'_'.$action['action_label'].'_'.$action['action_label_liee'].'_lastExec');
+
+        log::add('sequencing', 'debug', 'tempsDepuisAction (s) : ' . $tempsDepuisAction . ' - période voulue sans répétition (s) : ' . $action['action_time_limit']*60);
+
+        if ($tempsDepuisAction < $action['action_time_limit']*60){
+
+          log::add('sequencing', 'debug', 'Action déjà exécutée dans la période => on ne l\'exécute pas');
+          return;
+        }
+      }
 
       try {
         $options = array(); // va permettre d'appeler les options de configuration des actions, par exemple un scenario ou les textes pour un message
@@ -273,6 +287,12 @@ class sequencing extends eqLogic {
         if(isset($action['action_label'])){ // si on avait un label (donc c'est une action), on memorise qu'on l'a lancé
           $this->setCache('execAction_'.$action['action_label'], 1);
       //    log::add('sequencing', 'debug', 'setCache TRUE pour label : ' . $action['action_label']);
+        }
+
+        if(isset($action['action_time_limit'])){ // si on veut limiter la fréquence d'exécution
+          // garde en cache le timestamp de la derniere exéc
+          $this->setCache('execAction_'.$action['cmd'].'_'.$action['action_label'].'_'.$action['action_label_liee'].'_lastExec', $now); // on met un max de truc pour eviter les interferences entre actions, vu qu'on demande pas de nom unique et que la cmd peut etre utilisée plusieurs fois...
+          log::add('sequencing', 'debug', 'setCache : execAction_'.$action['cmd'].'_'.$action['action_label'].'_'.$action['action_label_liee'].'_lastExec - timestamp : ' . $now);
         }
 
       } catch (Exception $e) {

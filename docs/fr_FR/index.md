@@ -152,6 +152,7 @@ Cliquer sur "ajouter une action" pour définir une ou plusieurs actions puis les
    * délai supérieure à 0 : cette action sera enregistrée dans le moteur de tâches Jeedom (cron) pour une exécution différée selon le délai voulu.
    * le délai doit être saisi par rapport au déclenchement. Si vous souhaitez 3 actions, l'une immédiate puis 10 min après puis 10 min après, il faudra saisir 0, 10 et 20.
    * **Reporter** : permet de définir le comportement de l'action différée dans le cas d'un déclenchement multiple : laisser l'action à sa programmation initiale ou la reporter pour correspondre au dernier déclenchement.
+* **Limiter exécution** : permet de limiter la fréquence de l'exécution de cette action. Laisser vide ou 0 pour une exécution systématique. Si vous avez plusieurs actions dont la commande est la même (cas des messages par exemples) et dont vous souhaitez limiter l'exécution, il est souhaitable de saisir un label pour cette action pour éviter les interférences dans le calcul de la dernière date d'exécution.
 * **Action** : la commande Jeedom correspondant à l'action voulue. Pour les actions de type "message", vous pouvez utiliser les tags définis ci-dessus. Les actions peuvent être des "mots-clés" Jeedom, pour lancer un scénario ou définir la valeur d'une variable par exemple.
 
 Remarques :
@@ -216,6 +217,7 @@ Cliquer sur "ajouter une action" pour définir une ou plusieurs actions d'annula
    * Lorsque le label est renseigné et correspond à une action d'alerte, il faut que l'action d'alerte de référence ait été précédemment exécutée pour que la présente action s'exécute.
    * Attention, si vous renseignez un label qui n'existe pas (et donc ne sera jamais exécuté), l'action liée ne s'exécutera jamais. Vous ne pouvez donc pas utiliser ce champ pour personnaliser un tag liée à cette action uniquement.
    * Laissez le champs vide pour exécuter l'action d'annulation sans condition (à chaque déclenchement d'annulation)
+* **Limiter exécution** : permet de limiter la fréquence de l'exécution de cette action. Laisser vide ou 0 pour une exécution systématique. Si vous avez plusieurs actions dont la commande est la même (cas des messages par exemples) et dont vous souhaitez limiter l'exécution, il est souhaitable de saisir un "label action de référence" (valide, sinon l'action ne sera jamais exécutée) pour cette action pour éviter les interférences dans le calcul de la dernière date d'exécution.
 * **Action** : la commande jeedom correspondant à l'action voulue. Pour les actions de type "message", vous pouvez utiliser les tags définis ci-dessus. Les actions peuvent être des "mots-clés" Jeedom, pour lancer un scénario ou définir la valeur d'une variable par exemple.
 
 Onglet **Avancé - Commandes Jeedom**

@@ -218,7 +218,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
       <form class="form-horizontal">
         <fieldset>
-          <legend><i class="fas fa-hand-point-right"></i> {{Actions}} <sup><i class="fas fa-question-circle tooltips" title="{{Actions à déclencher à l'activation d'un déclencheur. Tags utilisable : voir doc}}"></i></sup>
+          <legend><i class="fas fa-hand-point-right"></i> {{Actions}} <sup><i class="fas fa-question-circle tooltips" title="{{Actions à réaliser. Renseigner un label si vous voulez lier des actions de désactivations à une action. Tags utilisable : voir doc}}"></i></sup>
             <a class="btn btn-success btn-sm addAction" data-type="action" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter une action}}</a>
           </legend>
           <div id="div_action"></div>

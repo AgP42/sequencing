@@ -6,6 +6,10 @@
 * Correction coquilles dans les logs
 * Changement log info pour ajouter le humanName
 * Ajout du tag #trigger_full_name#
+* Ajout limitation d'exécution pour les actions et actions d'annulation
+* Mise à jour page de configuration des actions et actions d'annulation
+* Mise à jour documentation en conséquence
+* Tests sur jeedom v4.0.52
 
 0.0.5 - 23 avril 2020
 ---

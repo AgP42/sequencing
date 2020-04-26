@@ -22,9 +22,24 @@ $("#div_trigger_cancel").sortable({axis: "y", cursor: "move", items: ".trigger_c
 $("#div_action_cancel").sortable({axis: "y", cursor: "move", items: ".action_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 
-// ajoute chaque ligne de trigger ou trigger_cancel
-$('.addTrigger').off('click').on('click', function () {
-  addTrigger({}, $(this).attr('data-type'));
+// ajoute chaque ligne de trigger ou trigger_cancel pour condition sur valeur
+$('.addTriggerValue').off('click').on('click', function () {
+  addTriggerValue({}, $(this).attr('data-type'));
+});
+
+// ajoute chaque ligne de trigger ou trigger_cancel pour condition sur répétition valeur
+$('.addTriggerRep').off('click').on('click', function () {
+  addTriggerRep({}, $(this).attr('data-type'));
+});
+
+// ajoute chaque ligne de trigger ou trigger_cancel pour programmation
+$('.addTriggerProg').off('click').on('click', function () {
+  addTriggerProg({}, $(this).attr('data-type'));
+});
+
+// ajoute chaque ligne de trigger ou trigger_cancel pour condition sur plage horaire
+$('.addTriggerTimeRange').off('click').on('click', function () {
+  addTriggerTimeRange({}, $(this).attr('data-type'));
 });
 
 // ajoute chaque ligne d'action ou action_cancel
@@ -39,12 +54,20 @@ $("body").off('click','.bt_removeAction').on('click','.bt_removeAction',function
 });
 
 // permet d'afficher la liste des cmd Jeedom pour choisir sa commande de type "info" (pas les actions donc)
-$("body").off('click', '.listCmdInfoWindow').on('click', '.listCmdInfoWindow',function () {
+$("body").off('click','.bt_selectTrigger').on('click','.bt_selectTrigger',  function (event) {
   var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
-  jeedom.cmd.getSelectModal({cmd: {type: 'info', subtype: 'binary'}}, function (result) {
+  jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
     el.value(result.human);
   });
 });
+
+/*// permet la selection des variables comme trigger
+$("body").off('click','.bt_selectDataStoreTrigger').on( 'click','.bt_selectDataStoreTrigger', function (event) {
+  var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
+  jeedom.dataStore.getSelectModal({cmd: {type: 'info'}}, function (result) {
+    el.value(result.human);
+  });
+});*/
 
 // affiche les cmd jeedom de type action
 $("body").off('click','.listCmdAction').on('click','.listCmdAction', function () {
@@ -84,36 +107,37 @@ $('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focuso
 });
 
 // chaque ligne de trigger ou trigger_cancel
-function addTrigger(_action, _type) {
+function addTriggerValue(_action, _type) {
   var div = '<div class="' + _type + '">';
-    div += '<div class="form-group ">';
+    div += '<div class="form-group expressionAttr" data-l1key="trigger_value">';
 
-      div += '<label class="col-sm-1 control-label">{{Nom}}</label>';
-      div += '<div class="col-sm-1">';
+      div += '<label class="col-sm-1 control-label">{{Valeur}}</label>';
+      div += '<div class="col-sm-5 col-md-1">';
         div += '<div class="input-group">';
           div += '<span class="input-group-btn">';
           div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer le bouton}}""><i class="fas fa-minus-circle"></i></a>';
           div += '</span>';
-          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}"/>'; // dans la class ['name']
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
         div += '</div>';
       div += '</div>';
 
-      div += '<label class="col-sm-1 control-label">Capteur</label>';
-      div += '<div class="col-sm-2">';
+  //    div += '<label class="col-sm-1 control-label">Capteur</label>';
+      div += '<div class="col-sm-5 col-md-2">';
         div += '<div class="input-group">';
-          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" />';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" placeholder="{{Commande}}"/>';
           div += '<span class="input-group-btn">';
-            div += '<a class="btn btn-default listCmdInfoWindow roundedRight"><i class="fas fa-list-alt"></i></a>';
+            div += '<a class="btn btn-default cursor bt_selectTrigger" title="{{Choisir une commande}}"><i class="fas fa-list-alt"></i></a>';
+        //    div += '<a class="btn btn-default cursor bt_selectDataStoreTrigger" title="{{Choisir une variable}}"><i class="fas fa-calculator"></i></a>';
           div += '</span>';
         div += '</div>';
       div += '</div>';
 
-      div += '<div class="col-sm-1">';
+      div += '<div class="col-sm-2 col-md-1">';
         div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="new_value_only"/>{{Filtrer répétitions}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour ne prendre en compte que les nouvelles valeurs}}"></i></sup></label></span>';
       div += '</div>';
 
-      div += '<label class="col-sm-1 control-label">{{Conditions}}</label>';
-      div += '<div class="col-sm-1">';
+      div += '<label class="col-sm-2 col-md-1 control-label">{{Conditions}}</label>';
+      div += '<div class="col-sm-2 col-md-1">';
         div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1">'; // dans la class : ['condition_operator1']
         div += '<option value="" select></option>';
         div += '<option value="==">{{égal}}</option>';
@@ -127,11 +151,11 @@ function addTrigger(_action, _type) {
       div += '</div>';
 // TODO : ajouter matches et not() ? (donc ce cas c'est plus des types number dessous)
 
-      div += '<div class="col-sm-1">';
+      div += '<div class="col-sm-2 col-md-1">';
         div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test1" />';
       div += '</div>';
 
-      div += '<div class="col-sm-1">';
+      div += '<div class="col-sm-1 col-md-1">';
         div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator">';
         div += '<option value="" select></option>';
         div += '<option value="&&">{{ET}}</option>';
@@ -140,7 +164,7 @@ function addTrigger(_action, _type) {
         div += '</select>';
       div += '</div>';
 
-      div += '<div class="col-sm-1">';
+      div += '<div class="col-sm-2 col-md-1">';
         div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2">';
         div += '<option value="" select></option>';
         div += '<option value="==">{{égal}}</option>';
@@ -152,8 +176,129 @@ function addTrigger(_action, _type) {
         div += '</select>';
       div += '</div>';
 
-      div += '<div class="col-sm-1">';
+      div += '<div class="col-sm-2 col-md-1">';
         div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test2" />';
+      div += '</div>';
+
+    div += '</div>';
+  div += '</div>';
+  $('#div_' + _type).append(div);
+  $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
+}
+
+function addTriggerRep(_action, _type) {
+  var div = '<div class="' + _type + '">';
+    div += '<div class="form-group expressionAttr" data-l1key="trigger_rep">';
+
+      div += '<label class="col-sm-1 control-label">{{Répétition}}</label>';
+      div += '<div class="col-sm-5 col-md-1">';
+        div += '<div class="input-group">';
+          div += '<span class="input-group-btn">';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer le bouton}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '</span>';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
+        div += '</div>';
+      div += '</div>';
+
+  //    div += '<label class="col-sm-1 control-label">Capteur</label>';
+      div += '<div class="col-sm-5 col-md-2">';
+        div += '<div class="input-group">';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" placeholder="{{Commande}}"/>';
+          div += '<span class="input-group-btn">';
+            div += '<a class="btn btn-default cursor bt_selectTrigger" title="{{Choisir une commande}}"><i class="fas fa-list-alt"></i></a>';
+        //    div += '<a class="btn btn-default cursor bt_selectDataStoreTrigger" title="{{Choisir une variable}}"><i class="fas fa-calculator"></i></a>';
+          div += '</span>';
+        div += '</div>';
+      div += '</div>';
+
+      div += '<label class="col-sm-2 col-md-1 control-label">{{Condition}}</label>';
+      div += '<div class="col-sm-2 col-md-1">';
+        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_rep_operator">';
+        div += '<option value="" select></option>';
+        div += '<option value="==">{{égal}}</option>';
+        div += '<option value="!=">{{différent}}</option>';
+        div += '<option value=">=">{{supérieur ou égal}}</option>';
+        div += '<option value=">">{{strictement supérieur}}</option>';
+        div += '<option value="<=">{{inférieur ou égal}}</option>';
+        div += '<option value="<">{{strictement inférieur}}</option>';
+        div += '</select>';
+      div += '</div>';
+
+      div += '<div class="col-sm-2 col-md-1">';
+        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_rep_test" />';
+      div += '</div>';
+
+      div += '<label class="col-sm-2 col-md-1 control-label">{{Nombre de fois}}</label>';
+      div += '<div class="col-sm-2 col-md-1">';
+        div += '<input type="number" class="expressionAttr form-control" data-l1key="condition_rep_nb_fois"/>';
+      div += '</div>';
+
+      div += '<label class="col-sm-2 col-md-1 control-label">{{Pendant}}</label>';
+      div += '<div class="col-sm-2 col-md-1">';
+        div += '<input type="number" class="expressionAttr form-control" data-l1key="condition_rep_periode"/>';
+      div += '</div>';
+
+
+    div += '</div>';
+  div += '</div>';
+  $('#div_' + _type).append(div);
+  $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
+}
+
+function addTriggerProg(_action, _type) {
+  var div = '<div class="' + _type + '">';
+    div += '<div class="form-group expressionAttr" data-l1key="trigger_prog">';
+
+      div += '<label class="col-sm-1 control-label">{{Programmation}}</label>';
+      div += '<div class="col-sm-5 col-md-1">';
+        div += '<div class="input-group">';
+          div += '<span class="input-group-btn">';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer le bouton}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '</span>';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
+        div += '</div>';
+      div += '</div>';
+
+  //    div += '<label class="col-sm-1 control-label">Capteur</label>';
+      div += '<div class="col-sm-5 col-md-2">';
+        div += '<div class="input-group">';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" placeholder="{{Commande}}"/>';
+          div += '<span class="input-group-btn">';
+            div += '<a class="btn btn-default cursor bt_selectTrigger" title="{{Choisir une commande}}"><i class="fas fa-list-alt"></i></a>';
+        //    div += '<a class="btn btn-default cursor bt_selectDataStoreTrigger" title="{{Choisir une variable}}"><i class="fas fa-calculator"></i></a>';
+          div += '</span>';
+        div += '</div>';
+      div += '</div>';
+
+    div += '</div>';
+  div += '</div>';
+  $('#div_' + _type).append(div);
+  $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
+}
+
+function addTriggerTimeRange(_action, _type) {
+  var div = '<div class="' + _type + '">';
+    div += '<div class="form-group expressionAttr" data-l1key="trigger_timerange">';
+
+      div += '<label class="col-sm-1 control-label">{{Time Range}}</label>';
+      div += '<div class="col-sm-5 col-md-1">';
+        div += '<div class="input-group">';
+          div += '<span class="input-group-btn">';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer le bouton}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '</span>';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
+        div += '</div>';
+      div += '</div>';
+
+  //    div += '<label class="col-sm-1 control-label">Capteur</label>';
+      div += '<div class="col-sm-5 col-md-2">';
+        div += '<div class="input-group">';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" placeholder="{{Commande}}"/>';
+          div += '<span class="input-group-btn">';
+            div += '<a class="btn btn-default cursor bt_selectTrigger" title="{{Choisir une commande}}"><i class="fas fa-list-alt"></i></a>';
+        //    div += '<a class="btn btn-default cursor bt_selectDataStoreTrigger" title="{{Choisir une variable}}"><i class="fas fa-calculator"></i></a>';
+          div += '</span>';
+        div += '</div>';
       div += '</div>';
 
     div += '</div>';
@@ -252,7 +397,15 @@ function printEqLogic(_eqLogic) {
   if (isset(_eqLogic.configuration)) {
     if (isset(_eqLogic.configuration.trigger)) {
       for (var i in _eqLogic.configuration.trigger) {
-        addTrigger(_eqLogic.configuration.trigger[i], 'trigger');
+        if(_eqLogic.configuration.trigger[i].trigger_value){
+          addTriggerValue(_eqLogic.configuration.trigger[i], 'trigger');
+        }else if(_eqLogic.configuration.trigger[i].trigger_rep){
+          addTriggerRep(_eqLogic.configuration.trigger[i], 'trigger');
+        }else if(_eqLogic.configuration.trigger[i].trigger_prog){
+          addTriggerProg(_eqLogic.configuration.trigger[i], 'trigger');
+        }else if(_eqLogic.configuration.trigger[i].trigger_timerange){
+          addTriggerTimeRange(_eqLogic.configuration.trigger[i], 'trigger');
+        }
       }
     }
     if (isset(_eqLogic.configuration.action)) {
@@ -262,7 +415,7 @@ function printEqLogic(_eqLogic) {
     }
     if (isset(_eqLogic.configuration.trigger_cancel)) {
       for (var i in _eqLogic.configuration.trigger_cancel) {
-        addTrigger(_eqLogic.configuration.trigger_cancel[i], 'trigger_cancel');
+        addTriggerValue(_eqLogic.configuration.trigger_cancel[i], 'trigger_cancel');
       }
     }
     if (isset(_eqLogic.configuration.action_cancel)) {

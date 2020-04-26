@@ -85,7 +85,7 @@ class sequencing extends eqLogic {
     public static function triggerLaunch($_option) { // fct appelée par le listener des triggers (mais pas par la cmd start qui elle, va bypasser l'évaluation des conditions !)
     // dans _option on a toutes les infos du trigger (from les champs du JS)
 
-    //  log::add('sequencing', 'debug', '################ Trigger déclenché, on va évaluer les conditions ############');
+      log::add('sequencing', 'debug', '################ Trigger déclenché ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
 
@@ -138,8 +138,9 @@ class sequencing extends eqLogic {
         // dans tous les cas on cherche qui nous a declenché pour évaluer la repetition et chopper les infos pour les tags, meme si on doit évaluer tous les triggers de ce _type !
 
           $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux...
+          $value_test = cmd::byId(str_replace('#', '', $trigger['cmd']))->execCmd();
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only'] . ' - valeur : ' . $value);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only'] . ' - valeur : ' . $value . ' - valeur test : ' . $value_test);
 
           if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $trigger['name']) != $value){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
 
@@ -842,12 +843,12 @@ class sequencingCmd extends cmd {
 
       } else { // sinon c'est un sensor et on veut juste sa valeur
 
-        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . jeedom::evaluateExpression($this->getValue()));
+/*        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . jeedom::evaluateExpression($this->getValue()));
         return jeedom::evaluateExpression($this->getValue());
-
-        //pour la gestion des variables
-        //log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . str_replace('#', '', jeedom::evaluateExpression($this->getValue())));
-        //return str_replace('#', '', jeedom::evaluateExpression($this->getValue())); // s'il y a encore des '#' apres évaluation(cas d'une variable), on les vire et on prend que le resultat
+*/
+        //pour la gestion des variables (qui ne marche pas du tout... le listener ne se lance pas, la valeur de la variable est aléatoirement bonne ou "", .... Mais systematiquement "" si appel via l'API...)
+        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . str_replace('#', '', jeedom::evaluateExpression($this->getValue())));
+        return str_replace('#', '', jeedom::evaluateExpression($this->getValue())); // s'il y a encore des '#' apres évaluation(cas d'une variable), on les vire et on prend que le resultat
       }
 
     }

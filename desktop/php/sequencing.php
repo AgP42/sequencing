@@ -155,7 +155,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
       <form class="form-horizontal">
         <fieldset>
-          <legend><i class="fas fa-external-link-alt"></i> {{Commande à appeler pour déclencher les actions}} <sup><i class="fas fa-question-circle tooltips" title="{{Réglages/Système/Configuration/Réseaux doit être correctement renseigné !}}"></i></sup>
+          <legend><i class="fas fa-external-link-alt"></i> {{Commande à appeler pour déclencher les actions}} <sup><i class="fas fa-question-circle tooltips" title="{{Réglages/Système/Configuration/Réseaux doit être correctement renseigné. Cette commande déclenchera la séquence sans évaluer les éventuelles conditions ci-dessous.}}"></i></sup>
           </legend>
           <div class="form-group">
             <!-- <label class="col-sm-1 control-label">{{URL }}</label> -->
@@ -169,7 +169,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
                   if(is_object($cmd)){
                     echo '<p>N\'importe où dans Jeedom, appelez cette commande : <i class="fas fa-code-branch"></i><b>  '. $cmd->getHumanName() . '</b><br>Où via l\'extérieur : <a href="' . $cmd->getDirectUrlAccess() . '" target="_blank"><i class="fas fa-external-link-alt"></i>  '. $cmd->getDirectUrlAccess() . '</a></p>';
                   } else {
-                    echo 'Hum... vous n\'auriez pas supprimé manuellement la commande "start" par hasard ? Il vous reste plus qu\'à supprimer cet équipement et recommencer !';
+                    echo 'Hum... vous n\'auriez pas supprimé manuellement la commande "start" par hasard ? Il ne vous reste plus qu\'à supprimer cet équipement et recommencer !';
                   }
                 } else {
                   echo 'Erreur : cet eqLogic n\'existe pas';
@@ -186,7 +186,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
       <form class="form-horizontal">
         <fieldset>
-          <legend><i class="fas fa-clock"></i> {{Programmation}}</legend>
+          <legend><i class="fas fa-clock"></i> {{Programmation}} <sup><i class="fas fa-question-circle tooltips" title="{{La programmation déclenchera la séquence sans évaluer les éventuelles conditions ci-dessous.}}"></i></sup></legend>
           <label class="col-sm-3 control-label">{{Déclenchement programmé ou périodique}}</label>
           <div class="input-group col-sm-2">
             <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="programmation" placeholder="{{format cron}}"/>
@@ -201,8 +201,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
       <form class="form-horizontal">
         <fieldset>
-          <legend><i class="fas fa-toggle-on"></i> {{Déclencheur}}
-            <a class="btn btn-success btn-sm addTrigger" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter un déclencheur}}</a>
+          <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
+            <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur}}</a>
+            <a class="btn btn-success btn-sm addTriggerRep" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon répétition}}</a>
+            <a class="btn btn-success btn-sm addTriggerProg" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
+            <a class="btn btn-success btn-sm addTriggerTimeRange" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon plage horaire}}</a>
             <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour déclencher la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label>
           </legend>
           <div id="div_trigger"></div>

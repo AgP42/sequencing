@@ -106,10 +106,11 @@ $('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focuso
 
 });
 
-// chaque ligne de trigger ou trigger_cancel
+// chaque ligne de trigger ou trigger_cancel pour les declencheurs de type "conditions"
 function addTriggerValue(_action, _type) {
   var div = '<div class="' + _type + '">';
-    div += '<div class="form-group expressionAttr" data-l1key="trigger_value">';
+    div += '<div class="form-group">';
+      div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_value"/>';
 
       div += '<label class="col-sm-1 control-label">{{Valeur}}</label>';
       div += '<div class="col-sm-5 col-md-1">';
@@ -188,7 +189,8 @@ function addTriggerValue(_action, _type) {
 
 function addTriggerRep(_action, _type) {
   var div = '<div class="' + _type + '">';
-    div += '<div class="form-group expressionAttr" data-l1key="trigger_rep">';
+    div += '<div class="form-group">';
+      div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_rep"/>';
 
       div += '<label class="col-sm-1 control-label">{{Répétition}}</label>';
       div += '<div class="col-sm-5 col-md-1">';
@@ -247,7 +249,9 @@ function addTriggerRep(_action, _type) {
 
 function addTriggerProg(_action, _type) {
   var div = '<div class="' + _type + '">';
-    div += '<div class="form-group expressionAttr" data-l1key="trigger_prog">';
+  //  div += '<div class="form-group expressionAttr" data-l1key="trigger_prog">';
+    div += '<div class="form-group">';
+      div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_prog"/>';
 
       div += '<label class="col-sm-1 control-label">{{Programmation}}</label>';
       div += '<div class="col-sm-5 col-md-1">';
@@ -278,7 +282,9 @@ function addTriggerProg(_action, _type) {
 
 function addTriggerTimeRange(_action, _type) {
   var div = '<div class="' + _type + '">';
-    div += '<div class="form-group expressionAttr" data-l1key="trigger_timerange">';
+  //  div += '<div class="form-group expressionAttr" data-l1key="trigger_timerange">';
+    div += '<div class="form-group">';
+      div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_timerange"/>';
 
       div += '<label class="col-sm-1 control-label">{{Time Range}}</label>';
       div += '<div class="col-sm-5 col-md-1">';
@@ -397,13 +403,14 @@ function printEqLogic(_eqLogic) {
   if (isset(_eqLogic.configuration)) {
     if (isset(_eqLogic.configuration.trigger)) {
       for (var i in _eqLogic.configuration.trigger) {
-        if(_eqLogic.configuration.trigger[i].trigger_value){
+      //  console.log(_eqLogic.configuration.trigger[i].trigger_type);
+        if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_value'){
           addTriggerValue(_eqLogic.configuration.trigger[i], 'trigger');
-        }else if(_eqLogic.configuration.trigger[i].trigger_rep){
+        }else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_rep'){
           addTriggerRep(_eqLogic.configuration.trigger[i], 'trigger');
-        }else if(_eqLogic.configuration.trigger[i].trigger_prog){
+        }else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_prog'){
           addTriggerProg(_eqLogic.configuration.trigger[i], 'trigger');
-        }else if(_eqLogic.configuration.trigger[i].trigger_timerange){
+        }else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_timerange'){
           addTriggerTimeRange(_eqLogic.configuration.trigger[i], 'trigger');
         }
       }

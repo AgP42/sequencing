@@ -25,3 +25,18 @@ Divers :
 les plugins avec des crons :
 - datetime : thermostat, weather, calendar
 - périodique : camera, conso, network, Monitoring, speedtest, ecodevice, IPX800, philipsHue
+
+
+# Overview code :
+* triggers :
+  * conditions sur valeurs
+  * répétition de la même valeur au moins x fois en N minutes
+  * plage horaire (datetime picker de début et fin de période pour commencer, en verra après si début/fin peuvent être des commandes (heure de levé du soleil, …)
+  * programmé (CRON)
+  * (condition valide plus de x minutes)
+* conditions entre triggers :
+  * ET (all conditions valides)
+  * OU (1 condition valide)
+  * x conditions valides sur N
+  * séquencement (le bon ordre...)
+  * (condition perso)

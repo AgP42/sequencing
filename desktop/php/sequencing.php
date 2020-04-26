@@ -205,7 +205,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur}}</a>
             <a class="btn btn-success btn-sm addTriggerRep" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon répétition}}</a>
             <a class="btn btn-success btn-sm addTriggerProg" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-success btn-sm addTriggerTimeRange" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon plage horaire}}</a>
+            <a class="btn btn-success btn-sm addTriggerTimeRange" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
             <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour déclencher la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label>
           </legend>
           <div id="div_trigger"></div>

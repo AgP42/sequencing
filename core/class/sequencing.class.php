@@ -84,6 +84,7 @@ class sequencing extends eqLogic {
 
     public static function triggerLaunch($_option) { // fct appelée par le listener des triggers (mais pas par la cmd start qui elle, va bypasser l'évaluation des conditions !)
     // dans _option on a toutes les infos du trigger (from les champs du JS)
+    // Attention, on peut avoir plusieurs triggers qui utilisent la meme cmd et donc arrivent 1 seule fois ici
 
       log::add('sequencing', 'debug', '################ Trigger déclenché ############');
 
@@ -128,68 +129,114 @@ class sequencing extends eqLogic {
 
     /*     * *********************Méthodes d'instance************************* */
 
+    // Cette fonction va évaluer toutes les conditions associées à 1 trigger donné qui vient de se déclencher //
     public function evaluateTrigger($_option, $_type) { // $_option nous donne l'event_id et la valeur du trigger, $_type nous dit si c'est un trigger ou trigger_cancel
+    // Attention, on peut avoir plusieurs triggers qui utilisent la meme cmd et donc arrivent 1 seule fois ici
+
 
     //  log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un trigger encore inconnu');
 
-      foreach ($this->getConfiguration($_type) as $trigger) { // on boucle dans tous les trigger ou trigger_cancel de la conf
-        if ('#' . $_option['event_id'] . '#' == $trigger['cmd']) {// on cherche quel est l'event qui nous a déclenché pour pouvoir chopper ses infos et évaluer les conditions
-        //TODO : gérer les variables ?
-        // dans tous les cas on cherche qui nous a declenché pour évaluer la repetition et chopper les infos pour les tags, meme si on doit évaluer tous les triggers de ce _type !
+// ancien code pour gerer ET ou OU global, tout a casser de toute facon, en attente TODO
+/*          if(($_type == 'trigger' && $this->getConfiguration('trigger_and')) || ($_type == 'trigger_cancel' && $this->getConfiguration('trigger_cancel_and'))) { // si on veut évaluer tous les triggers ("ET")
+            log::add('sequencing', 'debug', $this->getHumanName() . ' - ' . $_type . ' et case ET cochée');
 
-          $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux...
-          $value_test = cmd::byId(str_replace('#', '', $trigger['cmd']))->execCmd();
+            $check = 1;
+            foreach ($this->getConfiguration($_type) as $trigger2) { // c'est pas tres joli...
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - Filtrer répétitions : ' . $trigger['new_value_only'] . ' - valeur : ' . $value . ' - valeur test : ' . $value_test);
-
-          if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $trigger['name']) != $value){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
-
-            if(($_type == 'trigger' && $this->getConfiguration('trigger_and')) || ($_type == 'trigger_cancel' && $this->getConfiguration('trigger_cancel_and'))) { // si on veut évaluer tous les triggers ("ET")
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - ' . $_type . ' et case ET cochée');
-
-              $check = 1;
-              foreach ($this->getConfiguration($_type) as $trigger2) { // c'est pas tres joli...
-
-                $value2 = jeedom::evaluateExpression($trigger2['cmd']); // la valeur courante de cette commande
-                $check *= $this->evaluateConditions($trigger2, $value2); // on évalue sa condition et si 1 seul retour 0, $check passera a 0
-                log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat total après évaluation de : ' . $trigger2['name'] . ' : ' . $check);
-              }
-
-            } else {
-              $check = $this->evaluateConditions($trigger, $value);
-            }
-
-            if ($check == 1 || $check || $check == '1') {
-
-              $trigger_cmd = cmd::byId($_option['event_id']);
-              $trigger_full_name = $trigger_cmd->getHumanName();
-
-              log::add('sequencing', 'info', $this->getHumanName() . ' => Détection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - Déclencheur : ' . $trigger_full_name . ' - valeur : ' . $value);
-
-              $this->setCache('trigger_name', $trigger['name']);
-              $this->setCache('trigger_value', $value);
-              $this->setCache('trigger_full_name', $trigger_full_name);
-              $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
-              $this->setCache('trigger_time', date('H:i:s'));
-
-              if($_type == 'trigger') {
-                $this->actionsLaunch();
-              } else if ($_type == 'trigger_cancel'){
-                $this->actionsCancel();
-              }
-
-            } else {
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce ou ces trigger(s) ne valide(nt) pas les conditions voulues => on fait rien');
+              $value2 = jeedom::evaluateExpression($trigger2['cmd']); // la valeur courante de cette commande
+              $check *= $this->evaluateConditions($trigger2, $value2); // on évalue sa condition et si 1 seul retour 0, $check passera a 0
+              log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat total après évaluation de : ' . $trigger2['name'] . ' : ' . $check);
             }
 
           } else {
-            log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce trigger est une répétition et on a configuré qu\'on en voulait pas => on fait rien');
+          }*/
+
+      $results = array();
+
+      foreach ($this->getConfiguration($_type) as $trigger) { // on boucle dans tous les trigger ou trigger_cancel de la conf
+        if ('#' . $_option['event_id'] . '#' == $trigger['cmd']) {// on cherche quel est l'event qui nous a déclenché pour pouvoir chopper ses infos et évaluer les conditions. Si la meme commande est utilisée plusieurs fois, cette boucle sera évaluée pour chaque et le resultat stocké dans $results[]
+
+          $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux dans le cas de conditions string
+      //    $value_test = cmd::byId(str_replace('#', '', $trigger['cmd']))->execCmd(); // resultat identique, quel est la meilleur pratique ? TODO
+
+          log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - type : ' . $trigger['trigger_type'] . ' - valeur : ' . $value);
+
+          if($trigger['trigger_type'] == 'trigger_value'){
+            if (!$trigger['new_value_only'] || $trigger['new_value_only'] && $this->getCache('trigger_' . $_type . $trigger['name']) != $value){ // si on veut tous les triggers ou uniquement new_value et que notre valeur a changé => on évalue le reste des conditions
+              $trigger_value_result = $this->evaluateTriggerValues($trigger, $value);
+              array_push($results, $trigger_value_result); //TODO : à tester absolument sous jeedom v3 car new comportement en PHP 7.3 (v4)
+              log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation : ' . $trigger_value_result);
+            } else {
+              log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce trigger est une répétition et on a configuré qu\'on en voulait pas => on fait rien');
+            }
+            $this->setCache('trigger_' . $_type . $trigger['name'], $value); // on garde la valeur en cache pour gestion de la repetition
           }
+          //TODO : ajouter l'évaluation répétition (les autres ne sont pas des triggers qui arriveront ici via un listener)
 
-          $this->setCache('trigger_' . $_type . $trigger['name'], $value); // on garde la valeur en cache pour gestion de la repetition
 
+        } // fin if notre event correspond à un trigger
+      } // fin foreach tous les triggers ou trigger_cancel
+
+      // on boucle dans tous nos résultats pour CE trigger là
+      foreach ($results as $key => $value) {
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Tous les Résultats ' . $key . ' : ' . $value);
+      }
+
+      $evaluationTotaleTrigger = false;
+      if(($_type == 'trigger' && $this->getConfiguration('trigger_and')) || ($_type == 'trigger_cancel' && $this->getConfiguration('trigger_cancel_and'))) { // si on veut évaluer tous les triggers ("ET")
+
+        $evaluationTotaleTrigger = array_product($results); // TODO : il faut absolument tester que le tableau n'est pas vide car cette fonction renvoie un 1 si vide...
+        //TODO : si deja lui il est pas tout ok, pas la peine d'aller plus loin, sinon il faut ajouter de tester toutes les autres conditions !
+        // vieux code pour ca :
+/*        $check = 1;
+        foreach ($this->getConfiguration($_type) as $trigger2) { // c'est pas tres joli...
+
+          $value2 = jeedom::evaluateExpression($trigger2['cmd']); // la valeur courante de cette commande
+          $check *= $this->evaluateConditions($trigger2, $value2); // on évalue sa condition et si 1 seul retour 0, $check passera a 0
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat total après évaluation de : ' . $trigger2['name'] . ' : ' . $check);
+        }*/
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "ET" et evaluationTotaleTrigger : ' . $evaluationTotaleTrigger);
+
+      } else { // OU : on cherche au moins 1 "1" dans notre tableau de resultat. TODO : else if uniquement si on veut "OU"
+        $evaluationTotaleTrigger = in_array(1, $results);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "OU" et evaluationTotaleTrigger : ' . $evaluationTotaleTrigger);
+      }
+      //TODO : ajouter les autres cas d'évaluation entre les conditions...
+
+      if($evaluationTotaleTrigger){ // le resultat final qui dit qu'on a bien évalué TOUTES nos conditions !
+
+        if($_type == 'trigger') {
+          $this->actionsLaunch();
+        } else if ($_type == 'trigger_cancel'){
+          $this->actionsCancel();
         }
       }
+
+    }
+
+    public function evaluateTriggerValues($trigger, $value){
+
+        $check = $this->evaluateConditions($trigger, $value);
+
+        if ($check == 1 || $check || $check == '1') {
+
+          $trigger_full_name = cmd::byId(str_replace('#', '', $trigger['cmd']))->getHumanName();
+
+          log::add('sequencing', 'info', $this->getHumanName() . ' => Détection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - Déclencheur : ' . $trigger_full_name . ' - valeur : ' . $value);
+
+          $this->setCache('trigger_name', $trigger['name']);
+          $this->setCache('trigger_value', $value);
+          $this->setCache('trigger_full_name', $trigger_full_name);
+          $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
+          $this->setCache('trigger_time', date('H:i:s'));
+
+          return 1;
+
+        } else {
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce ou ces trigger(s) ne valide(nt) pas les conditions voulues => on fait rien');
+          return 0;
+        }
+
 
     }
 
@@ -533,7 +580,7 @@ class sequencing extends eqLogic {
         'trigger_cancel' => array(), // idem trigger_cancel
       );
 
-      foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos types de capteurs pour recuperer les infos
+      foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos types de triggers pour recuperer les infos
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Boucle de $jsSensors : key : ' . $key);
 
         if (is_array($this->getConfiguration($key))) {
@@ -541,7 +588,7 @@ class sequencing extends eqLogic {
             if ($sensor['name'] != '' && $sensor['cmd'] != '') { // si le nom et la cmd sont remplis
 
               $jsSensors[$key][$sensor['name']] = $sensor; // on stocke toute la conf, c'est à dire tout ce qui dans notre js avait la class "expressionAttr". Pour retrouver notre champs exact : $jsSensors[$key][$sensor['name']][data-l1key]. // attention ici a ne pas remplacer $jsSensors[$key] par $jsSensor. C'est bien dans le tableau d'origine qu'on veut écrire, pas dans la variable qui le represente dans cette boucle
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - Capteurs sensor config lue : ' . $sensor['name'] . ' - ' . $sensor['cmd']);
+              log::add('sequencing', 'debug', $this->getHumanName() . ' - Capteurs sensor config lue : ' . $sensor['name'] . ' - ' . $sensor['cmd'] . ' - type : ' . $sensor['trigger_type']);
 
             }
           }
@@ -557,6 +604,7 @@ class sequencing extends eqLogic {
             if (isset($jsSensor[$cmd->getName()])) { // on regarde si le nom correspond à un nom dans le tableau qu'on vient de recuperer du JS, si oui, on actualise les infos qui pourraient avoir bougé
 
               $sensor = $jsSensor[$cmd->getName()];
+              $cmd->setGeneric_type($sensor['trigger_type']); // à voir si ca sert vraiment a quelque chose de stocker ca en base...
               $cmd->setValue($sensor['cmd']);
 
               $cmd->save();
@@ -594,6 +642,8 @@ class sequencing extends eqLogic {
           $cmd->setIsVisible(0);
           $cmd->setIsHistorized(1);
           $cmd->setConfiguration('historizeMode', 'none');
+          $cmd->setGeneric_type($sensor['trigger_type']); // à voir si ca sert vraiment a quelque chose de stocker ca en base...
+      //    $cmd->setConfiguration('trigger_type', $sensor['trigger_type']);
 
           $cmd->save();
 
@@ -603,7 +653,7 @@ class sequencing extends eqLogic {
             $cmd->event($cmd->execute());
           }
 
-        } //*/ // fin foreach restant. A partir de maintenant on a des triggers qui refletent notre config lue en JS
+        } //*/ // fin foreach restant. A partir de maintenant on a des triggers en DB qui refletent notre config lue en JS
       }
 
       //########## 4 - Mise en place des listeners de capteurs pour réagir aux events et du cron de start si besoin #########//
@@ -618,7 +668,7 @@ class sequencing extends eqLogic {
         foreach ($this->getCmd() as $cmd) {
 
           // on assigne la fonction selon le type de capteur
-          if ($cmd->getLogicalId() == 'trigger'){
+          if ($cmd->getLogicalId() == 'trigger' && ($cmd->getGeneric_type() == 'trigger_value' || $cmd->getGeneric_type() == 'trigger_rep')){
             $listenerFunction = 'triggerLaunch';
           } else if ($cmd->getLogicalId() == 'trigger_cancel'){
             $listenerFunction = 'triggerCancel';

@@ -133,9 +133,9 @@ function addTriggerValue(_action, _type) {
         div += '</div>';
       div += '</div>';
 
-      div += '<div class="col-sm-2 col-md-1">';
+/*      div += '<div class="col-sm-2 col-md-1">';
         div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="new_value_only"/>{{Filtrer répétitions}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour ne prendre en compte que les nouvelles valeurs}}"></i></sup></label></span>';
-      div += '</div>';
+      div += '</div>';*/
 
       div += '<label class="col-sm-2 col-md-1 control-label">{{Conditions}}</label>';
       div += '<div class="col-sm-2 col-md-1">';

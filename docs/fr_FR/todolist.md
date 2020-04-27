@@ -29,8 +29,7 @@ les plugins avec des crons :
 
 # Overview code :
 * triggers :
-  * conditions sur valeurs
-  * répétition de la même valeur au moins x fois en N minutes
+  * conditions sur valeurs et répétition de la même valeur au moins x fois en N minutes
   * plage horaire (datetime picker de début et fin de période pour commencer, en verra après si début/fin peuvent être des commandes (heure de levé du soleil, …)
   * programmé (CRON)
   * (condition valide plus de x minutes)
@@ -40,3 +39,6 @@ les plugins avec des crons :
   * x conditions valides sur N
   * séquencement (le bon ordre...)
   * (condition perso)
+
+# A documenter :
+* comment gerer la repetition des valeurs via la fonction core de l'onglet avancé

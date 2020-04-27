@@ -41,4 +41,8 @@ les plugins avec des crons :
   * (condition perso)
 
 # A documenter :
-* comment gerer la repetition des valeurs via la fonction core de l'onglet avancé
+* comment gerer la repetition des valeurs via la fonction core de l'onglet avancé vu que supprimé du plugin
+* si condition string, " " ou rien, mais pas de ''
+* repetition de valeur : nb de fois c'est un "au moins" x fois en N secondes. Pas un "exactement" ni un "maximum"
+* plus de log info pour les triggers valides
+* pour les repetitions de valeurs, lorsque le seuil est atteint, la condition est valide a chaque nouvel évenement valide dans le délai consideré. Si 3 fois en 5 min, à partir de la 3eme fois, chaque fois supplémentaire déclenche (limiter la repetition des actions si besoin...)

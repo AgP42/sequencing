@@ -1,12 +1,18 @@
+# Stable
+
+1.0.0 - 24 avril 2020 => Stable n°1
+---
+
 # Beta
 
-0.0.7 - 27 avril 2020
+1.0.1 - 27 avril 2020
 ---
 
 * Limitation d'action et action annulation en secondes (et plus en minutes)
 * Ajout condition sur répétition d'une valeur
+* Tests sur jeedom v4.0.52
 
-0.0.6 - 24 avril 2020 => Stable
+0.0.6 - 24 avril 2020 => Stable 1.0.0
 ---
 
 * Correction coquilles dans les logs

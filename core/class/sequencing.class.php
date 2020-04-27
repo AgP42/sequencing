@@ -59,6 +59,11 @@ Les valeurs en cache utilisés :
             $value_test = cmd::byId(str_replace('#', '', $trigger['cmd']))->execCmd(); // resultat identique, quel est la meilleur pratique ? TODO
 
 */
+
+/*                $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+                $check2 = evaluate($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+                log::add('sequencing', 'debug', $this->getHumanName() . ' resultat 1 et 2 : ' . $check . ' - ' . $check2);*/
+
 //TODO : ajouter trim() pour les labels (supprime les espaces et caracteres invisibles en debut et fin de chaine)
 
 /* * ***************************Includes********************************* */
@@ -77,7 +82,7 @@ class sequencing extends eqLogic {
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
       if (is_object($sequencing)) {
-        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appelée par le CRON');
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appelée par le CRON principal (qui bypass les conditions)');
 
         $sequencing->setCache('trigger_name', 'programmé');
         $sequencing->setCache('trigger_full_name', 'programmé');
@@ -97,7 +102,7 @@ class sequencing extends eqLogic {
     // dans _option on a toutes les infos du trigger (from les champs du JS)
     // Attention, on peut avoir plusieurs triggers qui utilisent la meme cmd et donc arrivent 1 seule fois ici
 
-      log::add('sequencing', 'debug', '################ Trigger déclenché ############');
+      log::add('sequencing', 'debug', '############ Trigger déclenché ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
 
@@ -111,7 +116,7 @@ class sequencing extends eqLogic {
 
     public static function triggerCancel($_option) { // fct appelée par le listener des triggers d'annulation (mais pas par la cmd stop !)
 
-    //  log::add('sequencing', 'debug', '################ Trigger d\'annulation déclenché, on va évaluer les conditions ############');
+      log::add('sequencing', 'debug', '############ Trigger d\'annulation déclenché ############');
 
       $sequencing = sequencing::byId($_option['sequencing_id']); // on cherche l'équipement correspondant au trigger
 
@@ -169,23 +174,31 @@ class sequencing extends eqLogic {
 
           $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux dans le cas de conditions string
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un ' . $_type . ' <= nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - type : ' . $trigger['trigger_type'] . ' - valeur : ' . $value);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' Nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - type : ' . $trigger['trigger_type'] . ' - valeur : ' . $value);
 
-          $results[$trigger['name']] = $this->checkTriggerValues($trigger);
-
-        //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation : ' . $trigger_value_result);
+          $results[$trigger['name']] = $this->checkTriggerValues($trigger, true);
 
         } // fin if notre event correspond à un trigger
       } // fin foreach tous les triggers ou trigger_cancel
 
       // on boucle dans tous nos résultats pour CE trigger là
       foreach ($results as $key => $value) {
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Tous les résultats pour ce trigger : ' . $key . ' : ' . $value);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation pour ce trigger (' . $key . ') : ' . $value);
       }
 
       $triggerValide = in_array(1, $results); // si on a au moins 1 ligne de condition lié à ce trigger qui est valide
 
-      if($triggerValide){ // on ne continue que si ce trigger là est valide, pour ne pas declencher sur une autre condition...
+      if ($triggerValide && (($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'OR') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'OR' ))){ // on est en condition "OU" et on en a deja 1, inutile d'evaluer le reste : on declenche !
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Au moins 1 correct et on est en OU, on cherche pas plus => on déclenche !');
+
+        if($_type == 'trigger') {
+          $this->actionsLaunch();
+        } else if ($_type == 'trigger_cancel'){
+          $this->actionsCancel();
+        }
+
+      }else if($triggerValide){ // on ne continue que si ce trigger là est valide, pour ne pas declencher sur une autre condition... Maintenant on va évaluer tout le reste
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Au moins 1 correct, on continu');
         $this->evaluateEachConditions($_type);
       } else {
@@ -199,7 +212,7 @@ class sequencing extends eqLogic {
       $results = array(); // va stocker le resultat de toutes les conditions (oui on va recalculer notre trigger éventuel aussi...;-( ))
       foreach ($this->getConfiguration($_type) as $triggerOrCond) {
         if($triggerOrCond['trigger_type'] == 'trigger_value'){
-          $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond);
+          $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false);
         } //TODO : ajouter les autres types
 
       }
@@ -244,47 +257,44 @@ class sequencing extends eqLogic {
 
     }
 
-    public function checkTriggerValues($trigger, $_saveTag = false){ // cette fonction évalue si le trigger de type "declencheur sur valeur et repetition" valide tout ce qu'on lui demande (condition sur valeur et repetition)
+    public function checkTriggerValues($trigger, $_fromTrigger = false){ // cette fonction évalue si le trigger de type "declencheur sur valeur et repetition" valide tout ce qu'on lui demande (condition sur valeur et repetition)
 
-        $value = jeedom::evaluateExpression($trigger['cmd']);
-
-        $conditions = $this->checkTriggerValuesConditions($trigger, $value); // on évalue nos conditions sur la valeur
+        $conditions = $this->checkTriggerValuesConditions($trigger); // on évalue nos conditions sur la valeur
 
         if($trigger['condition_rep_nb_fois'] > 1){ // si on doit évaluer en plus la repetition de cette valeur
 
-          // on met à jour nos caches concernant la repetition de valeur
+          // on met à jour les caches concernant la repetition de valeur
           if($conditions){ // conditions de valeur valide, il faut évaluer nos conditions de repetitions
 
-            $compteur_cache = $this->getCache('counter_trigger_' . $trigger['name']);
+            // On va couper le compteur si délai dépassé, ce qui permet de ne pas avoir à tester le timestamp par la suite mais uniquement les valeurs du compteur.
             $tempsDepuisTrigger = time() - $this->getCache('timestamp_counter_trigger_' . $trigger['name']);
+            if($tempsDepuisTrigger > $trigger['condition_rep_periode']){ // la durée est échue, on reinitialise notre compteur.
+              $this->setCache('counter_trigger_' . $trigger['name'], 0);
+            }
 
-            if($compteur_cache == '' || $compteur_cache == 0 || ($tempsDepuisTrigger <= $trigger['condition_rep_periode'])){ // si c'est notre 1er trigger car compteur était à 0 ou délai de ce trigger échu => on recommence le compte
-            //cache inexistant ou 0 c'est pareil pour Jeedom normalement, le 0 ne semble pas stocké, mais on le test quand meme au cas où...
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - cache vide ou inexistant pour : ' . $trigger['name']);
-              $this->setCache('counter_trigger_' . $trigger['name'], 1);
-              $this->setCache('timestamp_counter_trigger_' . $trigger['name'], time()); // on garde le timestamp en mémoire pour pouvoir évaluer la période
-            } else {
-              $this->setCache('counter_trigger_' . $trigger['name'], $compteur_cache + 1);
+            $compteur_cache = $this->getCache('counter_trigger_' . $trigger['name']);
+
+            if($_fromTrigger){ // si on a été appelé par un trigger et non par la fonction d'évaluation de toutes les conditions, on va setter nos caches
+              if($compteur_cache == '' || $compteur_cache == 0){ // si c'est notre 1er trigger valide => on commence le compte
+              // cache inexistant ou 0 c'est pareil pour Jeedom, le 0 ne semble pas stocké, mais on le test quand meme au cas où...
+                $this->setCache('counter_trigger_' . $trigger['name'], 1);
+                $this->setCache('timestamp_counter_trigger_' . $trigger['name'], time()); // on garde le timestamp en mémoire pour pouvoir évaluer la période
+              } else { // on est dans les délais (sinon on serait à 0 par le if d'avant), on incremente
+                $this->setCache('counter_trigger_' . $trigger['name'], $compteur_cache + 1);
+              }
             }
 
           }else{ // conditions de valeur NON valide, il faut reinitialiser notre compteur
             $this->setCache('counter_trigger_' . $trigger['name'], 0);
           }
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - New cache compteur : ' . $trigger['name'] . ' : ' . $this->getCache('counter_trigger_' . $trigger['name']));
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Compteur répétition pour : ' . $trigger['name'] . ' : ' . $this->getCache('counter_trigger_' . $trigger['name']));
 
-          // on évalue nos caches de repetition pour savoir si valide ou non ($check)
+          // on va lire les caches de repetition pour savoir si valide ou non ($check)
           if($this->getCache('counter_trigger_' . $trigger['name']) >= $trigger['condition_rep_nb_fois']){ // on a atteint la quantité de repetition voulue
-            if($tempsDepuisTrigger <= $trigger['condition_rep_periode']){ // dans le temps imparti
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - On a atteint le nombre de repetition dans le temps imparti => cette condition est VALIDÉE ! (on reinitialise le compteur)');
-              $check = 1;
-            }else{
-              //TODO : on devrait plus jamais passer par ici vu qu'on remet notre compteur à 0 juste au dessus si le delai est échu...
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - On a atteint le nombre de repetition mais trop tard => cette condition n\'est PAS validée ! (on reinitialise le compteur)');
-              $check = 0;
-            }
 
-            $this->setCache('counter_trigger_' . $trigger['name'], 0);
+            log::add('sequencing', 'debug', $this->getHumanName() . ' - On a atteint le nombre de repetition dans le temps imparti => cette condition est VALIDÉE !');
+            $check = 1;
 
           }else{
             log::add('sequencing', 'debug', $this->getHumanName() . ' - On a pas encore atteint le nombre de repetition => cette condition n\'est pas validée ! (on ne fait rien)');
@@ -295,15 +305,17 @@ class sequencing extends eqLogic {
           $check = $conditions;
         }
 
+        return $check;
+
         // maintenant qu'on a tout évalué sur CETTE condition, on remonte dans la boucle précédente
-        if ($check == 1 || $check || $check == '1') {
+/*        if ($check == 1 || $check || $check == '1') {
 
           $trigger_full_name = cmd::byId(str_replace('#', '', $trigger['cmd']))->getHumanName();
 
-          log::add('sequencing', 'info', $this->getHumanName() . ' => Détection ' . $_type . ' valide <= nom : ' . $trigger['name'] . ' - Déclencheur : ' . $trigger_full_name . ' - valeur : ' . $value);
+      //    log::add('sequencing', 'info', $this->getHumanName() . ' => Trigger valide <= nom : ' . $trigger['name'] . ' - Déclencheur : ' . $trigger_full_name . ' - valeur : ' . $value);
 
-          //TODO : va falloir virer ca ailleurs !
-          if($_saveTag){ // on veut ces infos en cache uniquement si on a été appelé par un trigger et non par la fonction d'évaluation de toutes les conditions
+          //TODO : gerer les tags triggers quelques part !
+          if(true){ // on veut ces infos en cache uniquement si on a été appelé par un trigger et non par la fonction d'évaluation de toutes les conditions
             $this->setCache('trigger_name', $trigger['name']);
             $this->setCache('trigger_value', $value);
             $this->setCache('trigger_full_name', $trigger_full_name);
@@ -315,16 +327,20 @@ class sequencing extends eqLogic {
         } else {
           log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce ou ces trigger(s) ne valide(nt) pas les conditions voulues');
           return 0;
-        }
+        }*/
 
 
     }
 
-    public function checkTriggerValuesConditions($trigger, $value) { // cette fonction évalue si le trigger de type "declencheur sur valeur et repetition" valide uniquement les conditions sur valeur !
+    public function checkTriggerValuesConditions($trigger) { // cette fonction évalue si le trigger de type "declencheur sur valeur et repetition" valide uniquement les conditions sur valeur !
+
+      $value = jeedom::evaluateExpression($trigger['cmd']);
 
       if(!is_numeric($value)){
-        log::add('sequencing', 'debug', $this->getHumanName() . ' Notre valeur à évaluer n\'est pas numerique : ' . $value);
+    //    log::add('sequencing', 'debug', $this->getHumanName() . ' Notre valeur à évaluer n\'est pas numerique : ' . $value);
         $value = '"'.$value.'"'; // parfois ca marche sans, parfois ca marche pas... mais ca marche a tous les coup avec !
+        $trigger['condition_test1'] = '"'.$trigger['condition_test1'].'"';
+        $trigger['condition_test2'] = '"'.$trigger['condition_test2'].'"';
       }
 
       if($trigger['condition_operator'] != ''){ // on a 2 conditions
@@ -336,14 +352,11 @@ class sequencing extends eqLogic {
 
         $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
 
-    //    $check2 = evaluate($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
-    //    log::add('sequencing', 'debug', $this->getHumanName() . ' resultat 1 et 2 : ' . $check . ' - ' . $check2);
-
       } else { // sinon on a pas de condition : tout est valide
         $check = 1;
       }
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat checkTriggerValuesConditions pour : ' . $trigger['name'] . ' : ' . $check);
+    //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat checkTriggerValuesConditions pour : ' . $trigger['name'] . ' : ' . $check);
 
       return $check;
 

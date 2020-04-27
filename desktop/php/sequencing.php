@@ -202,12 +202,27 @@ $eqLogics = eqLogic::byType($plugin->getId());
       <form class="form-horizontal">
         <fieldset>
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
-            <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur}}</a>
-            <a class="btn btn-success btn-sm addTriggerRep" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon répétition}}</a>
-            <a class="btn btn-success btn-sm addTriggerProg" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-success btn-sm addTriggerTimeRange" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
-            <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour déclencher la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label>
+            <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
+            <!-- <a class="btn btn-success btn-sm addTriggerRep" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon répétition}}</a> -->
+            <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
+            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
+
+            <!-- <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour déclencher la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label> -->
           </legend>
+
+          <legend>
+
+            <label class="col-sm-2 col-md-1 control-label">{{Évaluation}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup></label>
+            <div class="col-sm-6 col-md-3">
+              <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="check_triggers_type">
+              <option value="OR">{{OU (1 valide suffit)}}</option>
+              <option value="AND">{{ET (tous valides)}}</option>
+              <option value="x_sur_N">{{x sur N}}</option>
+              </select>
+            </div>
+
+          </legend>
+
           <div id="div_trigger"></div>
         </fieldset>
       </form>

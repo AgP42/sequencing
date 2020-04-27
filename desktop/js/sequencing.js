@@ -27,10 +27,10 @@ $('.addTriggerValue').off('click').on('click', function () {
   addTriggerValue({}, $(this).attr('data-type'));
 });
 
-// ajoute chaque ligne de trigger ou trigger_cancel pour condition sur répétition valeur
+/*// ajoute chaque ligne de trigger ou trigger_cancel pour condition sur répétition valeur
 $('.addTriggerRep').off('click').on('click', function () {
   addTriggerRep({}, $(this).attr('data-type'));
-});
+});*/
 
 // ajoute chaque ligne de trigger ou trigger_cancel pour programmation
 $('.addTriggerProg').off('click').on('click', function () {
@@ -112,7 +112,7 @@ function addTriggerValue(_action, _type) {
     div += '<div class="form-group">';
       div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_value"/>';
 
-      div += '<label class="col-sm-1 control-label">{{Valeur}}</label>';
+  //    div += '<label class="col-sm-1 control-label">{{Valeur}}</label>';
       div += '<div class="col-sm-5 col-md-1">';
         div += '<div class="input-group">';
           div += '<span class="input-group-btn">';
@@ -139,7 +139,7 @@ function addTriggerValue(_action, _type) {
 
       div += '<label class="col-sm-2 col-md-1 control-label">{{Conditions}}</label>';
       div += '<div class="col-sm-2 col-md-1">';
-        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1">'; // dans la class : ['condition_operator1']
+        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1" placeholder="{{Opérateur 1}}">'; // dans la class : ['condition_operator1']
         div += '<option value="" select></option>';
         div += '<option value="==">{{égal}}</option>';
         div += '<option value="!=">{{différent}}</option>';
@@ -153,7 +153,7 @@ function addTriggerValue(_action, _type) {
 // TODO : ajouter matches et not() ? (donc ce cas c'est plus des types number dessous)
 
       div += '<div class="col-sm-2 col-md-1">';
-        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test1" />';
+        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test1" placeholder="{{Condition 1}}"/>';
       div += '</div>';
 
       div += '<div class="col-sm-1 col-md-1">';
@@ -166,7 +166,7 @@ function addTriggerValue(_action, _type) {
       div += '</div>';
 
       div += '<div class="col-sm-2 col-md-1">';
-        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2">';
+        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2" placeholder="{{Opérateur 1}}">';
         div += '<option value="" select></option>';
         div += '<option value="==">{{égal}}</option>';
         div += '<option value=">=">{{supérieur ou égal}}</option>';
@@ -178,7 +178,17 @@ function addTriggerValue(_action, _type) {
       div += '</div>';
 
       div += '<div class="col-sm-2 col-md-1">';
-        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test2" />';
+        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test2" placeholder="{{Condition 2}}"/>';
+      div += '</div>';
+
+  //    div += '<label class="col-sm-2 col-md-1 control-label">{{Nombre de fois}}</label>';
+      div += '<div class="col-sm-2 col-md-1">';
+        div += '<input type="number" min="2" class="expressionAttr form-control" data-l1key="condition_rep_nb_fois" placeholder="{{Nombre de fois}}"/>';
+      div += '</div>';
+
+  //    div += '<label class="col-sm-2 col-md-1 control-label">{{Pendant}}</label>';
+      div += '<div class="col-sm-2 col-md-1">';
+        div += '<input type="number" min="0" class="expressionAttr form-control" data-l1key="condition_rep_periode" placeholder="{{Pendant (secondes)}}"/>';
       div += '</div>';
 
     div += '</div>';
@@ -187,7 +197,7 @@ function addTriggerValue(_action, _type) {
   $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
 }
 
-function addTriggerRep(_action, _type) {
+/*function addTriggerRep(_action, _type) {
   var div = '<div class="' + _type + '">';
     div += '<div class="form-group">';
       div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_rep"/>';
@@ -245,7 +255,7 @@ function addTriggerRep(_action, _type) {
   div += '</div>';
   $('#div_' + _type).append(div);
   $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
-}
+}*/
 
 function addTriggerProg(_action, _type) {
   var div = '<div class="' + _type + '">';
@@ -331,7 +341,7 @@ function addAction(_action, _type) {
 
         div += '<label class="col-sm-1 control-label">{{Délai avant exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Le délai avant exécution doit être donné (en minutes) par rapport au déclenchement initial et non par rapport à l\'action précédente. Ne pas remplir ou 0 pour déclenchement immédiat.}}"></i></sup></label>';
         div += '<div class="col-sm-1">';
-            div += '<input type="number" class="expressionAttr form-control cmdInfo" data-l1key="action_timer" placeholder="{{en minutes}}"/>';
+            div += '<input type="number" min="0" class="expressionAttr form-control cmdInfo" data-l1key="action_timer" placeholder="{{en minutes}}"/>';
             div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="reporter"/>{{Reporter}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour reporter l\'exécution de l\'action en cas de nouveau déclenchement. }}"></i></sup></label>';
         div += '</div>';
 
@@ -348,9 +358,9 @@ function addAction(_action, _type) {
         div += '</div>';
       }
 
-      div += '<label class="col-sm-1 control-label">{{Limiter exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Si vous souhaitez limiter le nombre d\'exécution sur une période donnée (en minutes). Ne pas remplir ou 0 pour exécuter systèmatiquement.}}"></i></sup></label>';
+      div += '<label class="col-sm-1 control-label">{{Limiter exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Si vous souhaitez limiter le nombre d\'exécution sur une période donnée (en secondes). Ne pas remplir ou 0 pour exécuter systèmatiquement.}}"></i></sup></label>';
       div += '<div class="col-sm-1">';
-          div += '<input type="number" class="expressionAttr form-control" data-l1key="action_time_limit" placeholder="{{en minutes}}"/>';
+          div += '<input type="number" min="0" class="expressionAttr form-control" data-l1key="action_time_limit" placeholder="{{en secondes}}"/>';
       div += '</div>';
 
     //  div += '<label class="col-sm-1 control-label">Action</label>';
@@ -406,9 +416,9 @@ function printEqLogic(_eqLogic) {
       //  console.log(_eqLogic.configuration.trigger[i].trigger_type);
         if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_value'){
           addTriggerValue(_eqLogic.configuration.trigger[i], 'trigger');
-        }else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_rep'){
+        }/*else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_rep'){
           addTriggerRep(_eqLogic.configuration.trigger[i], 'trigger');
-        }else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_prog'){
+        }*/else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_prog'){
           addTriggerProg(_eqLogic.configuration.trigger[i], 'trigger');
         }else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_timerange'){
           addTriggerTimeRange(_eqLogic.configuration.trigger[i], 'trigger');

@@ -1,6 +1,12 @@
 # Beta
 
-0.0.6 - 24 avril 2020
+0.0.7 - 27 avril 2020
+---
+
+* Limitation d'action et action annulation en secondes (et plus en minutes)
+* Ajout condition sur répétition d'une valeur
+
+0.0.6 - 24 avril 2020 => Stable
 ---
 
 * Correction coquilles dans les logs

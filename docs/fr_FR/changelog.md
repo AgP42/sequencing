@@ -10,6 +10,7 @@
 
 * Limitation d'action et action annulation en secondes (et plus en minutes)
 * Ajout condition sur répétition d'une valeur
+* Ajout programmation pour déclenchement annulation
 * Tests sur jeedom v4.0.52
 
 0.0.6 - 24 avril 2020 => Stable 1.0.0

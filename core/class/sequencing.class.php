@@ -98,6 +98,27 @@ class sequencing extends eqLogic {
 
     }
 
+    public static function endProgrammed($_options) { // fonction appelée par le cron de programmation cancel
+
+      $sequencing = sequencing::byId($_options['eqLogic_id']);
+
+      if (is_object($sequencing)) {
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct endProgrammed appelée par le CRON principal (qui bypass les conditions)');
+
+        $sequencing->setCache('trigger_name', 'programmé');
+        $sequencing->setCache('trigger_full_name', 'programmé');
+        $sequencing->setCache('trigger_value', '');
+        $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
+        $sequencing->setCache('trigger_time', date('H:i:s'));
+
+        $sequencing->actionsCancel();
+      } else {
+        log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
+      }
+
+
+    }
+
     public static function triggerLaunch($_option) { // fct appelée par le listener des triggers (mais pas par la cmd start qui elle, va bypasser l'évaluation des conditions !)
     // dans _option on a toutes les infos du trigger (from les champs du JS)
     // Attention, on peut avoir plusieurs triggers qui utilisent la meme cmd et donc arrivent 1 seule fois ici
@@ -547,6 +568,94 @@ class sequencing extends eqLogic {
 
     }
 
+    public function setStartProgrammedCron() {
+
+      $cron = cron::byClassAndFunction('sequencing', 'startProgrammed', array('eqLogic_id' => intval($this->getId()))); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (eqLogic)
+
+      $prog = $this->getConfiguration('programmation');
+
+      if (!is_object($cron) && $prog != '') { // pas de cron trouvé et on en veut 1, on le cree
+
+          $cron = new cron();
+          $cron->setClass('sequencing');
+          $cron->setFunction('startProgrammed');
+
+          $options['eqLogic_id'] = intval($this->getId());
+          $cron->setOption($options);
+
+          $cron->setEnable(1);
+          $cron->setTimeout(5); //minutes
+          $cron->setSchedule(checkAndFixCron($prog));
+
+          $cron->setLastRun(date('Y-m-d H:i:s'));
+
+          $cron->save();
+
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Set CRON lancement séquence : ' . $prog . ' lastrun : ' . $cron->getLastRun());
+
+      } else if(is_object($cron) && $prog != '') { // si cron existant et programmation non vide, on le met à jour
+
+        $cron->setSchedule(checkAndFixCron($prog));
+
+        $cron->save();
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Update CRON lancement séquence : ' . $prog . ' lastrun : ' . $cron->getLastRun());
+
+      } else if (is_object($cron) && $prog == '') { // le cron existe mais on veut plus de programmation : on va le virer
+
+        $cron->remove();
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Suppression du CRON lancement séquence');
+      } else {
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - CRON lancement séquence existe pas, et on a pas de programmation => on fait rien');
+      }
+
+    }
+
+    public function setCancelProgrammedCron() {
+
+      $cron = cron::byClassAndFunction('sequencing', 'endProgrammed', array('eqLogic_id' => intval($this->getId()))); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (eqLogic)
+
+      $prog = $this->getConfiguration('programmation_cancel');
+
+      if (!is_object($cron) && $prog != '') { // pas de cron trouvé et on en veut 1, on le cree
+
+          $cron = new cron();
+          $cron->setClass('sequencing');
+          $cron->setFunction('endProgrammed');
+
+          $options['eqLogic_id'] = intval($this->getId());
+          $cron->setOption($options);
+
+          $cron->setEnable(1);
+          $cron->setTimeout(5); //minutes
+          $cron->setSchedule(checkAndFixCron($prog));
+
+          $cron->setLastRun(date('Y-m-d H:i:s'));
+
+          $cron->save();
+
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Set CRON annulation séquence: ' . $prog . ' lastrun : ' . $cron->getLastRun());
+
+      } else if(is_object($cron) && $prog != '') { // si cron existant et programmation non vide, on le met à jour
+
+        $cron->setSchedule(checkAndFixCron($prog));
+
+        $cron->save();
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Update CRON annulation séquence : ' . $prog . ' lastrun : ' . $cron->getLastRun());
+
+      } else if (is_object($cron) && $prog == '') { // le cron existe mais on veut plus de programmation : on va le virer
+
+        $cron->remove();
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Suppression du CRON annulation séquence');
+      } else {
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - CRON annulation séquence existe pas, et on a pas de programmation => on fait rien');
+      }
+
+    }
+
     public function cleanAllDelayedActionsCron($displayWarningMessage = false) {
 
       log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct cleanAllDelayedActionsCron');
@@ -587,9 +696,9 @@ class sequencing extends eqLogic {
 
     }
 
-    public function cleanProgCron() {
+    public function cleanStartAndCancelProgrammedCron() {
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct cleanProgCron');
+      log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct cleanStartAndCancelProgrammedCron');
 
       $crons = cron::searchClassAndFunction('sequencing','startProgrammed'); // on prend tous nos crons de ce plugin, cette fonction, pour tous les equipements
       if (is_array($crons) && count($crons) > 0) {
@@ -600,11 +709,22 @@ class sequencing extends eqLogic {
           }
         }
       }
+
+      $crons = cron::searchClassAndFunction('sequencing','endProgrammed'); // on prend tous nos crons de ce plugin, cette fonction, pour tous les equipements
+      if (is_array($crons) && count($crons) > 0) {
+        foreach ($crons as $cron) {
+          if (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId() && $cron->getState() != 'run') { // si l'id correspond et qu'il est pas en cours, on le vire
+            log::add('sequencing', 'debug', $this->getHumanName() . ' - Cron de programmation trouvé à supprimer');
+            $cron->remove();
+          }
+        }
+      }
+
     }
 
-    public function cleanAllListener() {
+    public function cleanTriggersListener() {
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct cleanAllListener');
+      log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct cleanTriggersListener');
 
       $listeners = listener::byClass('sequencing'); // on prend tous nos listeners de ce plugin, pour tous les equipements
       foreach ($listeners as $listener) {
@@ -616,6 +736,37 @@ class sequencing extends eqLogic {
 
       }
 
+    }
+
+    public function setTriggersListeners() {
+
+      // on boucle dans toutes les cmd existantes
+      foreach ($this->getCmd() as $cmd) {
+
+        // on assigne la fonction selon le type de capteur
+        if ($cmd->getLogicalId() == 'trigger'){
+          $listenerFunction = 'triggerLaunch';
+        } else if ($cmd->getLogicalId() == 'trigger_cancel'){
+          $listenerFunction = 'triggerCancel';
+        } else {
+          continue; // sinon c'est que c'est pas un truc auquel on veut assigner un listener, on passe notre tour
+        }
+
+        // on set le listener associée
+        $listener = listener::byClassAndFunction('sequencing', $listenerFunction, array('sequencing_id' => intval($this->getId())));
+        if (!is_object($listener)) { // s'il existe pas, on le cree, sinon on le reprend
+          $listener = new listener();
+          $listener->setClass('sequencing');
+          $listener->setFunction($listenerFunction); // la fct qui sera appelée a chaque evenement sur une des sources écoutée
+          $listener->setOption(array('sequencing_id' => intval($this->getId())));
+        }
+        $listener->addEvent($cmd->getValue()); // on ajoute les event à écouter de chacun des capteurs definis. On cherchera le trigger a l'appel de la fonction si besoin
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - sensor listener set - cmd :' . $cmd->getHumanName() . ' - event : ' . $cmd->getValue());
+
+        $listener->save();
+
+      } // fin foreach cmd du plugin
     }
 
     public function preInsert() {
@@ -665,8 +816,7 @@ class sequencing extends eqLogic {
 
     }
 
-    // fct appelée par Jeedom aprés l'enregistrement de la configuration
-    public function postSave() {
+    public function createTriggersCmd() {
 
       //########## 1 - On va lire la configuration des capteurs dans le JS et on la stocke dans un tableau #########//
 
@@ -752,93 +902,36 @@ class sequencing extends eqLogic {
         } //*/ // fin foreach restant. A partir de maintenant on a des triggers en DB qui refletent notre config lue en JS
       }
 
-      //########## 4 - Mise en place des listeners de capteurs pour réagir aux events et du cron de start si besoin #########//
+    }
 
-      if ($this->getIsEnable() == 1) { // si notre eq est actif, on va lui definir nos listeners de capteurs
+    // fct appelée par Jeedom aprés l'enregistrement de la configuration
+    public function postSave() {
+
+      // Va aller lire la conf JS et créer toutes les commandes pour les "trigger" et "trigger_cancel"
+      $this->createTriggersCmd();
+
+      if ($this->getIsEnable() == 1) { // si notre eq est actif, on va lui definir nos listeners et crons
 
         //########## D'abord les listeners
         // un peu de menage dans nos events avant de remettre tout ca en ligne avec la conf actuelle
-        $this->cleanAllListener();
+        $this->cleanTriggersListener();
+        $this->setTriggersListeners(); // se base sur les commandes créées précédemments (ou pourrait aller lire la conf, mais ca n'est pas le cas ici)
 
-        // on boucle dans toutes les cmd existantes
-        foreach ($this->getCmd() as $cmd) {
+        //########## Puis les crons de programmation start et cancel, si définis
+        $this->setStartProgrammedCron();
+        $this->setCancelProgrammedCron();
 
-          // on assigne la fonction selon le type de capteur
-          if ($cmd->getLogicalId() == 'trigger' && $cmd->getGeneric_type() == 'trigger_value'){ // uniquement pour les triggers de type trigger_value (les autres sont pas à écouter)
-            $listenerFunction = 'triggerLaunch';
-          } else if ($cmd->getLogicalId() == 'trigger_cancel'){
-            $listenerFunction = 'triggerCancel';
-          } else {
-            continue; // sinon c'est que c'est pas un truc auquel on veut assigner un listener, on passe notre tour
-          }
-
-          // on set le listener associée
-          $listener = listener::byClassAndFunction('sequencing', $listenerFunction, array('sequencing_id' => intval($this->getId())));
-          if (!is_object($listener)) { // s'il existe pas, on le cree, sinon on le reprend
-            $listener = new listener();
-            $listener->setClass('sequencing');
-            $listener->setFunction($listenerFunction); // la fct qui sera appelée a chaque evenement sur une des sources écoutée
-            $listener->setOption(array('sequencing_id' => intval($this->getId())));
-          }
-          $listener->addEvent($cmd->getValue()); // on ajoute les event à écouter de chacun des capteurs definis. On cherchera le trigger a l'appel de la fonction si besoin
-
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - sensor listener set - cmd :' . $cmd->getHumanName() . ' - event : ' . $cmd->getValue());
-
-          $listener->save();
-
-        } // fin foreach cmd du plugin
-
-        //########## Puis le cron de programmation start
-        $cron = cron::byClassAndFunction('sequencing', 'startProgrammed', array('eqLogic_id' => intval($this->getId()))); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (eqLogic)
-
-        $prog = $this->getConfiguration('programmation');
-
-        if (!is_object($cron) && $prog != '') { // pas de cron trouvé et on en veut 1, on le cree
-
-            $cron = new cron();
-            $cron->setClass('sequencing');
-            $cron->setFunction('startProgrammed');
-
-            $options['eqLogic_id'] = intval($this->getId());
-            $cron->setOption($options);
-
-            $cron->setEnable(1);
-            $cron->setTimeout(5); //minutes
-            $cron->setSchedule(checkAndFixCron($prog));
-
-            $cron->setLastRun(date('Y-m-d H:i:s'));
-
-            $cron->save();
-
-            log::add('sequencing', 'debug', $this->getHumanName() . ' - Set CRON start programmation : ' . $prog . ' lastrun : ' . $cron->getLastRun());
-
-        } else if(is_object($cron) && $prog != '') { // si cron existant et programmation non vide, on le met à jour
-
-          $cron->setSchedule(checkAndFixCron($prog));
-
-          $cron->save();
-
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Update CRON start programmation : ' . $prog . ' lastrun : ' . $cron->getLastRun());
-
-        } else if (is_object($cron) && $prog == '') { // le cron existe mais on veut plus de programmation : on va le virer
-
-          $cron->remove();
-
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Suppression du CRON start programmation');
-        } else {
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - CRON start programmation existe pas, et on a pas de programmation => on fait rien');
-        }
 
       } // fin if eq actif
       else { // notre eq n'est pas actif ou il a ete desactivé, on supprime les listeners et le cron de programmation s'ils existaient
 
-        $this->cleanAllListener();
+        $this->cleanTriggersListener();
 
-        $this->cleanProgCron();
+        $this->cleanStartAndCancelProgrammedCron();
 
       }
 
-      log::add('sequencing', 'info', $this->getHumanName() . ' - Fin sauvegarde');
+      log::add('sequencing', 'info', $this->getHumanName() . ' - Sauvegardé');
 
     } // fin fct postSave
 
@@ -920,14 +1013,14 @@ class sequencing extends eqLogic {
     public function preRemove() { //quand on supprime notre eqLogic
 
       // on vire nos listeners associés
-      $this->cleanAllListener();
+      $this->cleanTriggersListener();
 
       //supprime les CRON des actions d'alertes non encore appelés, affiche une alerte s'il y en avait
       //sert à ne pas laisser trainer des CRONs en cours si on change le message ou le label puis en enregistre. Mais ne devrait arriver qu'exceptionnellement
       $this->cleanAllDelayedActionsCron(true);
 
       // on vire notre programmation
-      $this->cleanProgCron();
+      $this->cleanStartAndCancelProgrammedCron();
 
     }
 

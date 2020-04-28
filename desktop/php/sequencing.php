@@ -186,7 +186,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
       <form class="form-horizontal">
         <fieldset>
-          <legend><i class="fas fa-clock"></i> {{Programmation}} <sup><i class="fas fa-question-circle tooltips" title="{{La programmation déclenchera la séquence sans évaluer les éventuelles conditions ci-dessous.}}"></i></sup></legend>
+          <legend><i class="fas fa-clock"></i> {{Programmation}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette programmation déclenchera la séquence d'actions sans évaluer les éventuelles conditions ci-dessous.}}"></i></sup></legend>
           <label class="col-sm-3 control-label">{{Déclenchement programmé ou périodique}}</label>
           <div class="input-group col-sm-2">
             <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="programmation" placeholder="{{format cron}}"/>
@@ -202,12 +202,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
       <form class="form-horizontal">
         <fieldset>
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
+            <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_prog" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
+            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_timerange" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
             <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
-            <!-- <a class="btn btn-success btn-sm addTriggerRep" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon répétition}}</a> -->
-            <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
-
-            <!-- <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour déclencher la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label> -->
           </legend>
 
           <legend>
@@ -223,6 +220,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
           </legend>
 
+          <div id="div_trigger_prog"></div>
+          <div id="div_trigger_timerange"></div>
           <div id="div_trigger"></div>
         </fieldset>
       </form>
@@ -290,9 +289,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_cancel_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour annuler la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label>
           </legend> -->
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
+            <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_prog_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
+            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_timerange_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
             <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
-            <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
           </legend>
 
           <legend>
@@ -307,6 +306,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
             </div>
 
           </legend>
+          <div id="div_trigger_prog_cancel"></div>
+          <div id="div_trigger_timerange_cancel"></div>
           <div id="div_trigger_cancel"></div>
         </fieldset>
       </form>

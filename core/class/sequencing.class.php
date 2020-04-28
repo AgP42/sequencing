@@ -211,9 +211,11 @@ class sequencing extends eqLogic {
 
       $results = array(); // va stocker le resultat de toutes les conditions (oui on va recalculer notre trigger éventuel aussi...;-( ))
       foreach ($this->getConfiguration($_type) as $triggerOrCond) {
-        if($triggerOrCond['trigger_type'] == 'trigger_value'){
+      //  if($triggerOrCond['trigger_type'] == 'trigger_value'){
           $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false);
-        } //TODO : ajouter les autres types
+      //  } //TODO : ajouter les autres types
+        //TODO : trigger_type n'existe plus, il faut jouer direct avec le getConfiguration($_type)
+        // les $_type étant trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_prog_cancel et trigger_timerange_cancel
 
       }
 
@@ -672,6 +674,7 @@ class sequencing extends eqLogic {
         'trigger' => array(), // sous-tableau pour stocker les triggers
         'trigger_cancel' => array(), // idem trigger_cancel
       );
+      // on a maintenant trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_prog_cancel et trigger_timerange_cancel
 
       foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos types de triggers pour recuperer les infos
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Boucle de $jsSensors : key : ' . $key);

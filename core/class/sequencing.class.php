@@ -132,6 +132,7 @@ class sequencing extends eqLogic {
         $sequencing->setCache('trigger_time', date('H:i:s'));
 
         $sequencing->actionsLaunch();*/
+        $sequencing->evaluateEachConditions('trigger');
       } else {
         log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
       }
@@ -151,6 +152,7 @@ class sequencing extends eqLogic {
         $sequencing->setCache('trigger_time', date('H:i:s'));
 
         $sequencing->actionsLaunch();*/
+        $sequencing->evaluateEachConditions('trigger_cancel');
       } else {
         log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
       }
@@ -1098,8 +1100,6 @@ class sequencing extends eqLogic {
           }
         }
       }
-
-
 
     }
 

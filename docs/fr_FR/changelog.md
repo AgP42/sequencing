@@ -1,9 +1,9 @@
-# Stable
+# Stables
 
 1.0.0 - 24 avril 2020 => Stable n°1
 ---
 
-# Beta
+# Betas
 
 1.0.1 - 27 avril 2020
 ---

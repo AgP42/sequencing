@@ -435,7 +435,7 @@ class sequencing extends eqLogic {
 
         log::add('sequencing', 'debug', 'tempsDepuisAction (s) : ' . $tempsDepuisAction . ' - période voulue sans répétition (s) : ' . $action['action_time_limit']);
 
-        if ($tempsDepuisAction < $action['action_time_limit']){
+        if ($tempsDepuisAction < $action['action_time_limit']){ //TODO : PHP Warning: A non-numeric value encountered in /var/www/html/plugins/sequencing/core/class/sequencing.class.php on line 235 (il y avait un *60 à l'époque du warning)
 
           log::add('sequencing', 'debug', 'Action déjà exécutée dans la période => on ne l\'exécute pas');
           return;

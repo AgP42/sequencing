@@ -215,9 +215,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
             </div>
 
           </legend>
-
+          <br>
           <div id="div_trigger_prog"></div>
+          <br>
           <div id="div_trigger_timerange"></div>
+          <br>
           <div id="div_trigger"></div>
         </fieldset>
       </form>
@@ -317,8 +319,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
             </div>
 
           </legend>
+          <br>
           <div id="div_trigger_prog_cancel"></div>
+          <br>
           <div id="div_trigger_timerange_cancel"></div>
+          <br>
           <div id="div_trigger_cancel"></div>
         </fieldset>
       </form>

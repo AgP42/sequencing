@@ -225,12 +225,13 @@ function addTriggerTimeRange(_action, _type) {
     div += '<div class="form-group">';
       div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_timerange"/>';
 
-      div += '<label class="col-md-3 control-label">{{Période temporelle}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette période est une condition uniquement (pas un déclencheur). Ajouter une programmation si besoin. La condition sera valide si l\'heure courante est comprise dans la plage sélectionnée.}}"></i></sup></label>';
+      div += '<label class="col-md-3 control-label">{{Plage horaire}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette période est une condition uniquement (pas un déclencheur). Ajouter une programmation si besoin. La condition sera valide si l\'heure courante est comprise dans la plage sélectionnée.}}"></i></sup></label>';
 
       div += '<div class="col-md-3">';
       div += '<span>';
-         div += '<div> {{Du}} <input class="expressionAttr form-control input-sm in_datepicker" data-l1key="timerange_start" style="display : inline-block; width: 150px;" value=""/> {{au }}';
-           div += '<input class="expressionAttr form-control input-sm in_datepicker" data-l1key="timerange_end" style="display : inline-block; width: 150px;" value=""/>';
+         div += '<div> {{Du}} <input class="expressionAttr form-control in_datepicker" data-l1key="timerange_start" style="display : inline-block; width: 150px;" value=""/> {{au }}';
+           div += '<input class="expressionAttr form-control in_datepicker" data-l1key="timerange_end" style="display : inline-block; width: 150px;" value=""/>';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
         div += '</div>';
       div += '</span>';
       div += '</div>';

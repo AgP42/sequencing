@@ -8,9 +8,11 @@
 1.0.1 - 27 avril 2020
 ---
 
-* Limitation d'action et action annulation en secondes (et plus en minutes)
 * Ajout condition sur répétition d'une valeur
+* Suppression gestion "filtrer répétition", mais ajout dans la doc de l'explication comment gerer la meme chose via le core jeedom
 * Ajout programmation pour déclenchement annulation
+* Ajout déclencheurs par crons pour évaluer les conditions pour lancer ou annuler la séquence
+* Limitation d'action et action annulation en secondes (et plus en minutes)
 * Tests sur jeedom v4.0.52
 
 0.0.6 - 24 avril 2020 => Stable 1.0.0

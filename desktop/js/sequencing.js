@@ -26,6 +26,39 @@ $("#div_trigger_timerange_cancel").sortable({axis: "y", cursor: "move", items: "
 $("#div_action_cancel").sortable({axis: "y", cursor: "move", items: ".action_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 
+// gestion des champs additionnels selon le menu déroulant condition entre triggers et triggers_cancel
+$('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').change(function () {
+  if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "OR" || $('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "AND"){
+    $('.x_sur_N_value').hide();
+    $('.condition_perso').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "x_sur_N"){
+    $('.x_sur_N_value').show();
+    $('.condition_perso').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "perso"){
+    $('.x_sur_N_value').hide();
+    $('.condition_perso').show();
+  } else {
+    $('.x_sur_N_value').hide();
+    $('.condition_perso').hide();
+  }
+});
+
+$('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').change(function () {
+  if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "OR" || $('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "AND"){
+    $('.x_sur_N_value_cancel').hide();
+    $('.condition_perso_cancel').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "x_sur_N"){
+    $('.x_sur_N_value_cancel').show();
+    $('.condition_perso_cancel').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "perso"){
+    $('.x_sur_N_value_cancel').hide();
+    $('.condition_perso_cancel').show();
+  } else {
+    $('.x_sur_N_value_cancel').hide();
+    $('.condition_perso_cancel').hide();
+  }
+});
+
 // ajoute chaque ligne de trigger ou trigger_cancel pour condition sur valeur
 $('.addTriggerValue').off('click').on('click', function () {
   addTriggerValue({}, $(this).attr('data-type'));
@@ -261,30 +294,6 @@ function addTriggerTimeRange(_action, _type) {
         div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_year"/>{{années}} </label>';
        // div += '</span>';
       div += '</div>';
-
-/*      div += '<div class="col-sm-2 col-md-1">';
-      div += '</div>';
-
-      div += '<div class="col-sm-2 col-md-1">';
-      div += '</div>';*/
-
-/*      div += '<div class="col-sm-2 col-md-1">';
-      div += '</div>';
-
-      div += '<div class="col-sm-2 col-md-1">';
-      div += '</div>';
-
-      div += '<div class="col-sm-2 col-md-1">';
-      div += '</div>';
-
-      div += '<div class="col-sm-2 col-md-1">';
-      div += '</div>';
-
-      div += '<div class="col-sm-2 col-md-1">';
-      div += '</div>';
-
-      div += '<div class="col-sm-2 col-md-1">';
-      div += '</div>';*/
 
     div += '</div>';
   div += '</div>';

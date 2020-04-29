@@ -10,10 +10,12 @@
 
 * Majeur :
   * Ajout condition sur répétition d'une valeur
-  * Suppression gestion "filtrer répétition", mais ajout dans la doc de l'explication comment gerer la meme chose via le core jeedom
   * Ajout programmation (CRON) pour déclenchement annulation
   * Ajout déclencheurs par crons pour évaluer les conditions pour lancer ou annuler la séquence
   * Ajout des condition d'évaluation "plage temporelle" pour lancer ou annuler la séquence
+  * Ajout évaluation des conditions par "x parmis N"
+  * Ajout évaluation des conditions par condition personnalisée (encore expérimental)
+  * Suppression gestion "filtrer répétition", mais ajout dans la doc de l'explication comment gerer la meme chose via le core jeedom
 * Mineur :
   * Limitation d'action et action annulation en secondes (et non plus en minutes)
   * Ajout de trim() (suppression des espaces et autres caractéres invisibles) partout pour les labels pour limiter les erreurs utilisateur

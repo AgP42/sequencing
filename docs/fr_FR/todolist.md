@@ -20,6 +20,7 @@
 Divers :
   * ajouter menu deroulant pour choisir les labels ou un bouton de check
   * revoir tous les tags et notamment les tags triggers à refaire ! (passer les triggers dans les crons en changeant comment chercher les cron par search et non byClassAndFunction...)
+  * revoir toute la mise en page bootstrap md et sm
 
 # Notes
 les plugins avec des crons :
@@ -49,3 +50,4 @@ les plugins avec des crons :
 * comportement des crons à la sauvegarde (ok pour date précise, mais chelou pour périodique)
 * pour les crons, jeedom propose toutes les min, 5min, 10 min, ... si vous voulez 3 min il faut le changer à la main dans le resultat
 * s'il n'y a aucune condition à évaluer, les cron triggers ne lanceront rien, il faut utiliser le cron bypass
+* comment passer par un virtuel pour avoir un trigger cmd (à tester avant... éventuellement créér des cmd à la demande ?)

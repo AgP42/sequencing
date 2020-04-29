@@ -109,7 +109,7 @@ $('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focuso
 function addTriggerValue(_action, _type) {
   var div = '<div class="' + _type + '">';
     div += '<div class="form-group">';
-      div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_value"/>';
+  //    div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_value"/>';
 
   //    div += '<label class="col-sm-1 control-label">{{Valeur}}</label>';
       div += '<div class="col-sm-5 col-md-1">';
@@ -200,7 +200,7 @@ function addTriggerProg(_action, _type) {
   var div = '<div class="' + _type + '">';
   //  div += '<div class="form-group expressionAttr" data-l1key="trigger_prog">';
     div += '<div class="form-group">';
-      div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_prog"/>';
+  //    div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_prog"/>';
 
       div += '<label class="col-sm-3 control-label">{{Déclencheur programmé ou périodique}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette programmation déclenchera l\'évaluation des conditions ci-dessous.}}"></i></sup></label>';
       div += '<div class="input-group col-sm-2">';
@@ -223,22 +223,68 @@ function addTriggerTimeRange(_action, _type) {
   var div = '<div class="' + _type + '">';
   //  div += '<div class="form-group expressionAttr" data-l1key="trigger_timerange">';
     div += '<div class="form-group">';
-      div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_timerange"/>';
+  //    div += '<input type="hidden" class="expressionAttr" data-l1key="trigger_type" value="trigger_timerange"/>';
 
-      div += '<label class="col-md-3 control-label">{{Plage horaire}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette période est une condition uniquement (pas un déclencheur). Ajouter une programmation si besoin. La condition sera valide si l\'heure courante est comprise dans la plage sélectionnée.}}"></i></sup></label>';
+      div += '<div class="col-sm-5 col-md-1">';
+        div += '<div class="input-group">';
+          div += '<span class="input-group-btn">';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '</span>';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
+        div += '</div>';
+      div += '</div>';
+
+      div += '<label class="col-sm-2 col-md-1 control-label">{{Plage temporelle}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette période est une condition uniquement (pas un déclencheur). Ajouter une programmation si besoin. La condition sera valide si l\'heure courante est comprise dans la plage.}}"></i></sup></label>';
 
       div += '<div class="col-md-3">';
-      div += '<span>';
-         div += '<div> {{Du}} <input class="expressionAttr form-control in_datepicker" data-l1key="timerange_start" style="display : inline-block; width: 150px;" value=""/> {{au }}';
-           div += '<input class="expressionAttr form-control in_datepicker" data-l1key="timerange_end" style="display : inline-block; width: 150px;" value=""/>';
-          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
-        div += '</div>';
-      div += '</span>';
+        div += '<span>';
+           div += '<div> {{Du}} <input class="expressionAttr form-control in_datepicker" data-l1key="timerange_start" style="display : inline-block; width: 170px;" value=""/> {{au }}';
+             div += '<input class="expressionAttr form-control in_datepicker" data-l1key="timerange_end" style="display : inline-block; width: 170px;" value=""/>';
+            div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '</div>';
+        div += '</span>';
+      div += '</div>';
+
+      div += '<label class="col-sm-2 col-md-1 control-label">{{Répéter}}</label>';
+
+      div += '<div class="col-sm-2 col-md-6">';
+     //   div += '<span>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_1"/>{{lundis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_2"/>{{mardis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_3"/>{{mercredis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_4"/>{{jeudis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_5"/>{{vendredis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_6"/>{{samedis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_7"/>{{dimanches}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_week"/>{{semaines}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_month"/>{{mois}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_year"/>{{années}} </label>';
+       // div += '</span>';
+      div += '</div>';
+
+/*      div += '<div class="col-sm-2 col-md-1">';
       div += '</div>';
 
       div += '<div class="col-sm-2 col-md-1">';
-        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="timerange_day"/>{{Tous les jours}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour ne prendre en compte que les heures}}"></i></sup></label></span>';
+      div += '</div>';*/
+
+/*      div += '<div class="col-sm-2 col-md-1">';
       div += '</div>';
+
+      div += '<div class="col-sm-2 col-md-1">';
+      div += '</div>';
+
+      div += '<div class="col-sm-2 col-md-1">';
+      div += '</div>';
+
+      div += '<div class="col-sm-2 col-md-1">';
+      div += '</div>';
+
+      div += '<div class="col-sm-2 col-md-1">';
+      div += '</div>';
+
+      div += '<div class="col-sm-2 col-md-1">';
+      div += '</div>';*/
 
     div += '</div>';
   div += '</div>';

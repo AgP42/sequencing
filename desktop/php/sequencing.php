@@ -199,7 +199,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
         <fieldset>
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
             <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_prog" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_timerange" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
+            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_timerange" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage temporelle}}</a>
             <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
           </legend>
 
@@ -303,7 +303,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
           </legend> -->
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs pour annuler la séquence, selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
             <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_prog_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_timerange_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage horaire}}</a>
+            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_timerange_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage temporelle}}</a>
             <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
           </legend>
 

@@ -236,7 +236,7 @@ class sequencing extends eqLogic {
 
           log::add('sequencing', 'debug', $this->getHumanName() . ' Nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd']  . ' - type : ' . $trigger['trigger_type'] . ' - valeur : ' . $value);
 
-          $results[$trigger['name']] = $this->checkTriggerValues($trigger, true);
+          $results[$trigger['name']] = $this->checkTriggerValues($trigger, true); // true : c'est un trigger
 
         } // fin if notre event correspond à un trigger
       } // fin foreach tous les triggers ou trigger_cancel
@@ -267,16 +267,38 @@ class sequencing extends eqLogic {
 
     }
 
-    public function evaluateEachConditions($_type){ //$_type est trigger ou trigger_cancel. Cette fonction va renvoyer un tableau avec le resultat de toutes les conditions ($key : le nom de la condition, et $value : 0 ou 1(valide))
+/*    if (is_array($this->getConfiguration('trigger_timerange'))) {
+      foreach ($this->getConfiguration('trigger_timerange') as $timerange) {
+        if ($timerange['name'] == '') {
+          throw new Exception(__('Le champs Nom pour les plages temporelle (déclencheur) ne peut être vide',__FILE__));
+        }
+      }
+    }
+    if (is_array($this->getConfiguration('trigger_timerange_cancel'))) {
+      foreach ($this->getConfiguration('trigger_timerange_cancel') as $timerange) {
+        if ($timerange['name'] == '') {
+          throw new Exception(__('Le champs Nom pour les plages temporelle (déclencheur d\'annulation) ne peut être vide',__FILE__));
+        }
+      }
+    }*/
+
+    public function evaluateEachConditions($_type){ // $_type ici peut etre trigger ou trigger_cancel
+      // Cette fonction va renvoyer un tableau avec le resultat de toutes les conditions ($key : le nom de la condition, et $value : 0 ou 1(valide))
+      // les infos du JS peuvent etre : trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_prog_cancel et trigger_timerange_cancel.
 
       $results = array(); // va stocker le resultat de toutes les conditions (oui on va recalculer notre trigger éventuel aussi...;-( ))
       foreach ($this->getConfiguration($_type) as $triggerOrCond) {
-      //  if($triggerOrCond['trigger_type'] == 'trigger_value'){
-          $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false);
-      //  } //TODO : ajouter les autres types
-        //TODO : trigger_type n'existe plus, il faut jouer direct avec le getConfiguration($_type)
-        // les $_type étant trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_prog_cancel et trigger_timerange_cancel
+        $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false); // false : c'est pas un trigger qui nous appelle (default)
+      }
 
+      if($_type == 'trigger'){ //Pas trés beau... il aurai fallu que trigger_timerange_cancel s'appelle trigger_cancel_timerange dans le JS pour faire un simple $_type.'_timerange' dans le foreach ci-dessous... TODO ?
+        $_type_timerange = 'trigger_timerange';
+      } else if ($_type == 'trigger_cancel'){
+        $_type_timerange = 'trigger_timerange_cancel';
+      }
+
+      foreach ($this->getConfiguration($_type_timerange) as $triggerOrCond) {
+        $results[$triggerOrCond['name']] = $this->checkCondTimeRange($triggerOrCond);
       }
 
       foreach ($results as $key => $value) {
@@ -421,6 +443,63 @@ class sequencing extends eqLogic {
     //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat checkTriggerValuesConditions pour : ' . $trigger['name'] . ' : ' . $check);
 
       return $check;
+
+    }
+
+    public function checkCondTimeRange($timerange){
+
+      $start_datetime = $timerange['timerange_start'];
+      $end_datetime = $timerange['timerange_end'];
+
+      if($timerange['rep_'.date('N')] == 1){ // si aujourd'hui est coché date('N') renvoie le jour courant de 1 (lundi) à 7(dimanche)
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Aujourd\'hui (' . date('N') . ') est cochée ');
+
+          $now = date('H:i:s');
+          $start = date('H:i:s', strtotime($start_datetime));
+          $end = date('H:i:s', strtotime($end_datetime));
+
+      } else if($timerange['rep_week'] == 1){
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Semaine est cochée ');
+
+        $now = date('N H:i:s');
+        $start = date('N H:i:s', strtotime($start_datetime));
+        $end = date('N H:i:s', strtotime($end_datetime));
+
+      } else if($timerange['rep_month'] == 1){
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Mois est coché ');
+
+        $now = date('d H:i:s');
+        $start = date('d H:i:s', strtotime($start_datetime));
+        $end = date('d H:i:s', strtotime($end_datetime));
+
+      } else if($timerange['rep_year'] == 1){
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Année est cochée ');
+
+        $now = date('m-d H:i:s');
+        $start = date('m-d H:i:s', strtotime($start_datetime));
+        $end = date('m-d H:i:s', strtotime($end_datetime));
+
+      } else if($timerange['rep_1'] != 1 && $timerange['rep_2'] != 1 && $timerange['rep_3'] != 1 && $timerange['rep_4'] != 1 && $timerange['rep_5'] != 1 && $timerange['rep_6'] != 1 && $timerange['rep_7'] != 1){ // aucun jour coché (ni semaine ni mois ni année testés avant)
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Aucune répétition cochée ');
+
+        $now = date('Y-m-d H:i:s');
+        $start = $start_datetime;
+        $end = $end_datetime;
+
+      } else { // je vois pas comment on peut arriver là, mais c'est au cas où...
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - ****************** On est passé dans le else final, comment ??? ');
+        return 0;
+      }
+
+      log::add('sequencing', 'debug', $this->getHumanName() . ' On va évaluer : ' . $timerange['name'] . ' : ' . $start . ' - ' . $end . ' - avec now : ' . $now);
+
+      if($now >= $start && $now <= $end){
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - On est dans la plage => OK');
+        return 1;
+      } else {
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - On n\'est pas dans la plage => nok');
+        return 0;
+      }
 
     }
 
@@ -1004,12 +1083,16 @@ class sequencing extends eqLogic {
         'trigger_cancel',
       );
 
+      $allNames = array(); // on va stocker tous les noms pour verifier ensuite leur unicité
+
       foreach ($triggersType as $type) {
         if (is_array($this->getConfiguration($type))) {
           foreach ($this->getConfiguration($type) as $trigger) { // pour tous les capteurs de tous les types, on veut un nom et une cmd
             if ($trigger['name'] == '') {
               throw new Exception(__('Le champs Nom pour les capteurs ('.$type.') ne peut être vide',__FILE__));
             }
+
+            array_push($allNames, $trigger['name']);
 
             if ($trigger['cmd'] == '') {
               throw new Exception(__('Le champs Capteur ('.$type.') ne peut être vide',__FILE__));
@@ -1099,6 +1182,48 @@ class sequencing extends eqLogic {
             throw new Exception(__('Cron Trigger d\'annulation ('.$prog['trigger_prog'].') : format non valide',__FILE__));
           }
         }
+      }
+
+      // tests pour timerange
+      $timerangeType = array( // liste des types avec des champs a vérifier
+        'trigger_timerange',
+        'trigger_timerange_cancel',
+      );
+
+      foreach ($timerangeType as $timeranges) {
+        if (is_array($this->getConfiguration($timeranges))) {
+          foreach ($this->getConfiguration($timeranges) as $timerange) {
+
+            if ($timerange['name'] == '') {
+              throw new Exception(__('Le champs Nom pour les plages temporelle ('.$timeranges.') ne peut être vide',__FILE__));
+            }
+
+            array_push($allNames, $timerange['name']);
+
+            if ($timerange['timerange_start'] == '' || $timerange['timerange_end'] == '') {
+              throw new Exception(__('Vous devez donner un début et une fin pour la plage temporelle ('.$timeranges.') : '. $timerange['name'],__FILE__));
+            }
+
+            if ($timerange['timerange_start'] >= $timerange['timerange_end']) {
+              throw new Exception(__('Le début doit être antérieur à la fin pour la plage temporelle ('.$timeranges.') : '. $timerange['name'],__FILE__));
+            }
+
+          }
+        }
+
+      }
+
+/*      if (is_array($this->getConfiguration('trigger_timerange_cancel'))) {
+        foreach ($this->getConfiguration('trigger_timerange_cancel') as $timerange) {
+          if ($timerange['name'] == '') {
+            throw new Exception(__('Le champs Nom pour les plages temporelle (déclencheur d\'annulation) ne peut être vide',__FILE__));
+          }
+        }
+      }*/
+
+      //tester l'unicité de tous les noms
+      if(count($allNames) !== count(array_unique($allNames))){
+        throw new Exception(__('Les noms des déclencheurs et déclencheurs d\'annulation doivent être uniques',__FILE__));
       }
 
     }

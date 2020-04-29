@@ -5,14 +5,20 @@
 
 # Betas
 
-1.0.1 - 27 avril 2020
+1.0.1 - 29 avril 2020
 ---
 
-* Ajout condition sur répétition d'une valeur
-* Suppression gestion "filtrer répétition", mais ajout dans la doc de l'explication comment gerer la meme chose via le core jeedom
-* Ajout programmation pour déclenchement annulation
-* Ajout déclencheurs par crons pour évaluer les conditions pour lancer ou annuler la séquence
-* Limitation d'action et action annulation en secondes (et plus en minutes)
+* Majeur :
+  * Ajout condition sur répétition d'une valeur
+  * Suppression gestion "filtrer répétition", mais ajout dans la doc de l'explication comment gerer la meme chose via le core jeedom
+  * Ajout programmation (CRON) pour déclenchement annulation
+  * Ajout déclencheurs par crons pour évaluer les conditions pour lancer ou annuler la séquence
+  * Ajout des condition d'évaluation "plage temporelle" pour lancer ou annuler la séquence
+* Mineur :
+  * Limitation d'action et action annulation en secondes (et non plus en minutes)
+  * Ajout de trim() (suppression des espaces et autres caractéres invisibles) partout pour les labels pour limiter les erreurs utilisateur
+  * Tentative correction "PHP Warning: A non-numeric value encountered in /var/www/html/plugins/sequencing/core/class/sequencing.class.php on line 235"
+* Mise à jour majeur documentation
 * Tests sur jeedom v4.0.52
 
 0.0.6 - 24 avril 2020 => Stable 1.0.0

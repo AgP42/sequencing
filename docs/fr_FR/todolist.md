@@ -21,6 +21,8 @@ Divers :
   * ajouter menu deroulant pour choisir les labels ou un bouton de check
   * revoir tous les tags et notamment les tags triggers à refaire ! (passer les triggers dans les crons en changeant comment chercher les cron par search et non byClassAndFunction...)
   * revoir toute la mise en page bootstrap md et sm
+  * tester si la date des crons est pas dans le passé ?
+
 
 # Notes
 les plugins avec des crons :
@@ -32,7 +34,8 @@ les plugins avec des crons :
 * triggers :
   * DONE - conditions sur valeurs et répétition de la même valeur au moins x fois en N minutes
   * DONE - programmé (CRON)
-  * plage horaire (datetime picker de début et fin de période pour commencer, en verra après si début/fin peuvent être des commandes (heure de levé du soleil, …)
+  * DONE plage horaire (datetime picker de début et fin de période)
+  * (plage temporelle via des commandes (heure de levé du soleil, …) ?)
   * (condition valide plus de x minutes)
 * conditions entre triggers :
   * DONE - ET (all conditions valides)
@@ -51,3 +54,4 @@ les plugins avec des crons :
 * pour les crons, jeedom propose toutes les min, 5min, 10 min, ... si vous voulez 3 min il faut le changer à la main dans le resultat
 * s'il n'y a aucune condition à évaluer, les cron triggers ne lanceront rien, il faut utiliser le cron bypass
 * comment passer par un virtuel pour avoir un trigger cmd (à tester avant... éventuellement créér des cmd à la demande ?)
+* virer la notion d'attention aux espaces pour les label => A bien retester !!!

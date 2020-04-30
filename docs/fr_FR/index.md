@@ -12,10 +12,10 @@ Les principales fonctionnalités sont les suivantes :
    * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scénario, appel API, le Dashboard, ...)
 * Déclenchement conditionné :
    * Ajout d'une quantité illimité de déclencheurs selon programmation, selon valeur et selon condition de plage temporelle
-   * Déclencheurs selon valeur de commandes Jeedom (capteur, bouton, info virtuelle, ...) : chacun jusqu'à 2 conditions selon leur valeur (binaire, numérique ou chaine de caractéres) et la possibilité de ne déclencher qu'après plusieurs occurences successives valides
+   * Déclencheurs selon valeur de commandes Jeedom (capteur, bouton, info virtuelle, ...) : chacun jusqu'à 2 conditions selon leur valeur (binaire, numérique ou chaîne de caractères) et la possibilité de ne déclencher qu'après plusieurs occurrences successives valides
    * Historisation des déclencheurs selon valeur
    * Déclencheurs selon programmation : à date-heure précise ou périodique
-   * Condition selon plage temporelle : permet de limiter le déclenchement selon certaines periodes. Les périodes peuvent être répétées chaque jour de la semaine, toutes les semaines, tous les mois ou tous les ans.
+   * Condition selon plage temporelle : permet de limiter le déclenchement selon certaines périodes. Les périodes peuvent être répétées chaque jour de la semaine, toutes les semaines, tous les mois ou tous les ans.
 * En cas de multi-déclenchement de la séquence d'action, choix de garder la programmation initiale de chaque action ou de les reporter
 * Gestion d'annulation de la séquence (immédiat ou conditionné, identique gestion du déclenchement) et liste d'actions associées
 * Les actions d'annulation peuvent être conditionnées par l'exécution ou non d'une action de la séquence initiale
@@ -118,7 +118,7 @@ Cet onglet regroupe les différentes façons de déclencher la séquence d'actio
 
 ### En déclenchement immédiat
 
-Le déclenchement immédiat ne tient compte d'aucune autre condition par ailleur.
+Le déclenchement immédiat ne tient compte d'aucune autre condition par ailleurs.
 
 #### Via l'API, un autre plugin ou un scénario, ou via le Dashboard
 
@@ -137,14 +137,14 @@ Vous pouvez programmer un cron directement via le plugin pour une exécution sim
 
 Info : lors de la première sauvegarde d'une programmation périodique, le déclenchement se lance dans la 1ère minute après la sauvegarde, puis il se lance comme programmé. Ceci est dû au fait que le cron ne connaissant pas l'heure de son précédent déclenchement, il se croit "en retard" et s'exécute. Ceci peut aussi se produire lorsque vous réduisez la valeur de programmation périodique.
 
-> Information sur le comportement des crons périodique aprés sauvegarde : voir "Comportement des cron périodiques" ci-dessous
+> Information sur le comportement des crons périodique après sauvegarde : voir "Comportement des crons périodiques" ci-dessous
 
 ### Par évaluation de conditions
 
 #### Principe de fonctionnement
 Cette partie contient 3 catégories d'éléments :
-* **Déclencheurs selon programmation** : il s'agit d'un ou plusieurs cron (programmation) que vous pouvez choisir d'exécuter à une heure donnée ou périodiquement. Ici cette programmation permettra de déclencher l'évaluation des conditions suivante uniquement. S'il n'y a aucune autre condition, il ne se passera rien (utilisez pour cela la progammation en déclenchement immédiat ci-dessus).
-* **Conditions selon plage temporelle** : il s'agit d'une ou plusieurs plage(s) de date-heure, éventuellement répétées, pendant lesquels la séquence d'action peut-être activée. Il s'agit uniquement de **conditions** et non de **déclencheurs** (la séquence ne se déclenchera pas spontanement en début de plage)
+* **Déclencheurs selon programmation** : il s'agit d'un ou plusieurs cron(s) (programmation) que vous pouvez choisir d'exécuter à une heure donnée ou périodiquement. Ici cette programmation permettra de déclencher l'évaluation des conditions suivante uniquement. S'il n'y a aucune autre condition, il ne se passera rien (utilisez pour cela la programmation en déclenchement immédiat ci-dessus).
+* **Conditions selon plage temporelle** : il s'agit d'une ou plusieurs plage(s) de date-heure, éventuellement répétées, pendant lesquels la séquence d'action peut-être activée. Il s'agit uniquement de **conditions** et non de **déclencheurs** (la séquence ne se déclenchera pas spontanément en début de plage)
 * **Déclencheurs selon valeur et répétition** : il s'agit ici de déclencheurs **et** de conditions. Chaque changement de valeur ou d'état d'une de ces commandes déclenchera l'évaluation des conditions liées à cette commande. Si ce déclencheur est valide, les autres conditions seront alors évaluées.
 
 Ainsi que la possibilité de choisir les conditions que vous voulez appliquer entre ces différents éléments :
@@ -165,7 +165,7 @@ Cliquez sur le bouton correspondant à l'élément que vous souhaitez ajouter.
   * cliquez sur le bouton **-** pour supprimer le champ
   * le champ ne peut pas être laissé vide
 
-> Information sur le comportement des crons périodique aprés sauvegarde : voir "Comportement des cron périodiques" ci-dessous
+> Information sur le comportement des crons périodique après sauvegarde : voir "Comportement des crons périodiques" ci-dessous
 
 * **Condition selon plage temporelle** :
 
@@ -173,7 +173,7 @@ Cliquez sur le bouton correspondant à l'élément que vous souhaitez ajouter.
 
   * cliquez sur le bouton **-** pour supprimer le champ
   * **Nom** : chaque élément doit avoir un nom unique. Champ obligatoire.
-  * Début et fin de **Plage temporelle** : utilisez le selectionneur de date-heure pour la plage souhaitée. Vous pouvez corriger manuellement si vous souhaitez un horaire plus précis (le plugin est capable d'évaluer à la seconde sur ces champs)
+  * Début et fin de **Plage temporelle** : utilisez le sélectionneur de date-heure pour la plage souhaitée. Vous pouvez corriger manuellement si vous souhaitez un horaire plus précis (le plugin est capable d'évaluer à la seconde sur ces champs)
   * cliquez sur le bouton **-** pour supprimer cette condition
   * **Répéter** : choisir ici la répétition voulue pour votre plage temporelle
     * un ou plusieurs jours de la semaine : le plugin n'utilisera que les heures données dans les champs de début et fin de plage et répétera ces heures aux jours choisis
@@ -189,11 +189,11 @@ Cliquez sur le bouton correspondant à l'élément que vous souhaitez ajouter.
   * **Commande** : la commande Jeedom du déclencheur. Champ obligatoire. Il ne peut s'agir que d'une commande, les variables ou autre ne fonctionnent pas pour l'instant. (Passez par un virtuel pour convertir une variable en commande si besoin)
   * **Conditions** :
     * 1 ou 2 condition(s) possible(s) sur la valeur du capteur. Il peut s'agit d'une valeur numérique ou d'un texte. Pour un texte, vous pouvez ajouter des "guillemets doubles" ou aucun guillemet, mais ne pas utiliser de 'guillemets simples'.
-    * **Nombre de fois** et **Pendant** : permet d'ajouter comme condition une répétition de la valeur sur une période donnée. Par exemple si vous souhaitez ne déclencher la fermeture d'un store qu'après 3 rafales de vents > 50km/h en 10min : condition 1 "strictement supérieur" "50". Pas de condition 2. Répétition : "3" en "600" secondes. Vous pouvez utiliser les champs de répétitions sans définir de conditions, dans ce cas toutes les valeurs de la commande seront considérées dans la répétition. Cette condition sera valide pour toutes les occurences à partir de la limite choisie. Dans l'exemple précédent, les 3ème, 4ème ou 5ème occurences >50km/h dans les 10min seront considérées comme des déclencheurs valides.
+    * **Nombre de fois** et **Pendant** : permet d'ajouter comme condition une répétition de la valeur sur une période donnée. Par exemple si vous souhaitez ne déclencher la fermeture d'un store qu'après 3 rafales de vents > 50km/h en 10min : condition 1 "strictement supérieur" "50". Pas de condition 2. Répétition : "3" en "600" secondes. Vous pouvez utiliser les champs de répétitions sans définir de conditions, dans ce cas toutes les valeurs de la commande seront considérées dans la répétition. Cette condition sera valide pour toutes les occurrences à partir de la limite choisie. Dans l'exemple précédent, les 3ème, 4ème ou 5ème occurrences >50km/h dans les 10min seront considérées comme des déclencheurs valides.
 
 > si votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions (strictement identiques) via l'onglet **Avancé - commandes**. Pour la commande voulue (le nom dans cet onglet correspond au nom donné dans l'onglet **Déclencheurs**), cliquez sur le bouton de configuration (engrenage) puis "Configuration" et "Gestion de la répétition des valeurs" puis choisir "Jamais répéter".
 
-* **Evaluation**
+* **Évaluation**
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/evaluation.png)
 
@@ -201,7 +201,7 @@ Choisir ici les conditions que vous voulez appliquer entre ces différents élé
 * **ET** : toutes les conditions (valeur et plage temporelle) doivent être valides pour déclencher la séquence d'action
 * **OU** : une seule condition suffit
 * **x conditions valides** : seules x parmi vos N conditions doivent être valides pour déclencher la séquence. Par exemple si vous avez plusieurs capteurs de températures et seuls 3 sur 4 doivent être sous un seuil donné pour déclencher une alerte ou le chauffage. Ou pour déclencher un arrosage automatique sans attendre que tous les capteurs soient hors seuils.
-* **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé) pour que je puisse l'améliorer ;-). Fonctionnement :
+* **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-). Fonctionnement :
   * Vous devez écrire la condition logique à respecter entre vos différentes conditions, sachant qu'une condition valide ==1 et non valide ==0.
   * Le nom de chaque condition doit être encadré par des # (n'utilisez pas de # par ailleurs dans la condition...)
   * Vos conditions ne doivent pas contenir d'espace dans leur nom
@@ -264,7 +264,7 @@ Cliquer sur "ajouter une action" pour définir une ou plusieurs actions d'annula
    * Attention, si vous renseignez un label qui n'existe pas (et donc ne sera jamais exécuté), l'action liée ne s'exécutera jamais. Vous ne pouvez donc pas utiliser ce champ pour personnaliser un tag liée à cette action uniquement.
    * Laissez le champs vide pour exécuter l'action d'annulation sans condition (à chaque déclenchement d'annulation)
 * **Limiter exécution** : permet de limiter la fréquence de l'exécution de cette action. Laisser vide ou 0 pour une exécution systématique. Si vous avez plusieurs actions dont la commande est la même (cas des messages par exemples) et dont vous souhaitez limiter l'exécution, il est souhaitable de saisir un "label action de référence" (valide, sinon l'action ne sera jamais exécutée) pour cette action pour éviter les interférences dans le calcul de la dernière date d'exécution.
-* **Action** : la commande jeedom correspondant à l'action voulue. Pour les actions de type "message", vous pouvez utiliser les tags définis ci-dessus. Les actions peuvent être des "mots-clés" Jeedom, pour lancer un scénario ou définir la valeur d'une variable par exemple.
+* **Action** : la commande Jeedom correspondant à l'action voulue. Pour les actions de type "message", vous pouvez utiliser les tags définis ci-dessus. Les actions peuvent être des "mots-clés" Jeedom, pour lancer un scénario ou définir la valeur d'une variable par exemple.
 
 Onglet **Avancé - Commandes Jeedom**
 ---
@@ -295,10 +295,10 @@ Si une annulation est déclenchée sans qu'un déclenchement ait été précéde
 ---
 
 Le comportement dépendra de la configuration du plugin :
-* si toutes les actions d'annulation sont liées à des labels, alors il ne se passera rien (puisqu'ils n'ont pas été déclenchés prédédemment).
+* si toutes les actions d'annulation sont liées à des labels, alors il ne se passera rien (puisqu'ils n'ont pas été déclenchés précédemment).
 * si certaines actions d'annulation ne sont pas conditionnées : elles seront exécutées.
 
-Comportement des cron périodiques
+Comportement des crons périodiques
 ---
 
 Les crons périodiques peuvent être configurées pour déclencher la séquence ou en déclencheur pour l'évaluation des conditions. (Idem pour l'annulation de la séquence). Ils ne sont utilisés nul part d'autre dans le plugin.
@@ -320,11 +320,11 @@ Quand j'étais enfant ma grand-mère nous appelait pour les repas en sonnant la 
 * Immédiatement : mémoriser les états des lampes et faire clignoter toutes les lampes de la maison (label : lampes)
 * Immédiatement : envoyer une notification sur les smartphones des grands
 * Délai 1 min : couper le clignotement des lampes et retour état précédent
-* Délai 5 min : couper le courant de la télévison, des consoles de jeux et des radios (label : tv)
+* Délai 5 min : couper le courant de la télévision, des consoles de jeux et des radios (label : tv)
 
 Annulation (un autre bouton ou 2 appuis sur le même bouton) :
 * Si "lampe" : couper le clignotement des lampes et retour état précédent
-* Si "tv" : rallumer le courant de la télévison, des consoles de jeux et des radios
+* Si "tv" : rallumer le courant de la télévision, des consoles de jeux et des radios
 
 Réveil
 ---

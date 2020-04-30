@@ -273,7 +273,6 @@ function addTriggerTimeRange(_action, _type) {
         div += '<span>';
            div += '<div> {{Du}} <input class="expressionAttr form-control in_datepicker" data-l1key="timerange_start" style="display : inline-block; width: 170px;" value=""/> {{au }}';
              div += '<input class="expressionAttr form-control in_datepicker" data-l1key="timerange_end" style="display : inline-block; width: 170px;" value=""/>';
-            div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
           div += '</div>';
         div += '</span>';
       div += '</div>';

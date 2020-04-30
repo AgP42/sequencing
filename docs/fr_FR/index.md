@@ -42,7 +42,7 @@ Ajouter un équipement, puis configurer les différents onglets.
 Onglet **Général**
 ---
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletGeneral.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletGeneral.png)
 
 ### **Informations Jeedom**
    * Indiquer le nom de l'équipement
@@ -73,7 +73,7 @@ Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez d
 * #action_timer# : le délai avant exécution de votre action courante. Vide si non défini. Uniquement pour les **Actions**
 * #action_label_liee# : le label de votre action de référence. Vide si non défini. Uniquement pour les **Actions d'annulation**
 
-##### Tags selon les déclencheurs
+##### Tags selon les déclencheurs => Beta du 30 avril : tous ces tags sont à reprendre, ils ne marchent plus !
 * les informations correspondent au dernier déclencheur valide
 * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décalée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle ait été initialement lancée par le déclencheur 1).
 * Tags disponibles :
@@ -114,45 +114,107 @@ Onglet **Déclencheurs**
 
 Cet onglet regroupe les différentes façons de déclencher la séquence d'action.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletDeclencheurs.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletDeclencheurs.png)
 
-### Via l'API, un autre plugin ou un scénario
+### En déclenchement immédiat
+
+Le déclenchement immédiat ne tient compte d'aucune autre condition par ailleur.
+
+#### Via l'API, un autre plugin ou un scénario, ou via le Dashboard
 
 * Pour l'API, utilisez le lien donné (actualiser ou sauvegarder si l'URL ne s'affiche pas directement)
    * "Réglages/Système/Configuration/Réseaux" doit être correctement renseigné pour que l'adresse affichée soit fonctionnelle.
    * Vous pouvez cliquer sur le lien pour tester son bon fonctionnement
    * Cette URL peut être appelée par n'importe quel équipement extérieur, notamment un smartphone
-* Pour un appel via un scenario ou un autre plugin (Mode, Agenda, Présence, ...), utilisez la commande Jeedom donnée.
-* La commande de déclenchement manuelle est aussi disponible via un bouton sur le Dashboard
+* Pour un appel via un scenario ou un autre plugin (Mode, Agenda, Présence, ...), utilisez la commande Jeedom donnée ([Déclencher]).
+* La commande de déclenchement est aussi disponible via un bouton sur le Dashboard
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/widget.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/widget.png)
 
-### Par programmation
+#### Par programmation
 
 Vous pouvez programmer un cron directement via le plugin pour une exécution simple retardée ou une exécution périodique.
 
-Info : lors de la première sauvegarde d'une programmation périodique, le déclenchement se lance dans la 1ère minute après la sauvegarde, puis il se lance comme programmé. Vous devez arrêter la séquence manuellement dans ce cas. Ceci est dû au fait que le cron ne connaissant pas l'heure de son précédent déclenchement, il se croit "en retard" et s'exécute. Ceci peut aussi se produire lorsque vous réduisez la valeur de programmation périodique.
+Info : lors de la première sauvegarde d'une programmation périodique, le déclenchement se lance dans la 1ère minute après la sauvegarde, puis il se lance comme programmé. Ceci est dû au fait que le cron ne connaissant pas l'heure de son précédent déclenchement, il se croit "en retard" et s'exécute. Ceci peut aussi se produire lorsque vous réduisez la valeur de programmation périodique.
 
-### Par déclencheur
+> Information sur le comportement des crons périodique aprés sauvegarde : voir "Comportement des cron périodiques" ci-dessous
 
-Cliquez sur **Ajouter un déclencheur** pour ajouter un déclencheur.
+### Par évaluation de conditions
 
-**Tous les déclencheurs doivent être valides** : cochez cette case si vous voulez que tous vos déclencheurs (de la liste des déclencheurs, hors programmation et déclenchement manuel) valident leur(s) condition(s) pour déclencher la séquence (le plugin va donc faire une condition **ET** entre tous les déclencheurs). Si la case n'est pas cochée, chaque déclencheur est évalué individuellement (condition **OU** entre les déclencheurs).
+#### Principe de fonctionnement
+Cette partie contient 3 catégories d'éléments :
+* **Déclencheurs selon programmation** : il s'agit d'un ou plusieurs cron (programmation) que vous pouvez choisir d'exécuter à une heure donnée ou périodiquement. Ici cette programmation permettra de déclencher l'évaluation des conditions suivante uniquement. S'il n'y a aucune autre condition, il ne se passera rien (utilisez pour cela la progammation en déclenchement immédiat ci-dessus).
+* **Conditions selon plage temporelle** : il s'agit d'une ou plusieurs plage(s) de date-heure, éventuellement répétées, pendant lesquels la séquence d'action peut-être activée. Il s'agit uniquement de **conditions** et non de **déclencheurs** (la séquence ne se déclenchera pas spontanement en début de plage)
+* **Déclencheurs selon valeur et répétition** : il s'agit ici de déclencheurs **et** de conditions. Chaque changement de valeur ou d'état d'une de ces commandes déclenchera l'évaluation des conditions liées à cette commande. Si ce déclencheur est valide, les autres conditions seront alors évaluées.
 
-Pour chaque déclencheur :
-* **Nom** : chaque déclencheur doit avoir un nom unique. Champ obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu.
-* **Capteur** : la commande Jeedom du déclencheur. Champ obligatoire. Il ne peut s'agir que d'une commande, les variables ou autre ne fonctionnent pas.
-* **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
-* **Conditions** : 1 ou 2 condition(s) possible(s) sur la valeur du capteur. Il peut s'agit d'une valeur numérique ou d'un texte. Pour un texte, ajouter des "guillemets".
+Ainsi que la possibilité de choisir les conditions que vous voulez appliquer entre ces différents éléments :
+* **ET** : toutes les conditions (valeur et plage temporelle) doivent être valides pour déclencher la séquence d'action
+* **OU** : une seule condition suffit
+* **x conditions valides** : seules x parmi vos N conditions doivent être valides pour déclencher la séquence
+* **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels pour que je puisse l'améliorer ;-)
 
-> Activez les logs en mode "Info" pour tester vos conditions de déclencheurs.
+#### Configuration
+
+Cliquez sur le bouton correspondant à l'élément que vous souhaitez ajouter.
+
+* **Déclencheur selon programmation** :
+
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/TriggerCron.png)
+
+  * cliquez sur le bouton **?** pour choisir la programmation voulue. Vous pouvez ensuite adapter la programmation manuellement si besoin (toutes les 2 mins par exemple). Le code vérifiera la validité de votre programmation avant l'enregistrement. (Techniquement il n'est pas possible de descendre sous la minute et la programmation sera toujours réalisée en début de minute)
+  * cliquez sur le bouton **-** pour supprimer le champ
+  * le champ ne peut pas être laissé vide
+
+> Information sur le comportement des crons périodique aprés sauvegarde : voir "Comportement des cron périodiques" ci-dessous
+
+* **Condition selon plage temporelle** :
+
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/PlageTemporelle.png)
+
+  * cliquez sur le bouton **-** pour supprimer le champ
+  * **Nom** : chaque élément doit avoir un nom unique. Champ obligatoire.
+  * Début et fin de **Plage temporelle** : utilisez le selectionneur de date-heure pour la plage souhaitée. Vous pouvez corriger manuellement si vous souhaitez un horaire plus précis (le plugin est capable d'évaluer à la seconde sur ces champs)
+  * cliquez sur le bouton **-** pour supprimer cette condition
+  * **Répéter** : choisir ici la répétition voulue pour votre plage temporelle
+    * un ou plusieurs jours de la semaine : le plugin n'utilisera que les heures données dans les champs de début et fin de plage et répétera ces heures aux jours choisis
+    * **semaines** : le plugin regardera les jours de la semaine (lundi, mardi,...) des dates début/fin choisies et les répéteras toutes les semaines (aux heures choisies). Par exemple si vous choisissez du lundi 8h au vendredi 18h pour une semaine donnée, ceci sera répété toutes les semaines du lundi au vendredi.
+    * **mois** : la répétition sera réalisée tous les mois à la même date de jour que sélectionné. Par exemple si vous choisissez du 1/01/2020 8h au 15/01/2020 18h, la plage sera active tous les mois du 1er à 8h au 15 à 18h du mois courant.
+    * **année** : même principe que pour **mois** mais seule l'année sélectionnée est ignorée.
+
+* **Déclencheur selon valeur et répétition** :
+
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/TriggersValeur.png)
+
+  * **Nom** : chaque déclencheur doit avoir un nom unique. Champ obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu. Chaque déclencheur de cette catégorie est automatiquement historisée, vous pouvez changer ceci via l'onglet **Avancé - commandes**
+  * **Commande** : la commande Jeedom du déclencheur. Champ obligatoire. Il ne peut s'agir que d'une commande, les variables ou autre ne fonctionnent pas pour l'instant. (Passez par un virtuel pour convertir une variable en commande si besoin)
+  * **Conditions** :
+    * 1 ou 2 condition(s) possible(s) sur la valeur du capteur. Il peut s'agit d'une valeur numérique ou d'un texte. Pour un texte, vous pouvez ajouter des "guillemets doubles" ou aucun guillemet, mais ne pas utiliser de 'guillemets simples'.
+    * **Nombre de fois** et **Pendant** : permet d'ajouter comme condition une répétition de la valeur sur une période donnée. Par exemple si vous souhaitez ne déclencher la fermeture d'un store qu'après 3 rafales de vents > 50km/h en 10min : condition 1 "strictement supérieur" "50". Pas de condition 2. Répétition : "3" en "600" secondes. Vous pouvez utiliser les champs de répétitions sans définir de conditions, dans ce cas toutes les valeurs de la commande seront considérées dans la répétition. Cette condition sera valide pour toutes les occurences à partir de la limite choisie. Dans l'exemple précédent, les 3ème, 4ème ou 5ème occurences >50km/h dans les 10min seront considérées comme des déclencheurs valides.
+
+> si votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions (strictement identiques) via l'onglet **Avancé - commandes**. Pour la commande voulue (le nom dans cet onglet correspond au nom donné dans l'onglet **Déclencheurs**), cliquez sur le bouton de configuration (engrenage) puis "Configuration" et "Gestion de la répétition des valeurs" puis choisir "Jamais répéter".
+
+* **Evaluation**
+
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/evaluation.png)
+
+Choisir ici les conditions que vous voulez appliquer entre ces différents éléments :
+* **ET** : toutes les conditions (valeur et plage temporelle) doivent être valides pour déclencher la séquence d'action
+* **OU** : une seule condition suffit
+* **x conditions valides** : seules x parmi vos N conditions doivent être valides pour déclencher la séquence. Par exemple si vous avez plusieurs capteurs de températures et seuls 3 sur 4 doivent être sous un seuil donné pour déclencher une alerte ou le chauffage. Ou pour déclencher un arrosage automatique sans attendre que tous les capteurs soient hors seuils.
+* **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé) pour que je puisse l'améliorer ;-). Fonctionnement :
+  * Vous devez écrire la condition logique à respecter entre vos différentes conditions, sachant qu'une condition valide ==1 et non valide ==0.
+  * Le nom de chaque condition doit être encadré par des # (n'utilisez pas de # par ailleurs dans la condition...)
+  * Vos conditions ne doivent pas contenir d'espace dans leur nom
+  * Vous pouvez utiliser des () pour déterminer les priorités
+  * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), ...)
+  * Exemple : (#lundis#==1||#btrouge18#==0)&&#btblanc#
 
 Onglet **Actions**
 ---
 
 Cet onglet permet de définir les actions de la séquence.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActions.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletActions.png)
 
 Cliquer sur "ajouter une action" pour définir une ou plusieurs actions puis les configurer :
 * **Label** : Champs facultatif permettant de lier cette action à une ou plusieurs actions d'annulation. Vous pouvez aussi utiliser ce champ pour personnaliser le tag lié à cette action (#action_label#)
@@ -179,32 +241,7 @@ L'annulation consiste à :
 * Annuler la programmation des actions programmées et non exécutées
 * Déclencher des actions d'annulation, qui peuvent être conditionnées selon l'exécution précédente d'une **Action** (voir onglet **Actions d'annulation**)
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletAnnulationDeclencheurs.png)
-
-### Via l'API, un autre plugin ou un scénario
-
-* Pour l'API, utilisez le lien donné (actualiser ou sauvegarder si l'URL ne s'affiche pas directement)
-   * "Réglages/Système/Configuration/Réseaux" doit être correctement renseigné pour que l'adresse affichée soit fonctionnelle.
-   * Vous pouvez cliquer sur le lien pour tester son bon fonctionnement
-   * Cet URL peut être appelé par n'importe quel équipement extérieur, notamment un smartphone
-* Pour un appel via un scénario ou un autre plugin (Mode, Agenda, Présence, ...), utilisez la commande Jeedom donnée.
-* La commande de déclenchement manuelle est aussi disponible via un bouton sur le Dashboard
-
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/widget.png)
-
-### Par déclencheur
-
-Cliquez sur **Ajouter un déclencheur** pour ajouter un déclencheur.
-
-**Tous les déclencheurs doivent être valides** : cochez cette case si vous voulez que tous vos déclencheurs (de la liste des déclencheurs, hors programmation et déclenchement manuel) valident leur(s) condition(s) pour déclencher l'annulation (le plugin va donc faire une condition **ET** entre tous les déclencheurs). Si la case n'est pas cochée, chaque déclencheur est évalué individuellement (condition **OU** entre les déclencheurs).
-
-Pour chaque déclencheur :
-* **Nom** : chaque déclencheur doit avoir un nom unique. Champ obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu.
-* **Capteur** : la commande Jeedom du déclencheur. Champ obligatoire. Il ne peut s'agir que d'une commande, les variables ou autre ne fonctionnent pas.
-* **Filtrer répétitions** : lorsque votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions en cochant cette case.
-* **Conditions** : 1 ou 2 condition(s) possible(s) sur la valeur du capteur. Il peut s'agit d'une valeur numérique ou d'un texte. Pour un texte, ajouter des "guillemets".
-
-> Activez les logs en mode "Info" pour tester vos conditions de déclencheurs.
+Le fonctionnement et la configuration sont identiques à l'onglet "Déclenchement" décrit ci-dessus.
 
 Onglet **Actions d'annulation**
 ---
@@ -217,12 +254,12 @@ Par exemple :
 
 Vous pouvez aussi avoir des actions d'annulation systématiques (non conditionnées).
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActionsAnnulation.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletActionsAnnulation.png)
 
 Cliquer sur "ajouter une action" pour définir une ou plusieurs actions d'annulation puis les configurer :
 * **Label action de référence** :
    * Vous pouvez ici saisir le label de l'action de référence de l'onglet **Actions**.
-   * Le label saisi doit être strictement identique, attention aux espaces.
+   * Les éventuels espaces avant ou après le label seront filtrés par le plugin
    * Lorsque le label est renseigné et correspond à une action d'alerte, il faut que l'action d'alerte de référence ait été précédemment exécutée pour que la présente action s'exécute.
    * Attention, si vous renseignez un label qui n'existe pas (et donc ne sera jamais exécuté), l'action liée ne s'exécutera jamais. Vous ne pouvez donc pas utiliser ce champ pour personnaliser un tag liée à cette action uniquement.
    * Laissez le champs vide pour exécuter l'action d'annulation sans condition (à chaque déclenchement d'annulation)
@@ -232,7 +269,7 @@ Cliquer sur "ajouter une action" pour définir une ou plusieurs actions d'annula
 Onglet **Avancé - Commandes Jeedom**
 ---
 
-Vous pouvez configurer ici les commandes utilisées par ce plugin. Vous pouvez notamment définir la visibilité des boutons de déclenchement et d'arrêt sur le Dashboard Jeedom (visibles par défaut), et la visibilité des valeurs des déclencheurs (non-visibles par défaut, mais historisés).
+Vous pouvez configurer ici les commandes utilisées par ce plugin. Vous pouvez notamment définir la visibilité des boutons de déclenchement et d'arrêt sur le Dashboard Jeedom (visibles par défaut), et la visibilité des valeurs des déclencheurs (non-visibles par défaut, mais historisés). Ainsi que le filtrage de la répétition des valeurs identiques pour vos déclencheurs sur condition de valeur.
 
 Remarques sur le comportement du plugin
 ======
@@ -258,8 +295,20 @@ Si une annulation est déclenchée sans qu'un déclenchement ait été précéde
 ---
 
 Le comportement dépendra de la configuration du plugin :
-* si toutes les actions d'annulation sont liées à des labels, alors il ne se passera rien.
+* si toutes les actions d'annulation sont liées à des labels, alors il ne se passera rien (puisqu'ils n'ont pas été déclenchés prédédemment).
 * si certaines actions d'annulation ne sont pas conditionnées : elles seront exécutées.
+
+Comportement des cron périodiques
+---
+
+Les crons périodiques peuvent être configurées pour déclencher la séquence ou en déclencheur pour l'évaluation des conditions. (Idem pour l'annulation de la séquence). Ils ne sont utilisés nul part d'autre dans le plugin.
+
+Le comportement du core Jeedom concernant ces crons périodiques est le suivant :
+* Lors de la 1ere minute après leur création (=sauvegarde de l'équipement), ils seront exécutés (quelque soit la période choisie)
+* Il peut arriver qu'ils soient aussi exécutés lors de la prochaine "5min pleine" (12h00 ou 12h05 ou 12h10, ... par exemple)
+* Puis le comportement se normalise et ils s'exécutent correctement selon la période voulue
+
+Ceci est un bug Jeedom que je n'ai pas encore réussi à contourner, toute personne ayant un indice : merci de m'en faire part ;-)
 
 Exemples d'utilisation
 ===

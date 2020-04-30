@@ -43,14 +43,5 @@ les plugins avec des crons :
   * séquencement (le bon ordre...)
 
 # A documenter :
-* comment gerer la repetition des valeurs via la fonction core de l'onglet avancé vu que supprimé du plugin
-* si condition string, il faut mettre " " ou rien, mais pas de '' !
-* repetition de valeur : nb de fois c'est un "au moins" x fois en N secondes. Pas un "exactement" ni un "maximum"
-* pour les repetitions de valeurs, lorsque le seuil est atteint, la condition est valide a chaque nouvel évenement valide dans le délai consideré. Si 3 fois en 5 min, à partir de la 3eme fois, chaque fois supplémentaire déclenche (limiter la repetition des actions si besoin...)
-* il n'y a plus de log info pour les triggers valides
-* comportement des crons à la sauvegarde (ok pour date précise, mais chelou pour périodique)
-* pour les crons, jeedom propose toutes les min, 5min, 10 min, ... si vous voulez 3 min il faut le changer à la main dans le resultat
-* s'il n'y a aucune condition à évaluer, les cron triggers ne lanceront rien, il faut utiliser le cron bypass
+
 * comment passer par un virtuel pour avoir un trigger cmd (à tester avant... éventuellement créér des cmd à la demande ?)
-* virer la notion d'attention aux espaces pour les label => A bien retester !!!
-* Pas d'espace dans les noms des conditions pour les conditions perso

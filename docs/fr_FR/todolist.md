@@ -22,6 +22,7 @@ Divers :
   * revoir tous les tags et notamment les tags triggers à refaire ! (passer les triggers dans les crons en changeant comment chercher les cron par search et non byClassAndFunction...)
   * revoir toute la mise en page bootstrap md et sm
   * tester si la date des crons est pas dans le passé ?
+  * si dans la condition personnalisée, on veut une condition fausse (==0) et que c'est elle qui declenche, on va pas plus loin (puisque non validée...)
 
 # Notes
 les plugins avec des crons :

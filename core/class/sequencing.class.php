@@ -17,37 +17,14 @@
  */
 
 /*
-Les valeurs en cache utilisés :
-* Les valeurs des triggers, pour la gestion de repetition :
-  $this->setCache('trigger_' . $_type . $trigger['name'], $_option['value']); // $_type peut etre trigger ou trigger_cancel
 
-* Les exécutions d'actions, pour gere les actions d'annulation associées
-  $this->setCache('execAction_'.$action['action_label'], 1);
-
-* le nom, la valeur et l'heure du dernier trigger OU trigger_cancel
-  $this->setCache('trigger_name', $trigger['name']);
-  $eqLogic->setCache('trigger_full_name', 'user/api');
-  $this->setCache('trigger_value', $_option['value']);
-  $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
-  $this->setCache('trigger_time', date('H:i:s'));
-
+/*  $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux dans le cas de conditions string
+    $value_test = cmd::byId(str_replace('#', '', $trigger['cmd']))->execCmd(); // resultat identique, quel est la meilleur pratique ? TODO
 */
 
-
-
-
-/*        $check *= $this->checkTriggerValuesConditions($triggerOrCond, $value2); // on évalue sa condition et si 1 seul retour 0, $check passera a 0
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat total après évaluation de : ' . $triggerOrCond['name'] . ' : ' . $check);
-*/
-
-/*            $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux dans le cas de conditions string
-            $value_test = cmd::byId(str_replace('#', '', $trigger['cmd']))->execCmd(); // resultat identique, quel est la meilleur pratique ? TODO
-
-*/
-
-/*                $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
-                $check2 = evaluate($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
-                log::add('sequencing', 'debug', $this->getHumanName() . ' resultat 1 et 2 : ' . $check . ' - ' . $check2);*/
+/*  $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+    $check2 = evaluate($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+    log::add('sequencing', 'debug', $this->getHumanName() . ' resultat 1 et 2 : ' . $check . ' - ' . $check2);*/
 
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
@@ -67,7 +44,7 @@ class sequencing extends eqLogic {
       if (is_object($sequencing)) {
         log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appelée par le CRON principal (qui bypass les conditions)');
 
-        $sequencing->setCache('trigger_name', 'programmé');
+        $sequencing->setCache('trigger_name', 'lancement programmé');
         $sequencing->setCache('trigger_full_name', 'programmé');
         $sequencing->setCache('trigger_value', '');
         $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
@@ -88,8 +65,8 @@ class sequencing extends eqLogic {
       if (is_object($sequencing)) {
         log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct endProgrammed appelée par le CRON principal (qui bypass les conditions)');
 
-        $sequencing->setCache('trigger_name', 'programmé');
-        $sequencing->setCache('trigger_full_name', 'programmé');
+        $sequencing->setCache('trigger_name', 'annulation programmée');
+        $sequencing->setCache('trigger_full_name', 'annulation programmée');
         $sequencing->setCache('trigger_value', '');
         $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
         $sequencing->setCache('trigger_time', date('H:i:s'));
@@ -108,13 +85,13 @@ class sequencing extends eqLogic {
       if (is_object($sequencing)) {
         log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct trigger appelée par un CRON (on va aller évaluer les autres conditions)');
 
-/*        $sequencing->setCache('trigger_name', 'programmé');
-        $sequencing->setCache('trigger_full_name', 'programmé');
-        $sequencing->setCache('trigger_value', '');
-        $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
-        $sequencing->setCache('trigger_time', date('H:i:s'));
+        // on garde "temporairement" nos infos en cache, si elles s'averent valides, on les mettra dans le cache des tags...
+        $sequencing->setCache('trigger_name_temp', 'programmé');
+        $sequencing->setCache('trigger_full_name_temp', 'programmé');
+        $sequencing->setCache('trigger_value_temp', '');
+        $sequencing->setCache('trigger_datetime_temp', date('Y-m-d H:i:s'));
+        $sequencing->setCache('trigger_time_temp', date('H:i:s'));
 
-        $sequencing->actionsLaunch();*/
         $sequencing->evaluateEachConditions('trigger');
       } else {
         log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
@@ -128,13 +105,13 @@ class sequencing extends eqLogic {
       if (is_object($sequencing)) {
         log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct triggerCancel appelée par un CRON (on va aller évaluer les autres conditions)');
 
-/*        $sequencing->setCache('trigger_name', 'programmé');
-        $sequencing->setCache('trigger_full_name', 'programmé');
-        $sequencing->setCache('trigger_value', '');
-        $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
-        $sequencing->setCache('trigger_time', date('H:i:s'));
+        // on garde "temporairement" nos infos en cache, si elles s'averent valides, on les mettra dans le cache des tags...
+        $sequencing->setCache('trigger_name_temp', 'programmé');
+        $sequencing->setCache('trigger_full_name_temp', 'programmé');
+        $sequencing->setCache('trigger_value_temp', '');
+        $sequencing->setCache('trigger_datetime_temp', date('Y-m-d H:i:s'));
+        $sequencing->setCache('trigger_time_temp', date('H:i:s'));
 
-        $sequencing->actionsLaunch();*/
         $sequencing->evaluateEachConditions('trigger_cancel');
       } else {
         log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
@@ -221,6 +198,13 @@ class sequencing extends eqLogic {
 
           $results[$trigger['name']] = $this->checkTriggerValues($trigger, true); // true : c'est un trigger
 
+          // on garde "temporairement" nos infos en cache, si elles s'averent valides, on les mettra dans le cache des tags...
+          $this->setCache('trigger_name_temp', $trigger['name']);
+          $this->setCache('trigger_full_name_temp', cmd::byId(str_replace('#', '', $trigger['cmd']))->getHumanName());
+          $this->setCache('trigger_value_temp', jeedom::evaluateExpression($trigger['cmd']));
+          $this->setCache('trigger_datetime_temp', date('Y-m-d H:i:s'));
+          $this->setCache('trigger_time_temp', date('H:i:s'));
+
         } // fin if notre event correspond à un trigger
       } // fin foreach tous les triggers ou trigger_cancel
 
@@ -234,6 +218,12 @@ class sequencing extends eqLogic {
       if ($triggerValide && (($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'OR') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'OR' ))){ // on est en condition "OU" et on en a deja 1, inutile d'evaluer le reste : on declenche !
 
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Au moins 1 correct et on est en OU, on cherche pas plus => on déclenche !');
+
+        $this->setCache('trigger_name', $this->getCache('trigger_name_temp'));
+        $this->setCache('trigger_full_name', $this->getCache('trigger_full_name_temp'));
+        $this->setCache('trigger_value', $this->getCache('trigger_value_temp'));
+        $this->setCache('trigger_datetime', $this->getCache('trigger_datetime_temp'));
+        $this->setCache('trigger_time', $this->getCache('trigger_time_temp'));
 
         if($_type == 'trigger') {
           $this->actionsLaunch();
@@ -360,6 +350,13 @@ class sequencing extends eqLogic {
       }
 
       if($evaluationTotaleTrigger){ // le resultat final qui dit qu'on a bien évalué TOUTES nos conditions selon les criteres voulus
+
+        // on met dans les caches des tags les dernieres infos enregistrées de notre trigger initial
+        $this->setCache('trigger_name', $this->getCache('trigger_name_temp'));
+        $this->setCache('trigger_full_name', $this->getCache('trigger_full_name_temp'));
+        $this->setCache('trigger_value', $this->getCache('trigger_value_temp'));
+        $this->setCache('trigger_datetime', $this->getCache('trigger_datetime_temp'));
+        $this->setCache('trigger_time', $this->getCache('trigger_time_temp'));
 
         if($_type == 'trigger') {
           $this->actionsLaunch();

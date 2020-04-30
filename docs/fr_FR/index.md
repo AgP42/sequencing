@@ -7,19 +7,22 @@ Des déclencheurs d'annulation permettent de stopper la séquence et d'exécuter
 
 Les principales fonctionnalités sont les suivantes :
 * Gestion illimitée d'actions séquentielles (immédiates ou retardées)
-* Déclenchement :
-   * Quantité illimitée de déclencheurs, avec chacun jusqu'à 2 conditions selon leur valeur et la possibilité de filtrer les répétitions de valeur
+* Déclenchement immédiat (bypass des conditions si elles existent) :
    * Programmation du déclenchement (cron) à une date/horaire ou périodiquement
    * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scénario, appel API, le Dashboard, ...)
-   * Historisation des capteurs de déclenchements
-* En cas de multi-déclenchement, choix de garder la programmation initiale de chaque action ou de les reporter
-* Gestion d'annulation de la séquence et liste d'actions associées
+* Déclenchement conditionné :
+   * Ajout d'une quantité illimité de déclencheurs selon programmation, selon valeur et selon condition de plage temporelle
+   * Déclencheurs selon valeur de commandes Jeedom (capteur, bouton, info virtuelle, ...) : chacun jusqu'à 2 conditions selon leur valeur (binaire, numérique ou chaine de caractéres) et la possibilité de ne déclencher qu'après plusieurs occurences successives valides
+   * Historisation des déclencheurs selon valeur
+   * Déclencheurs selon programmation : à date-heure précise ou périodique
+   * Condition selon plage temporelle : permet de limiter le déclenchement selon certaines periodes. Les périodes peuvent être répétées chaque jour de la semaine, toutes les semaines, tous les mois ou tous les ans.
+* En cas de multi-déclenchement de la séquence d'action, choix de garder la programmation initiale de chaque action ou de les reporter
+* Gestion d'annulation de la séquence (immédiat ou conditionné, identique gestion du déclenchement) et liste d'actions associées
 * Les actions d'annulation peuvent être conditionnées par l'exécution ou non d'une action de la séquence initiale
+* Les actions et les actions d'annulation peuvent être limitées dans leur fréquence d'exécution
+* Les actions et actions d'annulation peuvent être n'importe quelle commande Jeedom de type "action" (lampe, avertisseur sonore, notification sur smartphone, messages, ...) ou "mot clé" (alerte, scénario, variable, évènement, redémarrer Jeedom, ...)
 * Tags dans les messages pour les personnaliser selon le contexte
 
-Les déclencheurs internes peuvent être n'importe quelle commande Jeedom de type "Info" (capteur, bouton, info virtuelle, ...)
-
-Les actions peuvent être n'importe quelle commande Jeedom de type "action" (lampe, avertisseur sonore, notification sur smartphone, messages, ...) ou "mot clé" (alerte, scénario, variable, évènement, redémarrer Jeedom, ...)
 
 Ce plugin est payant (2€) pour soutenir Jeedom (1,2€) ainsi que mes développements (0,8€) mais je laisse les sources ouvertes à tous, vous pouvez ainsi le tester gratuitement ou l'utiliser gratuitement si vous ne souhaitez pas nous soutenir.
 Lien vers le code source : [https://github.com/AgP42/sequencing/](https://github.com/AgP42/sequencing/)
@@ -55,50 +58,56 @@ Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez d
 
 #### **Détail des tags** (utilisables dans toutes les actions, sauf indication contraire) :
 
+##### Tags personnalisés
+
 * #tag1# : tag personnalisé 1
 * #tag2# : tag personnalisé 2 (#tag2# ne peut pas reprendre #tag1#)
 * #tag3# : tag personnalisé 3 (#tag3# ne peut reprendre ni #tag1# ni #tag2#)
+
+##### Tags généraux
 * #eq_full_name# : le nom Jeedom complet (Objet parent et nom) de votre équipement ("[Maison][SequenceTest]")
 * #eq_name# : le nom Jeedom de votre équipement ("SequenceTest"), tel que défini dans l'onglet **Général**
+
+##### Tags actions
 * #action_label# : le label de votre action courante. Vide si non défini. Uniquement pour les **Actions**
 * #action_timer# : le délai avant exécution de votre action courante. Vide si non défini. Uniquement pour les **Actions**
 * #action_label_liee# : le label de votre action de référence. Vide si non défini. Uniquement pour les **Actions d'annulation**
 
-* Tags selon les déclencheurs :
-   * les informations correspondent au dernier déclencheur valide
-   * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décalée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle ait été initialement lancée par le déclencheur 1).
-   * Tags disponibles :
-      * #trigger_name# : plusieurs possibilités :
-         * le **Nom** du déclencheur (celui que vous avez saisi dans l'onglet Déclencheur ou Déclencheur d'annulation) s'il s'agit d'un déclencheur interne du plugin.
-         * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
-         * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
-      * #trigger_full_name# : plusieurs possibilités :
-         * le **HumanName** Jeedom du déclencheur s'il s'agit d'un déclencheur interne du plugin ([Objet][Equipement][cmd])
-         * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
-         * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
-      * #trigger_value# : la valeur du déclencheur, uniquement pour les déclenchements par un déclencheur interne du plugin. Sera vide dans les autres cas.
-      * #trigger_datetime# : La date et l'heure du déclenchement au format "2020-04-16 18:50:18". Il ne s'agit pas de la date et heure de l'action s'il s'agit d'une action retardée.
-      * #trigger_time# : idem uniquement l'heure "18:50:18"
+##### Tags selon les déclencheurs
+* les informations correspondent au dernier déclencheur valide
+* il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décalée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle ait été initialement lancée par le déclencheur 1).
+* Tags disponibles :
+   * #trigger_name# : plusieurs possibilités :
+      * le **Nom** du déclencheur (celui que vous avez saisi dans l'onglet Déclencheur ou Déclencheur d'annulation) s'il s'agit d'un déclencheur interne du plugin.
+      * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
+      * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
+   * #trigger_full_name# : plusieurs possibilités :
+      * le **HumanName** Jeedom du déclencheur s'il s'agit d'un déclencheur interne du plugin ([Objet][Equipement][cmd])
+      * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
+      * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
+   * #trigger_value# : la valeur du déclencheur, uniquement pour les déclenchements par un déclencheur interne du plugin. Sera vide dans les autres cas.
+   * #trigger_datetime# : La date et l'heure du déclenchement au format "2020-04-16 18:50:18". Il ne s'agit pas de la date et heure de l'action s'il s'agit d'une action retardée.
+   * #trigger_time# : idem uniquement l'heure "18:50:18"
 
-
-* Tags jeedom (idem scénarios) - les informations de date et heure correspondent à l'instant de l'exécution effective de l'action :
-  * #seconde# : Seconde courante (sans les zéros initiaux, ex : 6 pour 08:07:06),
-  * #minute# : Minute courante (sans les zéros initiaux, ex : 7 pour 08:07:06),
-  * #heure# : Heure courante au format 24h (sans les zéros initiaux, ex : 8 pour 08:07:06 ou 17 pour 17:15),
-  * #heure12# : Heure courante au format 12h (sans les zéros initiaux, ex : 8 pour 08:07:06),
-  * #jour# : Jour courant (sans les zéros initiaux, ex : 6 pour 06/07/2017),
-  * #semaine# : Numéro de la semaine (ex : 51),
-  * #mois# : Mois courant (sans les zéros initiaux, ex : 7 pour 06/07/2017),
-  * #annee# : Année courante,
-  * #date# : Jour et mois. Attention, le premier nombre est le mois. (ex : 1215 pour le 15 décembre),
-  * #time# : Heure et minute courante (ex : 1715 pour 17h15),
-  * #timestamp# : Nombre de secondes depuis le 1er janvier 1970,
-  * #sjour# : Nom du jour de la semaine (ex : Samedi),
-  * #smois# : Nom du mois (ex : Janvier),
-  * #njour# : Numéro du jour de 0 (dimanche) à 6 (samedi),
-  * #jeedom_name# : Nom que vous avez donné à votre Jeedom,
-  * #hostname# : Nom de la machine Jeedom (ex : "raspberrypi"),
-  * #IP# : IP interne de Jeedom
+##### Tags généraux (idem scénarios)
+* les informations de date et heure correspondent à l'instant de l'exécution effective de l'action :
+* #seconde# : Seconde courante (sans les zéros initiaux, ex : 6 pour 08:07:06),
+* #minute# : Minute courante (sans les zéros initiaux, ex : 7 pour 08:07:06),
+* #heure# : Heure courante au format 24h (sans les zéros initiaux, ex : 8 pour 8:07:06 ou 17 pour 17:15),
+* #heure12# : Heure courante au format 12h (sans les zéros initiaux, ex : 8 pour 08:07:06),
+* #jour# : Jour courant (sans les zéros initiaux, ex : 6 pour 06/07/2017),
+* #semaine# : Numéro de la semaine (ex : 51),
+* #mois# : Mois courant (sans les zéros initiaux, ex : 7 pour 06/07/2017),
+* #annee# : Année courante,
+* #date# : Jour et mois. Attention, le premier nombre est le mois. (ex : 1215 pour le 15 décembre),
+* #time# : Heure et minute courante (ex : 1715 pour 17h15),
+* #timestamp# : Nombre de secondes depuis le 1er janvier 1970,
+* #sjour# : Nom du jour de la semaine (ex : Samedi),
+* #smois# : Nom du mois (ex : Janvier),
+* #njour# : Numéro du jour de 0 (dimanche) à 6 (samedi),
+* #jeedom_name# : Nom que vous avez donné à votre Jeedom,
+* #hostname# : Nom de la machine Jeedom (ex : "raspberrypi"),
+* #IP# : IP interne de Jeedom
 
 Onglet **Déclencheurs**
 ---

@@ -13,12 +13,12 @@
   * Ajout programmation (CRON) pour déclenchement annulation
   * Ajout déclencheurs par crons pour évaluer les conditions pour lancer ou annuler la séquence
   * Ajout des condition d'évaluation "plage temporelle" pour lancer ou annuler la séquence
-  * Ajout évaluation des conditions par "x parmis N"
+  * Ajout évaluation des conditions par "x parmi N"
   * Ajout évaluation des conditions par condition personnalisée (encore expérimental)
-  * Suppression gestion "filtrer répétition", mais ajout dans la doc de l'explication comment gerer la meme chose via le core jeedom
+  * Suppression gestion "filtrer répétition", mais ajout dans la doc de l'explication comment gérer la même chose via le core jeedom
 * Mineur :
   * Limitation d'action et action annulation en secondes (et non plus en minutes)
-  * Ajout de trim() (suppression des espaces et autres caractéres invisibles) partout pour les labels pour limiter les erreurs utilisateur
+  * Ajout de trim() (suppression des espaces et autres caractères invisibles) partout pour les labels pour limiter les erreurs utilisateur
   * Tentative correction "PHP Warning: A non-numeric value encountered in /var/www/html/plugins/sequencing/core/class/sequencing.class.php on line 235"
 * Mise à jour majeur documentation
 * Tests sur jeedom v4.0.52

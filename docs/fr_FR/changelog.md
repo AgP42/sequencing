@@ -8,7 +8,8 @@
 1.0.2 - 30 avril
 ---
 
-
+* Correction de tous les tags selon les déclencheurs
+* Update documentation
 
 1.0.1 - 29 avril 2020
 ---

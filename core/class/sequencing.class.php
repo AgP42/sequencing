@@ -45,7 +45,7 @@ class sequencing extends eqLogic {
         log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appelée par le CRON principal (qui bypass les conditions)');
 
         $sequencing->setCache('trigger_name', 'lancement programmé');
-        $sequencing->setCache('trigger_full_name', 'programmé');
+        $sequencing->setCache('trigger_full_name', 'lancement programmé');
         $sequencing->setCache('trigger_value', '');
         $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
         $sequencing->setCache('trigger_time', date('H:i:s'));
@@ -420,29 +420,6 @@ class sequencing extends eqLogic {
         }
 
         return $check;
-
-        // maintenant qu'on a tout évalué sur CETTE condition, on remonte dans la boucle précédente
-/*        if ($check == 1 || $check || $check == '1') {
-
-          $trigger_full_name = cmd::byId(str_replace('#', '', $trigger['cmd']))->getHumanName();
-
-      //    log::add('sequencing', 'info', $this->getHumanName() . ' => Trigger valide <= nom : ' . $trigger['name'] . ' - Déclencheur : ' . $trigger_full_name . ' - valeur : ' . $value);
-
-          //TODO : gerer les tags triggers quelques part !
-          if(true){ // on veut ces infos en cache uniquement si on a été appelé par un trigger et non par la fonction d'évaluation de toutes les conditions
-            $this->setCache('trigger_name', $trigger['name']);
-            $this->setCache('trigger_value', $value);
-            $this->setCache('trigger_full_name', $trigger_full_name);
-            $this->setCache('trigger_datetime', date('Y-m-d H:i:s'));
-            $this->setCache('trigger_time', date('H:i:s'));
-          }
-          return 1;
-
-        } else {
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Ce ou ces trigger(s) ne valide(nt) pas les conditions voulues');
-          return 0;
-        }*/
-
 
     }
 

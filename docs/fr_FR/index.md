@@ -73,17 +73,19 @@ Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez d
 * #action_timer# : le délai avant exécution de votre action courante. Vide si non défini. Uniquement pour les **Actions**
 * #action_label_liee# : le label de votre action de référence. Vide si non défini. Uniquement pour les **Actions d'annulation**
 
-##### Tags selon les déclencheurs => Beta du 30 avril : tous ces tags sont à reprendre, ils ne marchent plus !
+##### Tags selon les déclencheurs
 * les informations correspondent au dernier déclencheur valide
 * il est donc possible qu'il ne corresponde pas au déclencheur d'origine de votre action. Par exemple : votre déclencheur 1 lance une action message contenant #trigger_name# et décalée de 10 min. Si le déclencheur 2 est déclenchée avant l'exécution effective du message, le tag #trigger_name# contiendra le nom du déclencheur 2 (bien qu'elle ait été initialement lancée par le déclencheur 1).
 * Tags disponibles :
    * #trigger_name# : plusieurs possibilités :
       * le **Nom** du déclencheur (celui que vous avez saisi dans l'onglet Déclencheur ou Déclencheur d'annulation) s'il s'agit d'un déclencheur interne du plugin.
       * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
-      * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
+      * "lancement programmé" ou "annulation programmée" si déclenché par la programmation générale du plugin (celle qui ne vérifie pas les autres conditions).
+      * "programmé" si déclenché par la programmation du plugin (celle qui vérifie les autres conditions).
    * #trigger_full_name# : plusieurs possibilités :
-      * le **HumanName** Jeedom du déclencheur s'il s'agit d'un déclencheur interne du plugin ([Objet][Equipement][cmd])
+      * le **HumanName** Jeedom du déclencheur s'il s'agit d'une commande de déclencheur interne du plugin ([Objet][Equipement][cmd])
       * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
+      * "lancement programmé" ou "annulation programmée" si déclenché par la programmation générale du plugin (celle qui ne vérifie pas les autres conditions).
       * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
    * #trigger_value# : la valeur du déclencheur, uniquement pour les déclenchements par un déclencheur interne du plugin. Sera vide dans les autres cas.
    * #trigger_datetime# : La date et l'heure du déclenchement au format "2020-04-16 18:50:18". Il ne s'agit pas de la date et heure de l'action s'il s'agit d'une action retardée.

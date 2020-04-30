@@ -77,7 +77,8 @@
 </div>
 </div>
 </div>
-<script type="text/javascript" src="../assets/js/jquery-2.1.1.min.js"></script>
+<!-- <script type="text/javascript" src="../assets/js/jquery-2.1.1.min.js"></script> -->
+<script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="../assets/js/materialize.min.js"></script>
 <script type="text/javascript" src="../assets/js/jquery.inview.min.js"></script>
 <script type="text/javascript" src="../assets/js/jquery.toc.js"></script>
@@ -89,7 +90,7 @@
    document.title = 'Documentation Jeedom | '+ title[0].toUpperCase() + title.substring(1)
    $(".button-collapse").sideNav();
    $('meta[name=description]').remove();
-   $('head').append( '<meta name="description" content="Ceci est la documentation du plugin "'+ title[0].toUpperCase() + title.substring(1)+'", lier à la solution domotique Jeedom.">' ); 
+   $('head').append( '<meta name="description" content="Ceci est la documentation du plugin "'+ title[0].toUpperCase() + title.substring(1)+'", lié à la solution domotique Jeedom.">' );
    $('img').addClass('responsive-img');
    $('#div_content table').addClass('striped');
    init();
@@ -147,14 +148,14 @@
   if($(this)[0].tagName.toLowerCase() == 'h1'){
     $('#'+$(this).attr('id')).text(i + ') ' + $(this).text());
     i++;
-  } 
+  }
   if($(this)[0].tagName.toLowerCase() == 'h2'){
-    $('#'+$(this).attr('id')).text( (i-1) + '.' + j + ') ' + $(this).text()); 
+    $('#'+$(this).attr('id')).text( (i-1) + '.' + j + ') ' + $(this).text());
     j++;
   }else{
     j = 1;
   }
-});  
+});
 });
 
   var idChapitre = null, nbrChapitre = 0, idAncre = null;

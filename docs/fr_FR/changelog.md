@@ -5,10 +5,10 @@
 
 # Betas
 
-1.0.2 - 30 avril
+1.0.2 - 1er mai
 ---
 
-* Correction de tous les tags selon les déclencheurs
+* Correction des tags "déclencheurs"
 * Ajout liste déroulante choix label de référence pour les actions d'annulation
 * Update documentation
 

@@ -114,15 +114,15 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
           <div class="form-group">
             <label class="col-sm-3 control-label">{{Tag 1}}</label>
-            <div class="col-sm-3">
+            <div class="col-sm-6 col-md-3">
               <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="tag1"/>
             </div>
-            <div class="col-sm-3">{{tag <strong>#tag1#</strong>}}</div>
+            <div class="col-sm-2">{{tag <strong>#tag1#</strong>}}</div>
           </div>
 
           <div class="form-group">
             <label class="col-sm-3 control-label">{{Tag 2}}</label>
-            <div class="col-sm-3">
+            <div class="col-sm-6 col-md-3">
               <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="tag2"/>
             </div>
             <div class="col-sm-3">{{tag <strong>#tag2#</strong>}}</div>
@@ -130,7 +130,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
           <div class="form-group">
             <label class="col-sm-3 control-label">{{Tag 3}}</label>
-            <div class="col-sm-3">
+            <div class="col-sm-6 col-md-3">
               <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="tag3"/>
             </div>
             <div class="col-sm-3">{{tag <strong>#tag3#</strong>}}</div>
@@ -184,7 +184,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
         <fieldset>
           <legend><i class="fas fa-clock"></i> {{Programmation}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette programmation déclenchera la séquence d'actions sans évaluer les éventuelles conditions ci-dessous.}}"></i></sup></legend>
           <label class="col-sm-3 control-label">{{Déclenchement programmé ou périodique}}</label>
-          <div class="input-group col-sm-2">
+          <div class="input-group col-sm-6 col-md-3">
             <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="programmation" placeholder="{{format cron}}"/>
             <span class="input-group-btn">
               <a class="btn btn-default cursor jeeHelper" data-helper="cron">
@@ -206,7 +206,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
           <legend>
 
             <label class="col-sm-2 col-md-1 control-label">{{Évaluation}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup></label>
-            <div class="col-sm-6 col-md-3">
+            <div class="col-sm-4 col-md-3">
               <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="check_triggers_type">
               <option value="OR">{{OU (1 valide suffit)}}</option>
               <option value="AND">{{ET (tous valides)}}</option>
@@ -218,7 +218,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <div class="x_sur_N_value">
               <div class="form-group">
                 <label class="col-sm-1 control-label">{{nombre}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir le nombre minimum de conditions qui doivent être valides pour déclencher la séquence}}"></i></sup></label>
-                <div class="col-sm-1">
+                <div class="col-sm-3 col-md-1">
                   <input type="number" min="1" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="x_sur_N_value"/>
                 </div>
               </div>
@@ -227,7 +227,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <div class="condition_perso">
               <div class="form-group">
                 <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{}}"></i></sup></label>
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-5">
                   <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_perso"/>
                 </div>
               </div>
@@ -303,7 +303,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
         <fieldset>
           <legend><i class="fas fa-clock"></i> {{Programmation}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette programmation déclenchera l'annulation de séquence d'actions sans évaluer les éventuelles conditions ci-dessous.}}"></i></sup></legend>
           <label class="col-sm-3 control-label">{{Déclenchement programmé ou périodique}}</label>
-          <div class="input-group col-sm-2">
+          <div class="input-group col-sm-6 col-md-3">
             <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="programmation_cancel" placeholder="{{format cron}}"/>
             <span class="input-group-btn">
               <a class="btn btn-default cursor jeeHelper" data-helper="cron">
@@ -329,7 +329,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
           <legend>
 
             <label class="col-sm-2 col-md-1 control-label">{{Évaluation}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup></label>
-            <div class="col-sm-6 col-md-3">
+            <div class="col-sm-4 col-md-3">
               <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="check_triggers_cancel_type">
               <option value="OR">{{OU (1 valide suffit)}}</option>
               <option value="AND">{{ET (tous valides)}}</option>
@@ -341,7 +341,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <div class="x_sur_N_value_cancel">
               <div class="form-group">
                 <label class="col-sm-1 control-label">{{nombre}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir le nombre minimum de conditions qui doivent être valides pour déclencher la séquence}}"></i></sup></label>
-                <div class="col-sm-1">
+                <div class="col-sm-3 col-md-1">
                   <input type="number" min="1" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="x_sur_N_value_cancel"/>
                 </div>
               </div>
@@ -350,7 +350,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <div class="condition_perso_cancel">
               <div class="form-group">
                 <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{}}"></i></sup></label>
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-5">
                   <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_perso_cancel"/>
                 </div>
               </div>

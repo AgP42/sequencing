@@ -74,9 +74,11 @@ $('.addTriggerTimeRange').off('click').on('click', function () {
   addTriggerTimeRange({}, $(this).attr('data-type'));
 });
 
+
+var _labels; // variable pour memoriser les labels "action", la variable est remplie à la sauvegarde dans printEqLogic
 // ajoute chaque ligne d'action ou action_cancel
 $('.addAction').off('click').on('click', function () {
-  addAction({}, $(this).attr('data-type'));
+  addAction({}, $(this).attr('data-type'), _labels);
 });
 
 // tous les - qui permettent de supprimer la ligne
@@ -320,7 +322,8 @@ function addTriggerTimeRange(_action, _type) {
 }
 
 // chaque ligne d'action ou action_cancel
-function addAction(_action, _type) {
+function addAction(_action, _type, _labels) {
+
   var div = '<div class="' + _type + '">';
     div += '<div class="form-group ">';
 
@@ -343,15 +346,19 @@ function addAction(_action, _type) {
 
       } else { // pour les action_cancel on ajoute le label de l'action à lier
 
-       //   div += '<label class="col-sm-2 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
-          div += '<div class="col-sm-2">';
-        div += '<div class="input-group">';
-          div += '<span class="input-group-btn">';
-            div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
-          div += '</span>';
-            div += '<input type="" class="expressionAttr form-control cmdInfo" data-l1key="action_label_liee" placeholder="{{Label action de référence}}"/>';
+        div += '<label class="col-sm-2 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
+
+        div += '<div class="col-sm-2 col-md-1">';
+          div += '<div class="input-group">';
+            div += '<span class="input-group-btn">';
+              div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
+            div += '</span>';
+            div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="action_label_liee">';
+              div += _labels;
+            div += '</select>';
           div += '</div>';
         div += '</div>';
+
       }
 
       div += '<label class="col-sm-1 control-label">{{Limiter exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Si vous souhaitez limiter le nombre d\'exécution sur une période donnée (en secondes). Ne pas remplir ou 0 pour exécuter systèmatiquement.}}"></i></sup></label>';
@@ -415,20 +422,12 @@ function printEqLogic(_eqLogic) {
   $('#div_trigger_timerange_cancel').empty();
   $('#div_action_cancel').empty();
 
+  _labels = '<option value="" select></option>'; // initialise notre liste deroulante de labels avec le choix "vide"
+
   if (isset(_eqLogic.configuration)) {
     if (isset(_eqLogic.configuration.trigger)) {
       for (var i in _eqLogic.configuration.trigger) {
         addTriggerValue(_eqLogic.configuration.trigger[i], 'trigger');
-      //  console.log(_eqLogic.configuration.trigger[i].trigger_type);
-/*        if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_value'){
-          addTriggerValue(_eqLogic.configuration.trigger[i], 'trigger');
-        }else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_rep'){
-          addTriggerRep(_eqLogic.configuration.trigger[i], 'trigger');
-        }else if(_eqLogic.configuration.trigger_prog[i].trigger_type == 'trigger_prog'){
-          addTriggerProg(_eqLogic.configuration.trigger[i], 'trigger');
-        }else if(_eqLogic.configuration.trigger[i].trigger_type == 'trigger_timerange'){
-          addTriggerTimeRange(_eqLogic.configuration.trigger[i], 'trigger');
-        }*/
       }
     }
     if (isset(_eqLogic.configuration.trigger_prog)) {
@@ -443,7 +442,9 @@ function printEqLogic(_eqLogic) {
     }
     if (isset(_eqLogic.configuration.action)) {
       for (var i in _eqLogic.configuration.action) {
-        addAction(_eqLogic.configuration.action[i], 'action');
+      //  console.log(_eqLogic.configuration.action[i].action_label);
+        _labels += '<option value="'+_eqLogic.configuration.action[i].action_label+'">'+_eqLogic.configuration.action[i].action_label+'</option>'; // a chaque action, on prend son label pour le mettre dans la liste déroulante
+        addAction(_eqLogic.configuration.action[i], 'action', '');
       }
     }
     if (isset(_eqLogic.configuration.trigger_cancel)) {
@@ -463,7 +464,7 @@ function printEqLogic(_eqLogic) {
     }
     if (isset(_eqLogic.configuration.action_cancel)) {
       for (var i in _eqLogic.configuration.action_cancel) {
-        addAction(_eqLogic.configuration.action_cancel[i], 'action_cancel');
+        addAction(_eqLogic.configuration.action_cancel[i], 'action_cancel', _labels); // on passe en argument notre liste de labels
       }
     }
   }

@@ -9,6 +9,7 @@
 ---
 
 * Correction de tous les tags selon les déclencheurs
+* Ajout liste déroulante choix label de référence pour les actions d'annulation
 * Update documentation
 
 1.0.1 - 29 avril 2020

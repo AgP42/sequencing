@@ -344,7 +344,6 @@ class sequencing extends eqLogic {
         }
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex : ' . $condition);
 
-
         $evaluationTotaleTrigger = jeedom::evaluateExpression($condition);
 
         log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluationTotaleTrigger : ' . $evaluationTotaleTrigger);
@@ -515,7 +514,13 @@ class sequencing extends eqLogic {
 
     public function execAction($action) { // exécution d'une seule action
 
-      log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action ' . trim($action['action_label']) . ' ############');
+      if(isset($action['action_label']) && $action['action_label'] != ''){
+        log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action *' . trim($action['action_label']) . '* ############');
+      } else if(isset($action['action_label_liee']) && $action['action_label_liee'] != '') {
+        log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action d\'annulation liée à *' . trim($action['action_label_liee']) . '* ############');
+      } else {
+        log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action *sans label ou sans label de référence* ############');
+      }
 
       $now = time();
 

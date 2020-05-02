@@ -209,7 +209,10 @@ Choisir ici les conditions que vous voulez appliquer entre ces différents élé
   * Vos conditions ne doivent pas contenir d'espace dans leur nom
   * Vous pouvez utiliser des () pour déterminer les priorités
   * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), ...)
-  * Exemple : (#lundis#==1||#btrouge18#==0)&&#btblanc#
+  * Exemple : (#lundis#==1||#btrouge18#)&&#btblanc#
+  * Notes :
+    * si vous voulez tester une condition non valide (==0), cette condition ne pourra pas être un déclencheur
+    * il n'est pas nécessaire d'ajouter le ==1 dans la condition : "#lundis#==1" ou "#lundis#" auront un comportement identiques
 
 Onglet **Actions**
 ---

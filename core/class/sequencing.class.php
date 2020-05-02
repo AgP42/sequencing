@@ -627,7 +627,8 @@ class sequencing extends eqLogic {
 
         $execActionLiee = $this->getCache('execAction_'.trim($action['action_label_liee'])); // on va lire le cache d'exécution de l'action liée, savoir si déjà lancé ou non...
 
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Config Action Annulation, action : '. cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName() .', label action liée : ' . trim($action['action_label_liee']) . ' - action liée déjà exécutée : ' . $execActionLiee);
+      //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Config Action Annulation, action : '. cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName() .', label action liée : ' . trim($action['action_label_liee']) . ' - action liée déjà exécutée : ' . $execActionLiee);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Config Action Annulation, action : '. $action['cmd'] .', label action liée : ' . trim($action['action_label_liee']) . ' - action liée déjà exécutée : ' . $execActionLiee);
 
         if(trim($action['action_label_liee']) == ''){ // si pas d'action liée, on execute direct
 

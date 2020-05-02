@@ -540,9 +540,23 @@ class sequencing extends eqLogic {
             $value = str_replace('#tag2#', $this->getConfiguration('tag2'), $value);
             $value = str_replace('#tag3#', $this->getConfiguration('tag3'), $value);
 
-            $value = str_replace('#action_label#', trim($action['action_label']), $value);
-            $value = str_replace('#action_timer#', $action['action_timer'], $value);
-            $value = str_replace('#action_label_liee#', trim($action['action_label_liee']), $value);
+            if($action['action_label'] != ''){
+              $value = str_replace('#action_label#', trim($action['action_label']), $value);
+            } else {
+              $value = str_replace('#action_label#', '', $value);
+            }
+
+            if($action['action_timer'] != ''){
+              $value = str_replace('#action_timer#', $action['action_timer'], $value);
+            } else {
+              $value = str_replace('#action_timer#', '', $value);
+            }
+
+            if($action['action_label_liee'] != ''){
+              $value = str_replace('#action_label_liee#', trim($action['action_label_liee']), $value);
+            } else {
+              $value = str_replace('#action_label_liee#', '', $value);
+            }
 
             $value = str_replace('#trigger_name#', $this->getCache('trigger_name'), $value);
             $value = str_replace('#trigger_full_name#', $this->getCache('trigger_full_name'), $value);
@@ -575,7 +589,7 @@ class sequencing extends eqLogic {
         }
         scenarioExpression::createAndExec('action', $action['cmd'], $options);
 
-        if(isset($action['action_label']) && $action['action_time_limit'] != ''){ // si on avait un label (donc c'est une action), on memorise qu'on l'a lancé
+        if(isset($action['action_label']) && $action['action_label'] != ''){ // si on avait un label (donc c'est une action), on memorise qu'on l'a lancé
           $this->setCache('execAction_'.trim($action['action_label']), 1);
       //    log::add('sequencing', 'debug', 'setCache TRUE pour label : ' . $action['action_label']);
         }
@@ -887,7 +901,7 @@ class sequencing extends eqLogic {
         }
         $listener->addEvent($cmd->getValue()); // on ajoute les event à écouter de chacun des capteurs definis. On cherchera le trigger a l'appel de la fonction si besoin
 
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - sensor listener set - cmd :' . $cmd->getHumanName() . ' - event : ' . $cmd->getValue());
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - set Listener pour déclencheur :' . $cmd->getHumanName() . ' - sur l\'event : ' . cmd::byId(str_replace('#', '', $cmd->getValue()))->getHumanName());
 
         $listener->save();
 

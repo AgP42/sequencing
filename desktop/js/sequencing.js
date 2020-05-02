@@ -435,7 +435,9 @@ function printEqLogic(_eqLogic) {
     if (isset(_eqLogic.configuration.action)) {
       for (var i in _eqLogic.configuration.action) {
       //  console.log(_eqLogic.configuration.action[i].action_label);
-        _labels += '<option value="'+_eqLogic.configuration.action[i].action_label+'">'+_eqLogic.configuration.action[i].action_label+'</option>'; // a chaque action, on prend son label pour le mettre dans la liste déroulante
+        if(_eqLogic.configuration.action[i].action_label != ''){ // a chaque action, si le label est non vide, on le prend pour le mettre dans la liste déroulante
+          _labels += '<option value="'+_eqLogic.configuration.action[i].action_label+'">'+_eqLogic.configuration.action[i].action_label+'</option>';
+        }
         addAction(_eqLogic.configuration.action[i], 'action', '');
       }
     }

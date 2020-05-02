@@ -607,8 +607,8 @@ class sequencing extends eqLogic {
 
         }else{ // pas de timer valide defini, on execute l'action immédiatement
 
-        //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Pas de timer lié, on execute cmd ' . $action['cmd']);
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Pas de timer lié, on execute ' . cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName());
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Pas de timer lié, on execute cmd ' . $action['cmd']);
+        //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Pas de timer lié, on execute ' . cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName());
 
           $this->execAction($action);
 

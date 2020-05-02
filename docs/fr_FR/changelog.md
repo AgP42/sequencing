@@ -8,9 +8,13 @@
 1.0.3 - 1er mai
 ---
 
+/!\ changer les liens des images de la doc avant de mettre en stable !
+
 * Changement logique pour répétition de valeur : un déclencheur non valide est ignoré sans remettre le compteur de "valide" à 0
 * Changement logs pour avoir le humanName au lieu du numero de la cmd
 * Update documentation
+
+
 
 1.0.2 - 1er mai
 ---

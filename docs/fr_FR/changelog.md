@@ -12,6 +12,7 @@
 
 * Changement logique pour répétition de valeur : un déclencheur non valide est ignoré sans remettre le compteur de "valide" à 0
 * Changement logs pour avoir le humanName au lieu du numero de la cmd
+* Multi debug (erreurs dans logs notamments)
 * Update documentation
 
 

@@ -515,9 +515,10 @@ class sequencing extends eqLogic {
 
       log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action ' . trim($action['action_label']) . ' ############');
 
+      $now = time();
+
       if(isset($action['action_time_limit']) && $action['action_time_limit'] != '' && is_numeric($action['action_time_limit'])){ // si on veut limiter la fréquence d'exécution
 
-        $now = time();
         $tempsDepuisAction = $now - $this->getCache('execAction_'.$action['cmd'].'_'.trim($action['action_label']).'_'.trim($action['action_label_liee']).'_lastExec');
 
         log::add('sequencing', 'debug', 'tempsDepuisAction (s) : ' . $tempsDepuisAction . ' - période voulue sans répétition (s) : ' . $action['action_time_limit']);
@@ -574,12 +575,12 @@ class sequencing extends eqLogic {
         }
         scenarioExpression::createAndExec('action', $action['cmd'], $options);
 
-        if(isset($action['action_label'])){ // si on avait un label (donc c'est une action), on memorise qu'on l'a lancé
+        if(isset($action['action_label']) && $action['action_time_limit'] != ''){ // si on avait un label (donc c'est une action), on memorise qu'on l'a lancé
           $this->setCache('execAction_'.trim($action['action_label']), 1);
       //    log::add('sequencing', 'debug', 'setCache TRUE pour label : ' . $action['action_label']);
         }
 
-        if(isset($action['action_time_limit'])){ // si on veut limiter la fréquence d'exécution
+        if(isset($action['action_time_limit']) && $action['action_time_limit'] != '' && is_numeric($action['action_time_limit'])){ // si on veut limiter la fréquence d'exécution
           // garde en cache le timestamp de la derniere exéc
           $this->setCache('execAction_'.$action['cmd'].'_'.trim($action['action_label']).'_'.trim($action['action_label_liee']).'_lastExec', $now); // on met un max de truc pour eviter les interferences entre actions, vu qu'on demande pas de nom unique et que la cmd peut etre utilisée plusieurs fois...
           log::add('sequencing', 'debug', 'setCache : execAction_'.$action['cmd'].'_'.trim($action['action_label']).'_'.trim($action['action_label_liee']).'_lastExec - timestamp : ' . $now);

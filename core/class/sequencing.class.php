@@ -26,6 +26,8 @@
     $check2 = evaluate($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
     log::add('sequencing', 'debug', $this->getHumanName() . ' resultat 1 et 2 : ' . $check . ' - ' . $check2);*/
 
+//cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName()
+
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
@@ -154,7 +156,7 @@ class sequencing extends eqLogic {
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
       if (is_object($sequencing)) {
-        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct actionDelayed appelée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . cmd::byId(str_replace('#', '', $_options['action']['cmd']))->getHumanName() . ' - action_label : ' . trim($_options['action']['action_label']));
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct actionDelayed appelée par le CRON - eqLogic_id : ' . $_options['eqLogic_id'] . ' - cmd : ' . $_options['action']['cmd'] . ' - action_label : ' . trim($_options['action']['action_label']));
 
         $sequencing->execAction($_options['action']);
       } else {
@@ -194,7 +196,7 @@ class sequencing extends eqLogic {
 
           $value = jeedom::evaluateExpression($trigger['cmd']); // on pourrait utiliser directement $_option['value'], mais il vire les accents et caractéres speciaux dans le cas de conditions string
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' Nom : ' . $trigger['name'] . ' - cmd : ' . cmd::byId(str_replace('#', '', $trigger['cmd']))->getHumanName() . ' - valeur : ' . $value);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' Nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd'] . ' - valeur : ' . $value);
 
           $results[$trigger['name']] = $this->checkTriggerValues($trigger, true); // true : c'est un trigger
 
@@ -523,7 +525,7 @@ class sequencing extends eqLogic {
 
         log::add('sequencing', 'debug', 'tempsDepuisAction (s) : ' . $tempsDepuisAction . ' - période voulue sans répétition (s) : ' . $action['action_time_limit']);
 
-        if ($tempsDepuisAction < $action['action_time_limit']){ //TODO : PHP Warning: A non-numeric value encountered in /var/www/html/plugins/sequencing/core/class/sequencing.class.php on line 235 (il y avait un *60 à l'époque du warning) => devrait etre resolu avec l'ajout du test is_numeric ci-dessus
+        if ($tempsDepuisAction < $action['action_time_limit']){
 
           log::add('sequencing', 'debug', 'Action déjà exécutée dans la période => on ne l\'exécute pas');
           return;
@@ -540,19 +542,19 @@ class sequencing extends eqLogic {
             $value = str_replace('#tag2#', $this->getConfiguration('tag2'), $value);
             $value = str_replace('#tag3#', $this->getConfiguration('tag3'), $value);
 
-            if($action['action_label'] != ''){
+            if(isset($action['action_label']) && $action['action_label'] != ''){
               $value = str_replace('#action_label#', trim($action['action_label']), $value);
             } else {
               $value = str_replace('#action_label#', '', $value);
             }
 
-            if($action['action_timer'] != ''){
+            if(isset($action['action_timer']) && $action['action_timer'] != ''){
               $value = str_replace('#action_timer#', $action['action_timer'], $value);
             } else {
               $value = str_replace('#action_timer#', '', $value);
             }
 
-            if($action['action_label_liee'] != ''){
+            if(isset($action['action_label_liee']) && $action['action_label_liee'] != ''){
               $value = str_replace('#action_label_liee#', trim($action['action_label_liee']), $value);
             } else {
               $value = str_replace('#action_label_liee#', '', $value);
@@ -647,20 +649,21 @@ class sequencing extends eqLogic {
 
         if(trim($action['action_label_liee']) == ''){ // si pas d'action liée, on execute direct
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Pas d\'action liée, on execute ' . cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName());
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Pas d\'action liée, on execute ' . $action['cmd']);
 
           $this->execAction($action);
 
         }else if(isset($action['action_label_liee']) && trim($action['action_label_liee']) != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été exécutée => on execute notre action et on remet le cache de l'action liée à 0
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.trim($action['action_label_liee']).') exécutée précédemment, donc on execute ' . cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName() . ' et remise à 0 du cache d\'exéc de l\'action origine');
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.trim($action['action_label_liee']).') exécutée précédemment, donc on execute ' . $action['cmd'] . ' et remise à 0 du cache d\'exéc de l\'action origine');
 
           $this->execAction($action);
 
           $this->setCache('execAction_'.trim($action['action_label_liee']), 0);
 
         }else{ // sinon, on log qu'on n'execute pas l'action et la raison
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.trim($action['action_label_liee']).') non exécutée précédemment, donc on execute pas ' . cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName());
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.trim($action['action_label_liee']).') non exécutée précédemment, donc on execute pas ' . $action['cmd']);
+          //cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName()
         }
 
       } // fin foreach toutes les actions
@@ -686,7 +689,7 @@ class sequencing extends eqLogic {
 
           $cron->setOption($options);
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Set CRON pour la cmd : ' . cmd::byId(str_replace('#', '', $options['action']['cmd']))->getHumanName() . ' - label :' . trim($options['action']['action_label']));
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Set CRON pour la cmd : ' . $options['action']['cmd'] . ' - label :' . trim($options['action']['action_label']));
 
           $cron->setEnable(1);
           $cron->setTimeout(5); //minutes
@@ -706,7 +709,7 @@ class sequencing extends eqLogic {
 
       } else { // sinon : le cron existe mais on veut pas le reporter : on fait rien !
 
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - CRON existe déjà et on veut pas le reporter pour la cmd: ' . cmd::byId(str_replace('#', '', $cron->getOption()['action']['cmd']))->getHumanName() . ' - label : ' . trim($cron->getOption()['action']['action_label']) . ' => on ne fait rien !');
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - CRON existe déjà et on veut pas le reporter pour la cmd: ' . $cron->getOption()['action']['cmd'] . ' - label : ' . trim($cron->getOption()['action']['action_label']) . ' => on ne fait rien !');
       }
 
     }
@@ -811,11 +814,11 @@ class sequencing extends eqLogic {
         foreach ($crons as $cron) {
           if (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId() && $cron->getState() != 'run') { // si l'id correspond et qu'il est pas en cours, on le vire
 
-            log::add('sequencing', 'debug', $this->getHumanName() . ' - Cron trouvé à supprimer - cmd : ' . cmd::byId(str_replace('#', '', $cron->getOption()['action']['cmd']))->getHumanName() . ' - action_label : ' . trim($cron->getOption()['action']['action_label']));
+            log::add('sequencing', 'debug', $this->getHumanName() . ' - Cron trouvé à supprimer - cmd : ' . $cron->getOption()['action']['cmd'] . ' - action_label : ' . trim($cron->getOption()['action']['action_label']));
 
             if($displayWarningMessage){
 
-              log::add('sequencing', 'error', $this->getHumanName() . ' - Attention, des actions avec un délai avant exécution étaient en cours et vont être supprimées, action supprimée : ' . cmd::byId(str_replace('#', '', $cron->getOption()['action']['cmd']))->getHumanName() . ' - action_label : ' . trim($cron->getOption()['action']['action_label']));
+              log::add('sequencing', 'error', $this->getHumanName() . ' - Attention, des actions avec un délai avant exécution étaient en cours et vont être supprimées, action supprimée : ' . $cron->getOption()['action']['cmd'] . ' - action_label : ' . trim($cron->getOption()['action']['action_label']));
             }
 
             $cron->remove();
@@ -901,7 +904,7 @@ class sequencing extends eqLogic {
         }
         $listener->addEvent($cmd->getValue()); // on ajoute les event à écouter de chacun des capteurs definis. On cherchera le trigger a l'appel de la fonction si besoin
 
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - set Listener pour déclencheur :' . $cmd->getHumanName() . ' - sur l\'event : ' . cmd::byId(str_replace('#', '', $cmd->getValue()))->getHumanName());
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - set Listener pour déclencheur :' . $cmd->getHumanName() . ' - sur l\'event : ' . $cmd->getValue());
 
         $listener->save();
 
@@ -981,7 +984,7 @@ class sequencing extends eqLogic {
             if ($sensor['name'] != '' && $sensor['cmd'] != '') { // si le nom et la cmd sont remplis
 
               $jsSensors[$key][$sensor['name']] = $sensor; // on stocke toute la conf, c'est à dire tout ce qui dans notre js avait la class "expressionAttr". Pour retrouver notre champs exact : $jsSensors[$key][$sensor['name']][data-l1key]. // attention ici a ne pas remplacer $jsSensors[$key] par $jsSensor. C'est bien dans le tableau d'origine qu'on veut écrire, pas dans la variable qui le represente dans cette boucle
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - Capteurs sensor config lue, nom : ' . $sensor['name'] . ' - cmd : ' . cmd::byId(str_replace('#', '', $sensor['cmd']))->getHumanName());
+              log::add('sequencing', 'debug', $this->getHumanName() . ' - Capteurs sensor config lue, nom : ' . $sensor['name'] . ' - cmd : ' . $sensor['cmd']);
 
             }
           }
@@ -1022,7 +1025,7 @@ class sequencing extends eqLogic {
 
         foreach ($jsSensor as $sensor) { // pour chacun des capteurs de ce type
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - New Capteurs config : type : ' . $key . ', name : ' . $sensor['name'] . ', cmd : ' . cmd::byId(str_replace('#', '', $sensor['cmd']))->getHumanName());
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - New Capteurs config : type : ' . $key . ', name : ' . $sensor['name'] . ', cmd : ' . $sensor['cmd']);
 
           $cmd = new sequencingCmd();
           $cmd->setEqLogic_id($this->getId());

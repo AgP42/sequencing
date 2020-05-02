@@ -11,7 +11,7 @@
 /!\ changer les liens des images de la doc avant de mettre en stable !
 
 * Changement logique pour répétition de valeur : un déclencheur non valide est ignoré sans remettre le compteur de "valide" à 0
-* Changement logs pour avoir le humanName au lieu du numero de la cmd
+* Changement logs pour avoir le humanName au lieu du numero de la cmd => annulé, générait des php fatal error dans les logs...
 * Multi debug (erreurs dans logs notamments)
 * Update documentation
 

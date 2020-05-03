@@ -210,7 +210,7 @@ Choisir ici les conditions que vous voulez appliquer entre ces différents élé
 * **ET** : toutes les conditions (valeur et plage temporelle) doivent être valides pour déclencher la séquence d'action
 * **OU** : une seule condition suffit
 * **x conditions valides** : seules x parmi vos N conditions doivent être valides pour déclencher la séquence. Par exemple si vous avez plusieurs capteurs de températures et seuls 3 sur 4 doivent être sous un seuil donné pour déclencher une alerte ou le chauffage. Ou pour déclencher un arrosage automatique sans attendre que tous les capteurs soient hors seuils.
-* **Séquencement** : vous pouvez ici choisir l'ordre d'arrivée des conditions dans une durée donnée et choisir si toutes les conditions doivent toujours être valides ou non. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-).
+* **Séquencement** : vous pouvez ici choisir l'ordre d'arrivée des conditions dans une durée donnée et choisir si toutes les conditions doivent toujours être valides ou non pour le déclenchement effectif. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-).
 Fonctionnement :
   * Seules les conditions sur "valeur" peuvent être utilisées ici (les plages temporelles peuvent être utilisées en condition de validité mais elles n'ont pas de "date" d'exécution valide)
   * Vous devez écrire la condition logique à respecter au format suivant : #Cond1#<#Cond2#&&#Cond2#<=#Cond3# (Condition 1 puis Condition 2 puis Condition 3, qui peut-être simultanée à la Condition2)
@@ -219,16 +219,17 @@ Fonctionnement :
   * Vos conditions ne doivent pas contenir d'espace dans leur nom
   * Vous pouvez utiliser des () pour déterminer les priorités
   * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), !(inversion),...)
-  * Le champ **Durée maximum** permet de limiter la prise en compte des déclencheurs trop anciens. Tous les
-* **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-). Fonctionnement :
-  * Vous devez écrire la condition logique à respecter entre vos différentes conditions, sachant qu'une condition valide ==1 et non valide ==0.
+  * Le champ **Durée maximum** permet de limiter la prise en compte des déclencheurs trop anciens. Toutes les conditions comprises dans le champ **Condition** doivent avoir été validées dans la période correspondante. En secondes.
+* **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à réaliser. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-).
+Fonctionnement :
+  * Vous devez écrire la condition logique à respecter entre vos différentes conditions, sachant qu'une condition valide sera égale à 1 et non valide à 0.
   * Le nom de chaque condition doit être encadré par des # (n'utilisez pas de # par ailleurs dans la condition...)
   * Vos conditions ne doivent pas contenir d'espace dans leur nom
   * Vous pouvez utiliser des () pour déterminer les priorités
   * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), !(inversion),...)
   * Exemple : (#lundis#==1||#btrouge18#)&&#btblanc#
   * Notes :
-    * si vous voulez tester une condition non valide (==0), cette condition ne pourra pas être un déclencheur
+    * si vous voulez tester une condition non valide (==0), cette condition ne pourra pas être le déclencheur
     * il n'est pas nécessaire d'ajouter le ==1 dans la condition : "#lundis#==1" ou "#lundis#" auront un comportement identiques
 
 Onglet **Actions**

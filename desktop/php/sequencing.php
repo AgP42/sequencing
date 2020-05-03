@@ -206,11 +206,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
           <legend>
 
             <label class="col-sm-2 col-md-1 control-label">{{Évaluation}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup></label>
-            <div class="col-sm-4 col-md-3">
+            <div class="col-sm-4 col-md-2">
               <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="check_triggers_type">
               <option value="OR">{{OU (1 valide suffit)}}</option>
               <option value="AND">{{ET (tous valides)}}</option>
               <option value="x_sur_N">{{x conditions valides suffisent}}</option>
+              <option value="sequence">{{Séquencement (expérimental)}}</option>
               <option value="perso">{{Condition personnalisée (expérimental)}}</option>
               </select>
             </div>
@@ -224,9 +225,25 @@ $eqLogics = eqLogic::byType($plugin->getId());
               </div>
             </div>
 
+            <div class="sequencement">
+              <div class="form-group">
+                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir l'ordre des conditions (uniquement pour des conditions sur valeurs). Pour Cond1 puis Cond2 puis Cond3, saisir '#Cond1#<#Cond2#&&#Cond2<#Cond3#'}}"></i></sup></label>
+                <div class="col-sm-5 col-md-3">
+                  <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_sequence"/>
+                </div>
+                <label class="col-sm-2 col-md-1 control-label">{{durée maximum}} <sup><i class="fas fa-question-circle tooltips" title="{{La durée maximum en secondes entre la validité de la 1ère condition et la dernière}}"></i></sup></label>
+                <div class="col-sm-3 col-md-1">
+                  <input class="eqLogicAttr form-control" type="number" data-l1key="configuration"  data-l2key="sequence_timeout" placeholder="{{secondes}}"/>
+                </div>
+                <div class="col-sm-4 col-md-2">
+                  <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration"  data-l2key="all_valid"/>{{Toutes conditions toujours valides}} </label>
+                </div>
+              </div>
+            </div>
+
             <div class="condition_perso">
               <div class="form-group">
-                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{}}"></i></sup></label>
+                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Utilisez des # autour de vos noms de conditions et définissez la logique voulue. Exemple '(#Cond1#||#Cond2)&&#Cond3#'}}"></i></sup></label>
                 <div class="col-sm-5">
                   <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_perso"/>
                 </div>
@@ -321,20 +338,21 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_cancel_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour annuler la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label>
           </legend> -->
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs pour annuler la séquence, selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
-            <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_prog_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_timerange_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage temporelle}}</a>
+            <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_cancel_prog" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
+            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_cancel_timerange" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage temporelle}}</a>
             <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
           </legend>
 
           <legend>
 
             <label class="col-sm-2 col-md-1 control-label">{{Évaluation}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup></label>
-            <div class="col-sm-4 col-md-3">
+            <div class="col-sm-4 col-md-2">
               <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="check_triggers_cancel_type">
-              <option value="OR">{{OU (1 valide suffit)}}</option>
-              <option value="AND">{{ET (tous valides)}}</option>
-              <option value="x_sur_N">{{x sur N}}</option>
-              <option value="perso">{{Condition personnalisée (expérimental)}}</option>
+                <option value="OR">{{OU (1 valide suffit)}}</option>
+                <option value="AND">{{ET (tous valides)}}</option>
+                <option value="x_sur_N">{{x sur N}}</option>
+                <option value="sequence">{{Séquencement (expérimental)}}</option>
+                <option value="perso">{{Condition personnalisée (expérimental)}}</option>
               </select>
             </div>
 
@@ -347,9 +365,25 @@ $eqLogics = eqLogic::byType($plugin->getId());
               </div>
             </div>
 
+            <div class="sequencement_cancel">
+              <div class="form-group">
+                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir l'ordre des conditions (uniquement pour des conditions sur valeurs). Pour Cond1 puis Cond2 puis Cond3, saisir '#Cond1#<#Cond2#&&#Cond2<#Cond3#'}}"></i></sup></label>
+                <div class="col-sm-5 col-md-3">
+                  <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_sequence_cancel"/>
+                </div>
+                <label class="col-sm-2 col-md-1 control-label">{{durée maximum}} <sup><i class="fas fa-question-circle tooltips" title="{{La durée maximum en secondes entre la validité de la 1ère condition et la dernière}}"></i></sup></label>
+                <div class="col-sm-3 col-md-1">
+                  <input class="eqLogicAttr form-control" type="number" data-l1key="configuration"  data-l2key="sequence_timeout_cancel" placeholder="{{secondes}}"/>
+                </div>
+                <div class="col-sm-4 col-md-2">
+                  <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration"  data-l2key="all_valid_cancel"/>{{Toutes conditions toujours valides}} </label>
+                </div>
+              </div>
+            </div>
+
             <div class="condition_perso_cancel">
               <div class="form-group">
-                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{}}"></i></sup></label>
+                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Utilisez des # autour de vos noms de conditions et définissez la logique voulue. Exemple '(#Cond1#||#Cond2)&&#Cond3#'}}"></i></sup></label>
                 <div class="col-sm-5">
                   <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_perso_cancel"/>
                 </div>
@@ -358,9 +392,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
           </legend>
           <br>
-          <div id="div_trigger_prog_cancel"></div>
+          <div id="div_trigger_cancel_prog"></div>
           <br>
-          <div id="div_trigger_timerange_cancel"></div>
+          <div id="div_trigger_cancel_timerange"></div>
           <br>
           <div id="div_trigger_cancel"></div>
         </fieldset>

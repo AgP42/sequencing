@@ -21,8 +21,8 @@ $("#div_trigger_prog").sortable({axis: "y", cursor: "move", items: ".trigger_pro
 $("#div_trigger_timerange").sortable({axis: "y", cursor: "move", items: ".trigger_timerange", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_action").sortable({axis: "y", cursor: "move", items: ".action", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_trigger_cancel").sortable({axis: "y", cursor: "move", items: ".trigger_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
-$("#div_trigger_prog_cancel").sortable({axis: "y", cursor: "move", items: ".trigger_prog_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
-$("#div_trigger_timerange_cancel").sortable({axis: "y", cursor: "move", items: ".trigger_timerange_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_cancel_prog").sortable({axis: "y", cursor: "move", items: ".trigger_cancel_prog", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_cancel_timerange").sortable({axis: "y", cursor: "move", items: ".trigger_cancel_timerange", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_action_cancel").sortable({axis: "y", cursor: "move", items: ".action_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 
@@ -31,15 +31,23 @@ $('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').chan
   if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "OR" || $('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "AND"){
     $('.x_sur_N_value').hide();
     $('.condition_perso').hide();
+    $('.sequencement').hide();
   } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "x_sur_N"){
     $('.x_sur_N_value').show();
     $('.condition_perso').hide();
+    $('.sequencement').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "sequence"){
+    $('.x_sur_N_value').hide();
+    $('.condition_perso').hide();
+    $('.sequencement').show();
   } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "perso"){
     $('.x_sur_N_value').hide();
     $('.condition_perso').show();
+    $('.sequencement').hide();
   } else {
     $('.x_sur_N_value').hide();
     $('.condition_perso').hide();
+    $('.sequencement').hide();
   }
 });
 
@@ -47,15 +55,23 @@ $('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]
   if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "OR" || $('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "AND"){
     $('.x_sur_N_value_cancel').hide();
     $('.condition_perso_cancel').hide();
+    $('.sequencement_cancel').hide();
   } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "x_sur_N"){
     $('.x_sur_N_value_cancel').show();
     $('.condition_perso_cancel').hide();
+    $('.sequencement_cancel').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "sequence"){
+    $('.x_sur_N_value_cancel').hide();
+    $('.condition_perso_cancel').hide();
+    $('.sequencement_cancel').show();
   } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "perso"){
     $('.x_sur_N_value_cancel').hide();
     $('.condition_perso_cancel').show();
+    $('.sequencement_cancel').hide();
   } else {
     $('.x_sur_N_value_cancel').hide();
     $('.condition_perso_cancel').hide();
+    $('.sequencement_cancel').hide();
   }
 });
 
@@ -64,12 +80,12 @@ $('.addTriggerValue').off('click').on('click', function () {
   addTriggerValue({}, $(this).attr('data-type'));
 });
 
-// ajoute chaque ligne de trigger_prog ou trigger_prog_cancel pour programmation
+// ajoute chaque ligne de trigger_prog ou trigger_cancel_prog pour programmation
 $('.addTriggerProg').off('click').on('click', function () {
   addTriggerProg({}, $(this).attr('data-type'));
 });
 
-// ajoute chaque ligne de trigger_timerange ou trigger_timerange_cancel pour condition sur plage horaire
+// ajoute chaque ligne de trigger_timerange ou trigger_cancel_timerange pour condition sur plage horaire
 $('.addTriggerTimeRange').off('click').on('click', function () {
   addTriggerTimeRange({}, $(this).attr('data-type'));
 });
@@ -395,8 +411,8 @@ function saveEqLogic(_eqLogic) {
   _eqLogic.configuration.action = $('#div_action .action').getValues('.expressionAttr');
 
   _eqLogic.configuration.trigger_cancel = $('#div_trigger_cancel .trigger_cancel').getValues('.expressionAttr');
-  _eqLogic.configuration.trigger_prog_cancel = $('#div_trigger_prog_cancel .trigger_prog_cancel').getValues('.expressionAttr');
-  _eqLogic.configuration.trigger_timerange_cancel = $('#div_trigger_timerange_cancel .trigger_timerange_cancel').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_cancel_prog = $('#div_trigger_cancel_prog .trigger_cancel_prog').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_cancel_timerange = $('#div_trigger_cancel_timerange .trigger_cancel_timerange').getValues('.expressionAttr');
   _eqLogic.configuration.action_cancel = $('#div_action_cancel .action_cancel').getValues('.expressionAttr');
 
   return _eqLogic;
@@ -410,8 +426,8 @@ function printEqLogic(_eqLogic) {
   $('#div_trigger_timerange').empty();
   $('#div_action').empty();
   $('#div_trigger_cancel').empty();
-  $('#div_trigger_prog_cancel').empty();
-  $('#div_trigger_timerange_cancel').empty();
+  $('#div_trigger_cancel_prog').empty();
+  $('#div_trigger_cancel_timerange').empty();
   $('#div_action_cancel').empty();
 
   _labels = '<option value="" select></option>'; // initialise notre liste deroulante de labels avec le choix "vide"
@@ -446,14 +462,14 @@ function printEqLogic(_eqLogic) {
         addTriggerValue(_eqLogic.configuration.trigger_cancel[i], 'trigger_cancel');
       }
     }
-    if (isset(_eqLogic.configuration.trigger_prog_cancel)) {
-      for (var i in _eqLogic.configuration.trigger_prog_cancel) {
-        addTriggerProg(_eqLogic.configuration.trigger_prog_cancel[i], 'trigger_prog_cancel');
+    if (isset(_eqLogic.configuration.trigger_cancel_prog)) {
+      for (var i in _eqLogic.configuration.trigger_cancel_prog) {
+        addTriggerProg(_eqLogic.configuration.trigger_cancel_prog[i], 'trigger_cancel_prog');
       }
     }
-    if (isset(_eqLogic.configuration.trigger_timerange_cancel)) {
-      for (var i in _eqLogic.configuration.trigger_timerange_cancel) {
-        addTriggerTimeRange(_eqLogic.configuration.trigger_timerange_cancel[i], 'trigger_timerange_cancel');
+    if (isset(_eqLogic.configuration.trigger_cancel_timerange)) {
+      for (var i in _eqLogic.configuration.trigger_cancel_timerange) {
+        addTriggerTimeRange(_eqLogic.configuration.trigger_cancel_timerange[i], 'trigger_cancel_timerange');
       }
     }
     if (isset(_eqLogic.configuration.action_cancel)) {

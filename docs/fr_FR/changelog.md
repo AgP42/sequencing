@@ -5,17 +5,22 @@
 
 # Betas
 
-1.0.3 - 1er mai
+1.0.4 - 3 mai
 ---
 
 /!\ changer les liens des images de la doc avant de mettre en stable !
+
+* Ajout condition de déclenchement par test du séquencement des conditions
+* Debug
+* Update documentation
+
+1.0.3 - 1er mai& 2 mai (multiples versions !)
+---
 
 * Changement logique pour répétition de valeur : un déclencheur non valide est ignoré sans remettre le compteur de "valide" à 0
 * Changement logs pour avoir le humanName au lieu du numero de la cmd => annulé, générait des php fatal error dans les logs...
 * Multi debug (erreurs dans logs notamments)
 * Update documentation
-
-
 
 1.0.2 - 1er mai
 ---

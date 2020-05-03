@@ -3,19 +3,25 @@ Présentation
 
 Ce plugin permet de déclencher des actions séquencées (actions immédiates ou actions retardées) suite à l'activation d'un ou plusieurs déclencheurs, par programmation, ou via appel externe (par un autre plugin, un scénario, un appel API, ...).
 
-Des déclencheurs d'annulation permettent de stopper la séquence et d'exécuter des actions d'annulation spécifiques selon les actions déjà réalisées ou non.
+Un mécanisme d'annulation permet de stopper la séquence et d'exécuter des actions d'annulation spécifiques selon les actions déjà réalisées ou non.
+
+Il est possible d'utiliser des conditions complexes pour déclencher/annuler la séquence :
+* Conditions sur valeur (binaires, numériques ou chaîne de caractères) et/ou selon répétition dans une durée donnée
+* Conditions selon plage temporelle (avec répétition possible chaque jour de la semaine, chaque semaine, mois, année)
+* Ces conditions peuvent être évaluées en OU, en ET, en logique floue (x conditions sur N), selon l'ordre d’occurrence ou selon une condition personnalisée.
 
 Les principales fonctionnalités sont les suivantes :
 * Gestion illimitée d'actions séquentielles (immédiates ou retardées)
 * Déclenchement immédiat (bypass des conditions si elles existent) :
    * Programmation du déclenchement (cron) à une date/horaire ou périodiquement
-   * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scénario, appel API, le Dashboard, ...)
+   * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scénario, appel API, le Dashboard Jeedom, ...)
 * Déclenchement conditionné :
    * Ajout d'une quantité illimité de déclencheurs selon programmation, selon valeur et selon condition de plage temporelle
    * Déclencheurs selon valeur de commandes Jeedom (capteur, bouton, info virtuelle, ...) : chacun jusqu'à 2 conditions selon leur valeur (binaire, numérique ou chaîne de caractères) et la possibilité de ne déclencher qu'après plusieurs occurrences successives valides
    * Historisation des déclencheurs selon valeur
    * Déclencheurs selon programmation : à date-heure précise ou périodique
    * Condition selon plage temporelle : permet de limiter le déclenchement selon certaines périodes. Les périodes peuvent être répétées chaque jour de la semaine, toutes les semaines, tous les mois ou tous les ans.
+   * Ces conditions peuvent elles-mêmes être évaluées entre-elles en OU, en ET, en logique floue (x conditions sur N), selon l'ordre d’occurrence ou selon une condition personnalisée.
 * En cas de multi-déclenchement de la séquence d'action, choix de garder la programmation initiale de chaque action ou de les reporter
 * Gestion d'annulation de la séquence (immédiat ou conditionné, identique gestion du déclenchement) et liste d'actions associées
 * Les actions d'annulation peuvent être conditionnées par l'exécution ou non d'une action de la séquence initiale
@@ -153,6 +159,7 @@ Ainsi que la possibilité de choisir les conditions que vous voulez appliquer en
 * **ET** : toutes les conditions (valeur et plage temporelle) doivent être valides pour déclencher la séquence d'action
 * **OU** : une seule condition suffit
 * **x conditions valides** : seules x parmi vos N conditions doivent être valides pour déclencher la séquence
+* **Séquencement** : vous pouvez ici choisir l'ordre d'arrivée des conditions dans une durée donnée et choisir si toutes les conditions doivent toujours être valides ou non. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels pour que je puisse l'améliorer ;-)
 * **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels pour que je puisse l'améliorer ;-)
 
 #### Configuration
@@ -203,12 +210,22 @@ Choisir ici les conditions que vous voulez appliquer entre ces différents élé
 * **ET** : toutes les conditions (valeur et plage temporelle) doivent être valides pour déclencher la séquence d'action
 * **OU** : une seule condition suffit
 * **x conditions valides** : seules x parmi vos N conditions doivent être valides pour déclencher la séquence. Par exemple si vous avez plusieurs capteurs de températures et seuls 3 sur 4 doivent être sous un seuil donné pour déclencher une alerte ou le chauffage. Ou pour déclencher un arrosage automatique sans attendre que tous les capteurs soient hors seuils.
+* **Séquencement** : vous pouvez ici choisir l'ordre d'arrivée des conditions dans une durée donnée et choisir si toutes les conditions doivent toujours être valides ou non. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-).
+Fonctionnement :
+  * Seules les conditions sur "valeur" peuvent être utilisées ici (les plages temporelles peuvent être utilisées en condition de validité mais elles n'ont pas de "date" d'exécution valide)
+  * Vous devez écrire la condition logique à respecter au format suivant : #Cond1#<#Cond2#&&#Cond2#<=#Cond3# (Condition 1 puis Condition 2 puis Condition 3, qui peut-être simultanée à la Condition2)
+  * Pour vous aider à écrire la condition, voilà le détail du traitement qui sera réalisé par le plugin : chaque #Condx# sera remplacé par le timestamp de son dernier déclenchement valide. Puis l'expression complete sera évaluée logiquement. Si le résultat est 1 : c'est valide !
+  * Le nom de chaque condition doit être encadré par des # (n'utilisez pas de # par ailleurs dans la condition...)
+  * Vos conditions ne doivent pas contenir d'espace dans leur nom
+  * Vous pouvez utiliser des () pour déterminer les priorités
+  * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), !(inversion),...)
+  * Le champ **Durée maximum** permet de limiter la prise en compte des déclencheurs trop anciens. Tous les
 * **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-). Fonctionnement :
   * Vous devez écrire la condition logique à respecter entre vos différentes conditions, sachant qu'une condition valide ==1 et non valide ==0.
   * Le nom de chaque condition doit être encadré par des # (n'utilisez pas de # par ailleurs dans la condition...)
   * Vos conditions ne doivent pas contenir d'espace dans leur nom
   * Vous pouvez utiliser des () pour déterminer les priorités
-  * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), ...)
+  * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), !(inversion),...)
   * Exemple : (#lundis#==1||#btrouge18#)&&#btblanc#
   * Notes :
     * si vous voulez tester une condition non valide (==0), cette condition ne pourra pas être un déclencheur

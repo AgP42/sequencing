@@ -210,9 +210,14 @@ class sequencing extends eqLogic {
         } // fin if notre event correspond à un trigger
       } // fin foreach tous les triggers ou trigger_cancel
 
-      // on boucle dans tous nos résultats pour CE trigger là
+      // on boucle dans tous nos résultats pour CE trigger là et on garde le timestamp en cache pour ceux valides
       foreach ($results as $key => $value) {
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation pour ce trigger (' . $key . ') : ' . $value);
+        if($value == 1){
+          $this->setCache('condValide_'.$key.'_timestamp', time());
+        }
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat évaluation pour ce trigger (' . $key . ') : ' . $value . ' - last valide : ' . date('Y-m-d H:i:s', $this->getCache('condValide_'.$key.'_timestamp')));
+
       }
 
       $triggerValide = in_array(1, $results); // si on a au moins 1 ligne de condition lié à ce trigger qui est valide
@@ -242,42 +247,21 @@ class sequencing extends eqLogic {
 
     }
 
-/*    if (is_array($this->getConfiguration('trigger_timerange'))) {
-      foreach ($this->getConfiguration('trigger_timerange') as $timerange) {
-        if ($timerange['name'] == '') {
-          throw new Exception(__('Le champs Nom pour les plages temporelle (déclencheur) ne peut être vide',__FILE__));
-        }
-      }
-    }
-    if (is_array($this->getConfiguration('trigger_timerange_cancel'))) {
-      foreach ($this->getConfiguration('trigger_timerange_cancel') as $timerange) {
-        if ($timerange['name'] == '') {
-          throw new Exception(__('Le champs Nom pour les plages temporelle (déclencheur d\'annulation) ne peut être vide',__FILE__));
-        }
-      }
-    }*/
-
     public function evaluateEachConditions($_type){ // $_type ici peut etre trigger ou trigger_cancel
       // Cette fonction va renvoyer un tableau avec le resultat de toutes les conditions ($key : le nom de la condition, et $value : 0 ou 1(valide))
-      // les infos du JS peuvent etre : trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_prog_cancel et trigger_timerange_cancel.
+      // les infos du JS peuvent etre : trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_cancel_prog et trigger_cancel_timerange.
 
       $results = array(); // va stocker le resultat de toutes les conditions (oui on va recalculer notre trigger éventuel aussi...;-( ))
       foreach ($this->getConfiguration($_type) as $triggerOrCond) {
-        $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false); // false : c'est pas un trigger qui nous appelle (default)
+        $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false); // false : c'est pas un trigger qui appele (default), on veut juste lire
       }
 
-      if($_type == 'trigger'){ //Pas trés beau... il aurai fallu que trigger_timerange_cancel s'appelle trigger_cancel_timerange dans le JS pour faire un simple $_type.'_timerange' dans le foreach ci-dessous... TODO ?
-        $_type_timerange = 'trigger_timerange';
-      } else if ($_type == 'trigger_cancel'){
-        $_type_timerange = 'trigger_timerange_cancel';
-      }
-
-      foreach ($this->getConfiguration($_type_timerange) as $triggerOrCond) {
+      foreach ($this->getConfiguration($_type.'_timerange') as $triggerOrCond) {
         $results[$triggerOrCond['name']] = $this->checkCondTimeRange($triggerOrCond);
       }
 
       foreach ($results as $key => $value) {
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Tous les résultats pour toutes les conditions : ' . $key . ' : ' . $value);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Tous les résultats pour toutes les conditions : ' . $key . ' : ' . $value . ' - last valide : ' . date('Y-m-d H:i:s', $this->getCache('condValide_'.$key.'_timestamp')));
       }
 
       $this->evaluateGlobalConditions($_type, $results);
@@ -289,7 +273,7 @@ class sequencing extends eqLogic {
       // maintenant on va voir le type de condition entre nos différents triggers et décider de lancer nos actions ou non
       $evaluationTotaleTrigger = 0;
 
-      if(($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'AND') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'AND')) { // si on veut évaluer tous les triggers en "ET" (on veut que des 1 dans notre tableau)
+      if(($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'AND') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'AND')) { // si on veut évaluer tous les triggers en "ET" (=> on veut que des 1 dans notre tableau)
 
         if(!empty($results)){ //il faut absolument tester que le tableau n'est pas vide car cette fonction renvoie un 1 si vide...
           $evaluationTotaleTrigger = array_product($results); // renverra 1 uniquement si tous les resultats sont 1 (tous corrects)
@@ -297,57 +281,31 @@ class sequencing extends eqLogic {
           $evaluationTotaleTrigger = 0;
         }
 
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "ET" et evaluationTotaleTrigger : ' . $evaluationTotaleTrigger);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "ET", résultat total : ' . $evaluationTotaleTrigger);
 
-      } else if(($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'OR') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'OR' )){ // OU : on cherche au moins 1 "1" dans notre tableau de resultat
+      } else if(($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'OR') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'OR' )){
 
-        $evaluationTotaleTrigger = in_array(1, $results);
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "OU" et evaluationTotaleTrigger : ' . $evaluationTotaleTrigger);
+        $evaluationTotaleTrigger = in_array(1, $results); // OU : on cherche au moins 1 "1" dans notre tableau de resultat
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "OU", résultat total : ' . $evaluationTotaleTrigger);
 
       } else if (($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'x_sur_N') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'x_sur_N' )) { // x sur N : on cherche au moins "x_sur_N_value" 1 dans le tableau
 
-        $count = 0; // il y a une fonction php qui devrait faire ca tout seule (array_count_values($results)[1]), mais il ne compte jamais le 1er item...
-        foreach ($results as $value) {
-          if($value == 1){
-            $count++;
-          }
-        }
-
-        if ($_type == 'trigger'){
-          $xVoulu = $this->getConfiguration('x_sur_N_value');
-        } else if ($_type == 'trigger_cancel'){
-          $xVoulu = $this->getConfiguration('x_sur_N_value_cancel');
-        }
-
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "x sur N", on en veut : ' . $xVoulu . ' et on en a : ' . $count);
-
-        if($count >= $xVoulu){
-          $evaluationTotaleTrigger = 1;
-        } else {
-          $evaluationTotaleTrigger = 0;
-        }
+        $evaluationTotaleTrigger = $this->evaluateXsurN($_type, $results);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "x sur N", résultat total : ' . $evaluationTotaleTrigger);
 
       } else if (($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'perso') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'perso' )) {
 
-        if ($_type == 'trigger'){
-          $condition = $this->getConfiguration('condition_perso');
-        } else if ($_type == 'trigger_cancel'){
-          $condition = $this->getConfiguration('condition_perso_cancel');
-        }
+        $evaluationTotaleTrigger = $this->evaluatePerso($_type, $results);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "perso", résultat total : ' . $evaluationTotaleTrigger);
 
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "perso", condition : ' . $condition);
+      } else if (($_type == 'trigger' && $this->getConfiguration('check_triggers_type') == 'sequence') || ($_type == 'trigger_cancel' && $this->getConfiguration('check_triggers_cancel_type') == 'sequence' )) {
 
-        preg_match_all('/#(\w*)#/', $condition, $matches, PREG_SET_ORDER);
-        foreach ($matches as $key => $matche) {
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]);
-          $condition = str_replace('#'.$matche[1].'#', $results[$matche[1]], $condition); // str_replace ($search, $replace, $subject) retourne une chaîne ou un tableau, dont toutes les occurrences de search dans subject ont été remplacées par replace.
-        }
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex : ' . $condition);
+        $evaluationTotaleTrigger = $this->evaluateSequencement($_type, $results);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "Séquencement", résultat total : ' . $evaluationTotaleTrigger);
 
-        $evaluationTotaleTrigger = jeedom::evaluateExpression($condition);
-
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluationTotaleTrigger : ' . $evaluationTotaleTrigger);
-
+      } else {
+        $evaluationTotaleTrigger = 0;
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - ***************** Heu... comment on est arrivé là ??? ***************');
       }
 
       if($evaluationTotaleTrigger){ // le resultat final qui dit qu'on a bien évalué TOUTES nos conditions selon les criteres voulus
@@ -365,6 +323,122 @@ class sequencing extends eqLogic {
           $this->actionsCancel();
         }
       }
+
+    }
+
+    public function evaluateXsurN($_type, $results){
+
+      $count = 0; // il y a une fonction php qui devrait faire ca tout seule (array_count_values($results)[1]), mais ne compte jamais le 1er item...
+      foreach ($results as $value) {
+        if($value == 1){
+          $count++;
+        }
+      }
+
+      if ($_type == 'trigger'){
+        $xVoulu = $this->getConfiguration('x_sur_N_value');
+      } else if ($_type == 'trigger_cancel'){
+        $xVoulu = $this->getConfiguration('x_sur_N_value_cancel');
+      }
+
+      log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "x sur N", on en veut : ' . $xVoulu . ', on en a : ' . $count);
+
+      if($count >= $xVoulu){
+        return 1;
+      } else {
+        return 0;
+      }
+
+    }
+
+    public function evaluatePerso($_type, $results){
+
+      if ($_type == 'trigger'){
+        $condition = $this->getConfiguration('condition_perso');
+      } else if ($_type == 'trigger_cancel'){
+        $condition = $this->getConfiguration('condition_perso_cancel');
+      }
+
+      log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "perso", condition : ' . $condition);
+
+      preg_match_all('/#(\w*)#/', $condition, $matches, PREG_SET_ORDER);
+      foreach ($matches as $key => $matche) {
+    //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
+        $condition = str_replace('#'.$matche[1].'#', $results[$matche[1]], $condition);
+      }
+      log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex : ' . $condition);
+
+      return jeedom::evaluateExpression($condition);
+
+    }
+
+    public function evaluateSequencement($_type, $results){
+
+      // on va lire la conf
+      if ($_type == 'trigger'){
+        $condition = $this->getConfiguration('condition_sequence');
+        $timeout = $this->getConfiguration('sequence_timeout');
+        $all_valid = $this->getConfiguration('all_valid');
+      } else if ($_type == 'trigger_cancel'){
+        $condition = $this->getConfiguration('condition_sequence_cancel');
+        $timeout = $this->getConfiguration('sequence_timeout_cancel');
+        $all_valid = $this->getConfiguration('all_valid_cancel');
+      }
+
+      if(!isset($timeout)||$timeout == ''||!is_numeric($timeout)){
+        $timeout = time(); //si le timeout était pas defini, on lui donne le timestamp courant qui est donc en 1970 donc indepassable
+      }
+
+      log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "sequence", condition : ' . $condition . ', timeout : ' . $timeout . ', tout doit encore être valide : ' . $all_valid);
+
+      // on va aller chopper notre condition à évaluer et si les timestamps des conditions à évaluer sont bon
+      $timestamp_valid = array(); // contiendra en $key le nom sans les # des conditions saisies et en $values 0 ou 1 selon si timestamp <= timeout
+      preg_match_all('/#(\w*)#/', $condition, $matches, PREG_SET_ORDER);
+      foreach ($matches as $matche) {
+      //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
+
+        $timestamp_cache = $this->getCache('condValide_'.$matche[1].'_timestamp');
+
+        if(time() - $timestamp_cache <= $timeout){
+          $timestamp_valid[$matche[1]] = 1; //valide
+        } else {
+          $timestamp_valid[$matche[1]] = 0; //non-valide
+        }
+
+        $condition = str_replace('#'.$matche[1].'#', $timestamp_cache, $condition); // la condition a évaluer où les #xx# sont remplacés par leur timestamp
+      }
+
+      // on vérifie que toutes les conditions demandées dans la condition ont un timestamp qui ne sort pas du timeout
+      if(!empty($timestamp_valid)){ //il faut absolument tester que le tableau n'est pas vide car cette fonction renvoie un 1 si vide...
+        $evaluationTimestamp_valid = array_product($timestamp_valid); // renverra 1 uniquement si tous les resultats sont 1 (tous corrects)
+      } else {
+        $evaluationTimestamp_valid = 0;
+      }
+
+      if($evaluationTimestamp_valid){ //timeout ok, on va évaluer l'ordre
+
+        $evaluationSequenceConditions = jeedom::evaluateExpression($condition);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Toutes les conditions valident le timeout => OK. Condition à évaluer après moulinette regex : ' . $condition . ', resultat : ' . $evaluationSequenceConditions);
+
+        if($evaluationSequenceConditions && $all_valid){ // si notre condition d'ordre est valide, ET qu'on veut que les conditions soient toutes toujours valides
+
+          if(!empty($results)){ //il faut absolument tester que le tableau n'est pas vide car cette fonction renvoie un 1 si vide...
+            $evaluationTotaleTrigger = array_product($results); // renverra 1 uniquement si tous les resultats sont 1 (tous corrects)
+          } else {
+            $evaluationTotaleTrigger = 0;
+          }
+
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Validité de toutes les conditions demandée, résultat : ' . $evaluationTotaleTrigger);
+
+        } else { // si on a pas demandé l'évaluation de toutes les conditions ou que la sequence est de toute facon fausse, on renvoi le resultat de l'eval de la sequence
+          $evaluationTotaleTrigger = $evaluationSequenceConditions;
+        }
+
+      } else {
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Toutes les conditions ne valident PAS le timeout => On déclenche pas !');
+      }
+
+      return $evaluationTotaleTrigger;
 
     }
 
@@ -437,11 +511,11 @@ class sequencing extends eqLogic {
       }
 
       if($trigger['condition_operator'] != ''){ // on a 2 conditions
-        log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $value . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $value . $trigger['condition_operator2'] . $trigger['condition_test2']);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) pour ' . $trigger['name'] . ' : ' . $value . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $value . $trigger['condition_operator2'] . $trigger['condition_test2']);
         $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1'] . $trigger['condition_operator'] . $value . $trigger['condition_operator2'] . $trigger['condition_test2']);
       } else if($trigger['condition_operator1'] != ''){ // une seule condition
 
-        log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) : ' . $value . $trigger['condition_operator1'] . $trigger['condition_test1']);
+        log::add('sequencing', 'debug', $this->getHumanName() . ' Expression à évaluer (valeur et conditions) pour ' . $trigger['name'] . ' : ' . $value . $trigger['condition_operator1'] . $trigger['condition_test1']);
 
         $check = jeedom::evaluateExpression($value . $trigger['condition_operator1'] . $trigger['condition_test1']);
 
@@ -460,53 +534,53 @@ class sequencing extends eqLogic {
       $start_datetime = $timerange['timerange_start'];
       $end_datetime = $timerange['timerange_end'];
 
-      if($timerange['rep_'.date('N')] == 1){ // si aujourd'hui est coché date('N') renvoie le jour courant de 1 (lundi) à 7(dimanche)
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Aujourd\'hui (' . date('N') . ') est cochée ');
+      if($timerange['rep_'.date('N')] == 1){ // si aujourd'hui est coché. date('N') renvoie le jour courant de 1 (lundi) à 7(dimanche)
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluation du timerange ' . $timerange['name'] . ' - Aujourd\'hui (' . date('N') . ') est cochée ');
 
           $now = date('H:i:s');
           $start = date('H:i:s', strtotime($start_datetime));
           $end = date('H:i:s', strtotime($end_datetime));
 
       } else if($timerange['rep_week'] == 1){
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Semaine est cochée ');
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluation du timerange ' . $timerange['name'] . ' - Semaine est cochée ');
 
         $now = date('N H:i:s');
         $start = date('N H:i:s', strtotime($start_datetime));
         $end = date('N H:i:s', strtotime($end_datetime));
 
       } else if($timerange['rep_month'] == 1){
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Mois est coché ');
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluation du timerange ' . $timerange['name'] . ' - Mois est coché ');
 
         $now = date('d H:i:s');
         $start = date('d H:i:s', strtotime($start_datetime));
         $end = date('d H:i:s', strtotime($end_datetime));
 
       } else if($timerange['rep_year'] == 1){
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Année est cochée ');
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluation du timerange ' . $timerange['name'] . ' - Année est cochée ');
 
         $now = date('m-d H:i:s');
         $start = date('m-d H:i:s', strtotime($start_datetime));
         $end = date('m-d H:i:s', strtotime($end_datetime));
 
       } else if($timerange['rep_1'] != 1 && $timerange['rep_2'] != 1 && $timerange['rep_3'] != 1 && $timerange['rep_4'] != 1 && $timerange['rep_5'] != 1 && $timerange['rep_6'] != 1 && $timerange['rep_7'] != 1){ // aucun jour coché (ni semaine ni mois ni année testés avant)
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Aucune répétition cochée ');
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluation du timerange ' . $timerange['name'] . ' - Aucune répétition cochée ');
 
         $now = date('Y-m-d H:i:s');
         $start = $start_datetime;
         $end = $end_datetime;
 
-      } else { // je vois pas comment on peut arriver là, mais c'est au cas où...
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - ****************** On est passé dans le else final, comment ??? ');
+      } else { // si on a un jour coché mais c'est pas aujourd'hui => on renvoi "non-valide"
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluation du timerange ' . $timerange['name'] . ' - Un jour de répétition est coché, mais pas aujourd\'hui => Non valide ');
         return 0;
       }
 
       log::add('sequencing', 'debug', $this->getHumanName() . ' On va évaluer : ' . $timerange['name'] . ' : ' . $start . ' - ' . $end . ' - avec now : ' . $now);
 
       if($now >= $start && $now <= $end){
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - On est dans la plage => OK');
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluation du timerange ' . $timerange['name'] . ' - On est dans la plage => OK');
         return 1;
       } else {
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - On n\'est pas dans la plage => nok');
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluation du timerange ' . $timerange['name'] . ' - On n\'est pas dans la plage => nok');
         return 0;
       }
 
@@ -769,11 +843,11 @@ class sequencing extends eqLogic {
     }
 
 
-    public function setTriggersCron($type) { // appelé lors de l'enregistrement de l'eqLogic, 1 fois pour 'trigger_prog' et 1 fois pour 'trigger_prog_cancel'
+    public function setTriggersCron($type) { // appelé lors de l'enregistrement de l'eqLogic, 1 fois pour 'trigger_prog' et 1 fois pour 'trigger_cancel_prog'
 
       if($type == 'trigger_prog'){
         $fonction = 'triggerCron';
-      } else if($type == 'trigger_prog_cancel'){
+      } else if($type == 'trigger_cancel_prog'){
         $fonction = 'triggerCancelCron';
       }
 
@@ -979,7 +1053,7 @@ class sequencing extends eqLogic {
         'trigger' => array(), // sous-tableau pour stocker les triggers
         'trigger_cancel' => array(), // idem trigger_cancel
       );
-      // on a maintenant trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_prog_cancel et trigger_timerange_cancel
+      // on a maintenant trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_cancel_prog et trigger_cancel_timerange
 
       foreach ($jsSensors as $key => $jsSensor) { // on boucle dans tous nos types de triggers pour recuperer les infos
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Boucle de $jsSensors : key : ' . $key);
@@ -1085,7 +1159,7 @@ class sequencing extends eqLogic {
         //########## Les crons de triggers start et cancel, si définis
         $this->cleanAllTriggersAndTriggersCancelCron();
         $this->setTriggersCron('trigger_prog'); // le parametre correspond au data-type défini dans la conf (desktop)
-        $this->setTriggersCron('trigger_prog_cancel');
+        $this->setTriggersCron('trigger_cancel_prog');
 
       } // fin if eq actif
       else { // notre eq n'est pas actif ou il a été désactivé, on supprime les listeners et les crons de programmation et triggers s'ils existaient
@@ -1203,8 +1277,8 @@ class sequencing extends eqLogic {
         }
       }
 
-      if (is_array($this->getConfiguration('trigger_prog_cancel'))) {
-        foreach ($this->getConfiguration('trigger_prog_cancel') as $prog) {
+      if (is_array($this->getConfiguration('trigger_cancel_prog'))) {
+        foreach ($this->getConfiguration('trigger_cancel_prog') as $prog) {
           preg_match('/(((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7}/', $prog['trigger_prog'], $matches);
           if(empty($matches[0])){
             throw new Exception(__('Cron Trigger d\'annulation ('.$prog['trigger_prog'].') : format non valide',__FILE__));
@@ -1215,7 +1289,7 @@ class sequencing extends eqLogic {
       // tests pour timerange
       $timerangeType = array( // liste des types avec des champs a vérifier
         'trigger_timerange',
-        'trigger_timerange_cancel',
+        'trigger_cancel_timerange',
       );
 
       foreach ($timerangeType as $timeranges) {
@@ -1241,8 +1315,8 @@ class sequencing extends eqLogic {
 
       }
 
-/*      if (is_array($this->getConfiguration('trigger_timerange_cancel'))) {
-        foreach ($this->getConfiguration('trigger_timerange_cancel') as $timerange) {
+/*      if (is_array($this->getConfiguration('trigger_cancel_timerange'))) {
+        foreach ($this->getConfiguration('trigger_cancel_timerange') as $timerange) {
           if ($timerange['name'] == '') {
             throw new Exception(__('Le champs Nom pour les plages temporelle (déclencheur d\'annulation) ne peut être vide',__FILE__));
           }

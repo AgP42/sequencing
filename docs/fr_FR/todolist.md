@@ -10,6 +10,7 @@ Divers :
   * pouvoir appliquer un délai d’exécution sur une action annulation => NON
   * Ajout des déclencheurs de type « variables » => comment on met un listener sur une variable ???
   * Ajout des conditions d’évaluation Regex (matches)
+  * datetimepicker : jours en anglais à passer en fr
 
 # Overview code :
 * triggers :
@@ -23,7 +24,7 @@ Divers :
   * DONE - OU (1 condition valide)
   * DONE x conditions valides sur N
   * DONE condition perso
-  * séquencement (le bon ordre...)
+  * séquencement (le bon ordre...) : on fait quoi des plages temporelles ? Les conditions doivent toujours etre valides à la fin ?
 
 # A documenter :
 

@@ -19,10 +19,12 @@
 $("#div_trigger").sortable({axis: "y", cursor: "move", items: ".trigger", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_trigger_prog").sortable({axis: "y", cursor: "move", items: ".trigger_prog", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_trigger_timerange").sortable({axis: "y", cursor: "move", items: ".trigger_timerange", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_scenario").sortable({axis: "y", cursor: "move", items: ".trigger_scenario", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_action").sortable({axis: "y", cursor: "move", items: ".action", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_trigger_cancel").sortable({axis: "y", cursor: "move", items: ".trigger_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_trigger_cancel_prog").sortable({axis: "y", cursor: "move", items: ".trigger_cancel_prog", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_trigger_cancel_timerange").sortable({axis: "y", cursor: "move", items: ".trigger_cancel_timerange", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_cancel_scenario").sortable({axis: "y", cursor: "move", items: ".trigger_cancel_scenario", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_action_cancel").sortable({axis: "y", cursor: "move", items: ".action_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 
@@ -86,8 +88,12 @@ $('.addTriggerProg').off('click').on('click', function () {
 });
 
 // ajoute chaque ligne de trigger_timerange ou trigger_cancel_timerange pour condition sur plage horaire
-$('.addTriggerTimeRange').off('click').on('click', function () {
-  addTriggerTimeRange({}, $(this).attr('data-type'));
+$('.addCondTimeRange').off('click').on('click', function () {
+  addCondTimeRange({}, $(this).attr('data-type'));
+});
+
+$('.addCondScenario').off('click').on('click', function () {
+  addCondScenario({}, $(this).attr('data-type'));
 });
 
 
@@ -107,17 +113,64 @@ $("body").off('click','.bt_removeAction').on('click','.bt_removeAction',function
 $("body").off('click','.bt_selectTrigger').on('click','.bt_selectTrigger',  function (event) {
   var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
   jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
-    el.value(result.human);
+    el.value(result.human); // remplace tout
   });
 });
 
-/*// permet la selection des variables comme trigger
+// idem mais appelé quand on veut ajouter l'info et non pas la remplacer dans le champs
+$("body").off('click','.bt_selectTriggerAj').on('click','.bt_selectTriggerAj',  function (event) {
+  var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
+  jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
+    el.atCaret('insert', result.human); // ajoute
+  });
+});
+
+// permet la selection des variables
 $("body").off('click','.bt_selectDataStoreTrigger').on( 'click','.bt_selectDataStoreTrigger', function (event) {
   var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
   jeedom.dataStore.getSelectModal({cmd: {type: 'info'}}, function (result) {
-    el.value(result.human);
+    //  el.value(result.human); // remplace tout
+    el.atCaret('insert', result.human); // ajoute
   });
-});*/
+});
+
+// pour selectionner un scenario
+$('body').off('click','.bt_selectScenarioExpression').on('click','.bt_selectScenarioExpression',  function (event) {
+  var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
+  jeedom.scenario.getSelectModal({}, function (result) {
+    //  el.value(result.human); // remplace tout
+    el.atCaret('insert', result.human); // ajoute
+  });
+
+/*  var expression = $(this).closest('.expression');
+  jeedom.scenario.getSelectModal({}, function (result) {
+    if (expression.find('.expressionAttr[data-l1key=type]').value() == 'action') {
+      expression.find('.expressionAttr[data-l1key=expression]').value(result.human);
+    }
+    if (expression.find('.expressionAttr[data-l1key=type]').value() == 'condition') {
+      expression.find('.expressionAttr[data-l1key=expression]').atCaret('insert', result.human);
+    }
+  });*/
+});
+
+// pour selectionner un equipement
+$('body').off('click','.bt_selectEqLogicExpression').on('click','.bt_selectEqLogicExpression',  function (event) {
+  var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
+  jeedom.eqLogic.getSelectModal({}, function (result) {
+  //  el.value(result.human); // remplace tout
+    el.atCaret('insert', result.human); // ajoute
+  });
+
+/*  var expression = $(this).closest('.expression');
+  jeedom.eqLogic.getSelectModal({}, function (result) {
+    if (expression.find('.expressionAttr[data-l1key=type]').value() == 'action') {
+      expression.find('.expressionAttr[data-l1key=expression]').value(result.human);
+    }
+    if (expression.find('.expressionAttr[data-l1key=type]').value() == 'condition') {
+      expression.find('.expressionAttr[data-l1key=expression]').atCaret('insert', result.human);
+    }
+  });*/
+});
 
 // affiche les cmd jeedom de type action
 $("body").off('click','.listCmdAction').on('click','.listCmdAction', function () {
@@ -130,6 +183,17 @@ $("body").off('click','.listCmdAction').on('click','.listCmdAction', function ()
     });
 
   });
+});
+
+//sert à charger les champs quand on clique dehors
+$('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focusout','.cmdAction.expressionAttr[data-l1key=cmd]',function (event) {
+  var type = $(this).attr('data-type');
+  var expression = $(this).closest('.' + type).getValues('.expressionAttr');
+  var el = $(this);
+  jeedom.cmd.displayActionOption($(this).value(), init(expression[0].options), function (html) {
+    el.closest('.' + type).find('.actionOptions').html(html);
+  });
+
 });
 
 // copier/coller du core (cmd.configure.php), permet de choisir la liste des actions (scenario, attendre, ...)
@@ -145,16 +209,6 @@ $("body").undelegate(".listAction", 'click').delegate(".listAction", 'click', fu
   });
 });
 
-//sert à charger les champs quand on clique dehors
-$('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focusout','.cmdAction.expressionAttr[data-l1key=cmd]',function (event) {
-  var type = $(this).attr('data-type');
-  var expression = $(this).closest('.' + type).getValues('.expressionAttr');
-  var el = $(this);
-  jeedom.cmd.displayActionOption($(this).value(), init(expression[0].options), function (html) {
-    el.closest('.' + type).find('.actionOptions').html(html);
-  });
-
-});
 
 // chaque ligne de trigger ou trigger_cancel pour les declencheurs de type "conditions"
 function addTriggerValue(_action, _type) {
@@ -267,7 +321,7 @@ function addTriggerProg(_action, _type) {
   $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
 }
 
-function addTriggerTimeRange(_action, _type) {
+function addCondTimeRange(_action, _type) {
   var div = '<div class="' + _type + '">';
     div += '<div class="form-group">';
 
@@ -330,6 +384,63 @@ function addTriggerTimeRange(_action, _type) {
           format: 'Y-m-d H:i:00',
           step: 15
         });
+}
+
+/*$('.bt_showExpressionTest').off('click').on('click', function () {
+  $('#md_modal').dialog({title: "{{Testeur d'expression}}"});
+  $("#md_modal").load('index.php?v=d&modal=expression.test').dialog('open');
+});*/
+
+/*$('#bt_showExpressionTesting').on('click',function(event) {
+  if (event.ctrlKey || event.originalEvent.which == 2) {
+    var title = encodeURI("{{Testeur d'expression}}")
+    var url = '/index.php?v=d&p=modaldisplay&loadmodal=expression.test&title=' + title
+    window.open(url).focus()
+  } else {
+    $('#md_modal').dialog({title: "{{Testeur d'expression}}"}).load('index.php?v=d&modal=expression.test').dialog('open')
+  }
+})
+$('#bt_showExpressionTesting').on('mouseup', function (event) {
+  if( event.which == 2 ) {
+    event.preventDefault()
+    $('#bt_showExpressionTesting').trigger(jQuery.Event('click', { ctrlKey: true }))
+  }
+})*/
+
+// chaque ligne de condition scenario pour trigger ou trigger_cancel
+function addCondScenario(_action, _type) {
+  var div = '<div class="' + _type + '">';
+    div += '<div class="form-group">';
+
+      div += '<div class="col-sm-5 col-md-2">';
+        div += '<div class="input-group">';
+          div += '<span class="input-group-btn">';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '</span>';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
+        div += '</div>';
+      div += '</div>';
+
+      div += '<label class="col-sm-1 control-label">Condition</label>';
+      div += '<div class="col-sm-6 col-md-8">';
+        div += '<div class="input-group">';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" placeholder="{{Condition type scenario}}"/>';
+          div += '<span class="input-group-btn">';
+            div += '<a class="btn btn-default cursor bt_selectTriggerAj" title="{{Rechercher une commande}}"><i class="fas fa-list-alt"></i></a>';
+            div += '<a class="btn btn-default cursor bt_selectDataStoreTrigger" title="{{Rechercher une variable}}"><i class="fas fa-calculator"></i></a>';
+            div += '<a class="btn btn-default cursor bt_selectScenarioExpression"  title="{{Rechercher un scenario}}"><i class="fas fa-history"></i></a>';
+            div += '<a class="btn btn-default cursor bt_selectEqLogicExpression"  title="{{Rechercher d\'un équipement}}"><i class="fas fa-cube"></i></a>';
+
+        //    div += '<a class="btn btn-default cursor bt_showExpressionTesting"  title="{{Testeur d\'expression}}"><i class="fas fa-check"></i></a>';
+
+          div += '</span>';
+        div += '</div>';
+      div += '</div>';
+
+    div += '</div>';
+  div += '</div>';
+  $('#div_' + _type).append(div);
+  $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
 }
 
 // chaque ligne d'action ou action_cancel
@@ -408,11 +519,13 @@ function saveEqLogic(_eqLogic) {
   _eqLogic.configuration.trigger = $('#div_trigger .trigger').getValues('.expressionAttr');
   _eqLogic.configuration.trigger_prog = $('#div_trigger_prog .trigger_prog').getValues('.expressionAttr');
   _eqLogic.configuration.trigger_timerange = $('#div_trigger_timerange .trigger_timerange').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_scenario = $('#div_trigger_scenario .trigger_scenario').getValues('.expressionAttr');
   _eqLogic.configuration.action = $('#div_action .action').getValues('.expressionAttr');
 
   _eqLogic.configuration.trigger_cancel = $('#div_trigger_cancel .trigger_cancel').getValues('.expressionAttr');
   _eqLogic.configuration.trigger_cancel_prog = $('#div_trigger_cancel_prog .trigger_cancel_prog').getValues('.expressionAttr');
   _eqLogic.configuration.trigger_cancel_timerange = $('#div_trigger_cancel_timerange .trigger_cancel_timerange').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_cancel_scenario = $('#div_trigger_cancel_scenario .trigger_cancel_scenario').getValues('.expressionAttr');
   _eqLogic.configuration.action_cancel = $('#div_action_cancel .action_cancel').getValues('.expressionAttr');
 
   return _eqLogic;
@@ -424,10 +537,12 @@ function printEqLogic(_eqLogic) {
   $('#div_trigger').empty();
   $('#div_trigger_prog').empty();
   $('#div_trigger_timerange').empty();
+  $('#div_trigger_scenario').empty();
   $('#div_action').empty();
   $('#div_trigger_cancel').empty();
   $('#div_trigger_cancel_prog').empty();
   $('#div_trigger_cancel_timerange').empty();
+  $('#div_trigger_cancel_scenario').empty();
   $('#div_action_cancel').empty();
 
   _labels = '<option value="" select></option>'; // initialise notre liste deroulante de labels avec le choix "vide"
@@ -445,7 +560,12 @@ function printEqLogic(_eqLogic) {
     }
     if (isset(_eqLogic.configuration.trigger_timerange)) {
       for (var i in _eqLogic.configuration.trigger_timerange) {
-        addTriggerTimeRange(_eqLogic.configuration.trigger_timerange[i], 'trigger_timerange');
+        addCondTimeRange(_eqLogic.configuration.trigger_timerange[i], 'trigger_timerange');
+      }
+    }
+    if (isset(_eqLogic.configuration.trigger_scenario)) {
+      for (var i in _eqLogic.configuration.trigger_scenario) {
+        addCondScenario(_eqLogic.configuration.trigger_scenario[i], 'trigger_scenario');
       }
     }
     if (isset(_eqLogic.configuration.action)) {
@@ -469,7 +589,12 @@ function printEqLogic(_eqLogic) {
     }
     if (isset(_eqLogic.configuration.trigger_cancel_timerange)) {
       for (var i in _eqLogic.configuration.trigger_cancel_timerange) {
-        addTriggerTimeRange(_eqLogic.configuration.trigger_cancel_timerange[i], 'trigger_cancel_timerange');
+        addCondTimeRange(_eqLogic.configuration.trigger_cancel_timerange[i], 'trigger_cancel_timerange');
+      }
+    }
+    if (isset(_eqLogic.configuration.trigger_cancel_scenario)) {
+      for (var i in _eqLogic.configuration.trigger_cancel_scenario) {
+        addCondScenario(_eqLogic.configuration.trigger_cancel_scenario[i], 'trigger_cancel_scenario');
       }
     }
     if (isset(_eqLogic.configuration.action_cancel)) {

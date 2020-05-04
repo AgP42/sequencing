@@ -57,7 +57,6 @@ class sequencing extends eqLogic {
         log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
       }
 
-
     }
 
     public static function endProgrammed($_options) { // fonction appelée par le cron de programmation cancel
@@ -258,6 +257,10 @@ class sequencing extends eqLogic {
 
       foreach ($this->getConfiguration($_type.'_timerange') as $triggerOrCond) {
         $results[$triggerOrCond['name']] = $this->checkCondTimeRange($triggerOrCond);
+      }
+
+      foreach ($this->getConfiguration($_type.'_scenario') as $triggerOrCond) {
+        $results[$triggerOrCond['name']] = $this->checkCondScenario($triggerOrCond);
       }
 
       foreach ($results as $key => $value) {
@@ -529,6 +532,19 @@ class sequencing extends eqLogic {
 
     }
 
+    public function checkCondScenario($expression){
+
+      log::add('sequencing', 'debug', $this->getHumanName() . ' Evaluation Condition type scenario : ' . $expression['name'] . ' : ' . $expression['cmd'] . ' => ' . scenarioExpression::setTags(jeedom::fromHumanReadable($expression['cmd'])) . ' => ' . jeedom::evaluateExpression($expression['cmd']));
+
+      if(jeedom::evaluateExpression($expression['cmd'])){
+        return 1;
+      } else {
+        return 0;
+      }
+
+    }
+
+
     public function checkCondTimeRange($timerange){
 
       $start_datetime = $timerange['timerange_start'];
@@ -645,8 +661,8 @@ class sequencing extends eqLogic {
             $value = str_replace('#trigger_datetime#', $this->getCache('trigger_datetime'), $value);
             $value = str_replace('#trigger_time#', $this->getCache('trigger_time'), $value);
 
-            // reprise des tags jeedom des scenatios
-            $value = str_replace('#seconde#', (int) date('s'), $value);
+            // reprise des tags jeedom des scenatios => inutile, c'est deja fait par scenarioExpression::createAndExec après
+/*            $value = str_replace('#seconde#', (int) date('s'), $value);
             $value = str_replace('#minute#', (int) date('i'), $value);
             $value = str_replace('#heure#', (int) date('G'), $value);
             $value = str_replace('#heure12#', (int) date('g'), $value);
@@ -662,7 +678,7 @@ class sequencing extends eqLogic {
             $value = str_replace('#njour#', (int) date('w'), $value);
             $value = str_replace('#jeedom_name#', '"' . config::byKey('name') . '"', $value);
             $value = str_replace('#hostname#', '"' . gethostname() . '"', $value);
-            $value = str_replace('#IP#', '"' . network::getNetworkAccess('internal', 'ip', '', false) . '"', $value);
+            $value = str_replace('#IP#', '"' . network::getNetworkAccess('internal', 'ip', '', false) . '"', $value);*/
 
             $value = str_replace('#eq_full_name#', $this->getHumanName(), $value);
             $options[$key] = str_replace('#eq_name#', $this->getName(), $value);
@@ -1315,13 +1331,26 @@ class sequencing extends eqLogic {
 
       }
 
-/*      if (is_array($this->getConfiguration('trigger_cancel_timerange'))) {
-        foreach ($this->getConfiguration('trigger_cancel_timerange') as $timerange) {
-          if ($timerange['name'] == '') {
-            throw new Exception(__('Le champs Nom pour les plages temporelle (déclencheur d\'annulation) ne peut être vide',__FILE__));
+      // tests pour conditions type scenarios
+      $scenarioType = array( // liste des types avec des champs a vérifier
+        'trigger_scenario',
+        'trigger_cancel_scenario',
+      );
+
+      foreach ($scenarioType as $scenarioCond) {
+        if (is_array($this->getConfiguration($scenarioCond))) {
+          foreach ($this->getConfiguration($scenarioCond) as $sce) {
+
+            if (trim($sce['name']) == '') {
+              throw new Exception(__('Le champs Nom pour conditions de type scenarios ('.$scenarioCond.') ne peut être vide',__FILE__));
+            }
+
+            array_push($allNames, trim($sce['name']));
+
           }
         }
-      }*/
+
+      }
 
       //tester l'unicité de tous les noms
       if(count($allNames) !== count(array_unique($allNames))){
@@ -1422,12 +1451,12 @@ class sequencingCmd extends cmd {
 
       } else { // sinon c'est un sensor et on veut juste sa valeur
 
-/*        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . jeedom::evaluateExpression($this->getValue()));
+        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . jeedom::evaluateExpression($this->getValue()));
         return jeedom::evaluateExpression($this->getValue());
-*/
+
         //pour la gestion des variables (qui ne marche pas du tout... le listener ne se lance pas, la valeur de la variable est aléatoirement bonne ou "", .... Mais systematiquement "" si appel via l'API...)
-        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . str_replace('#', '', jeedom::evaluateExpression($this->getValue())));
-        return str_replace('#', '', jeedom::evaluateExpression($this->getValue())); // s'il y a encore des '#' apres évaluation(cas d'une variable), on les vire et on prend que le resultat
+/*        log::add('sequencing', 'debug', $this->getHumanName() . '-> ' . str_replace('#', '', jeedom::evaluateExpression($this->getValue())));
+        return str_replace('#', '', jeedom::evaluateExpression($this->getValue())); // s'il y a encore des '#' apres évaluation(cas d'une variable), on les vire et on prend que le resultat*/
       }
 
     }

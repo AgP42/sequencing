@@ -50,15 +50,17 @@ $eqLogics = eqLogic::byType($plugin->getId());
     <li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fa fa-arrow-circle-left"></i></a></li>
     <li role="presentation" class="active"><a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-tachometer-alt"></i> {{Général}}</a></li>
 
-    <li role="presentation"><a href="#triggerstab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-toggle-on"></i> {{Déclencheurs}}</a></li>
+    <li role="presentation"><a href="#launchtab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-toggle-on"></i> {{Déclenchement immédiat}}</a></li>
+    <li role="presentation"><a href="#triggerstab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-toggle-on"></i> {{Déclenchement conditionné}}</a></li>
     <li role="presentation"><a href="#actionstab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-hand-point-right"></i> {{Actions}}</a></li>
-    <li role="presentation"><a href="#triggerscanceltab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-toggle-off"></i> {{Déclencheurs d'annulation}}</a></li>
+    <li role="presentation"><a href="#launchcanceltab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-toggle-off"></i> {{Déclenchement immédiat d'annulation}}</a></li>
+    <li role="presentation"><a href="#triggerscanceltab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-toggle-off"></i> {{Déclenchement conditionné d'annulation}}</a></li>
     <li role="presentation"><a href="#actionscanceltab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-hand-paper"></i> {{Actions d'annulation}}</a></li>
     <li role="presentation"><a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-list-alt"></i> {{Avancé - Commandes}}</a></li>
 
   </ul>
 
-  <div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
+  <div class="tab-content" style="height:calc(100% - 80px);overflow:auto;overflow-x: hidden;">
 
     <!-- TAB GENERAL -->
     <div role="tabpanel" class="tab-pane active" id="eqlogictab">
@@ -141,20 +143,20 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
     </div>
 
-    <!-- TAB Triggers -->
-    <div class="tab-pane" id="triggerstab">
+
+    <!-- TAB Déclenchement immédiat -->
+    <div class="tab-pane" id="launchtab">
 
       <br/>
-<!--       <div class="alert alert-info">
-        {{}}
-      </div> -->
+      <div class="alert alert-info">
+        {{Cet onglet permet de configurer des déclencheurs directs pour lancer la séquence d'action. Quelles que soient les éventuelles conditions configurées à l'onglet suivant, un appel sur cette commande ou la programmation définie ici déclencheront immédiatement la séquence.}}
+      </div>
 
       <form class="form-horizontal">
         <fieldset>
           <legend><i class="fas fa-external-link-alt"></i> {{Commande à appeler pour déclencher les actions}} <sup><i class="fas fa-question-circle tooltips" title="{{Réglages/Système/Configuration/Réseaux doit être correctement renseigné. Cette commande déclenchera la séquence sans évaluer les éventuelles conditions ci-dessous.}}"></i></sup>
           </legend>
           <div class="form-group">
-            <!-- <label class="col-sm-1 control-label">{{URL }}</label> -->
 
             <div class="col-sm-12">
               <?php
@@ -195,12 +197,23 @@ $eqLogics = eqLogic::byType($plugin->getId());
         </fieldset>
       </form>
 
+    </div>
+
+    <!-- TAB Triggers -->
+    <div class="tab-pane" id="triggerstab">
+
+      <br/>
+      <div class="alert alert-info">
+        {{Cet onglet permet de configurer des déclencheurs complexes pour lancer la séquence d'action. Ils sont indépendant du déclenchement immédiat défini à l'onglet précédent.}}
+      </div>
+
       <form class="form-horizontal">
         <fieldset>
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
             <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_prog" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_timerange" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage temporelle}}</a>
-            <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
+            <a class="btn btn-info btn-sm addTriggerValue" data-type="trigger" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
+            <a class="btn btn-success btn-sm addCondTimeRange" data-type="trigger_timerange" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage temporelle}}</a>
+            <a class="btn btn-success btn-sm addCondScenario" data-type="trigger_scenario" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition type scénario}}</a>
           </legend>
 
           <legend>
@@ -254,9 +267,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
           <br>
           <div id="div_trigger_prog"></div>
           <br>
+          <div id="div_trigger"></div>
+          <br>
           <div id="div_trigger_timerange"></div>
           <br>
-          <div id="div_trigger"></div>
+          <div id="div_trigger_scenario"></div>
         </fieldset>
       </form>
 
@@ -281,9 +296,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
     </div>
 
-    <!-- TAB triggers d'annulation -->
-    <div class="tab-pane" id="triggerscanceltab">
+    <!-- TAB annulation immédiate -->
+    <div class="tab-pane" id="launchcanceltab">
       <br/>
+      <div class="alert alert-info">
+        {{Cet onglet permet de configurer des déclencheurs directs pour lancer l'annulation de la séquence d'action. Quelles que soient les éventuelles conditions configurées à l'onglet suivant, un appel sur cette commande ou la programmation définie ici déclencheront immédiatement l'annulation.}}
+      </div>
 
       <form class="form-horizontal">
         <fieldset>
@@ -331,16 +349,23 @@ $eqLogics = eqLogic::byType($plugin->getId());
         </fieldset>
       </form>
 
+    </div>
+
+    <!-- TAB triggers d'annulation -->
+    <div class="tab-pane" id="triggerscanceltab">
+      <br/>
+      <div class="alert alert-info">
+        {{Cet onglet permet de configurer des déclencheurs complexes pour lancer l'annulation de la séquence d'action. Ils sont indépendant du déclenchement immédiat défini à l'onglet précédent.}}
+      </div>
+
       <form class="form-horizontal">
         <fieldset>
-<!--           <legend><i class="fas fa-toggle-off"></i> {{Déclencheurs d'annulation}}
-            <a class="btn btn-success btn-sm addTrigger" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter un bouton}}</a>
-            <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="trigger_cancel_and"/>{{Tous les déclencheurs doivent être valides}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour annuler la séquence uniquement si l'ensemble des déclencheurs répondent à leur condition. Non coché : chaque déclencheur sera évalué individuellement}}"></i></sup></label>
-          </legend> -->
+
           <legend><i class="fas fa-toggle-on"></i> {{Déclencheurs et conditions}} <sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez ici ajouter des déclencheurs pour annuler la séquence, selon des conditions sur leur valeur ou autres. Vous pouvez aussi choisir les conditions entre ces déclencheurs. Voir la doc pour plus d'infos.}}"></i></sup>
             <a class="btn btn-primary btn-sm addTriggerProg" data-type="trigger_cancel_prog" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon programmation}}</a>
-            <a class="btn btn-info btn-sm addTriggerTimeRange" data-type="trigger_cancel_timerange" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage temporelle}}</a>
-            <a class="btn btn-success btn-sm addTriggerValue" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
+            <a class="btn btn-info btn-sm addTriggerValue" data-type="trigger_cancel" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Déclencheur selon valeur et répétition}}</a>
+            <a class="btn btn-success btn-sm addCondTimeRange" data-type="trigger_cancel_timerange" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition selon plage temporelle}}</a>
+            <a class="btn btn-success btn-sm addCondScenario" data-type="trigger_cancel_scenario" style="margin:5px;"><i class="fas fa-plus-circle"></i> {{Condition type scénario}}</a>
           </legend>
 
           <legend>
@@ -394,9 +419,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
           <br>
           <div id="div_trigger_cancel_prog"></div>
           <br>
+          <div id="div_trigger_cancel"></div>
+          <br>
           <div id="div_trigger_cancel_timerange"></div>
           <br>
-          <div id="div_trigger_cancel"></div>
+          <div id="div_trigger_cancel_scenario"></div>
         </fieldset>
       </form>
 

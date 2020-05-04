@@ -5,16 +5,23 @@
 
 # Betas
 
-1.0.4 - 3 mai
+1.0.5 - 4 mai
 ---
 
 /!\ changer les liens des images de la doc avant de mettre en stable !
+
+* Ajout condition de type "scenario"
+* Debug (Jeedom v4.0.54)
+* Update documentation
+
+1.0.4 - 3 mai
+---
 
 * Ajout condition de déclenchement par test du séquencement des conditions
 * Debug
 * Update documentation
 
-1.0.3 - 1er mai& 2 mai (multiples versions !)
+1.0.3 - 1er mai & 2 mai (multiples versions !)
 ---
 
 * Changement logique pour répétition de valeur : un déclencheur non valide est ignoré sans remettre le compteur de "valide" à 0

@@ -5,10 +5,17 @@
 
 # Betas
 
-1.0.5 - 4 mai
+1.0.6 - 6 mai
 ---
 
 /!\ changer les liens des images de la doc avant de mettre en stable !
+
+* Update des évaluation "Sequencement" et "Perso" pour utiliser les tags Jeedom # et mixer les conditions de temps et de résultat
+* Debug (Jeedom v4.0.54)
+* Update documentation
+
+1.0.5 - 4 mai
+---
 
 * Ajout condition de type "scenario"
 * Debug (Jeedom v4.0.54)

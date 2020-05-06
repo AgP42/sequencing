@@ -9,7 +9,7 @@ Il est possible d'utiliser des conditions complexes pour déclencher/annuler la 
 * Conditions sur valeur (binaires, numériques ou chaîne de caractères) et/ou selon répétition dans une durée donnée
 * Conditions selon plage temporelle (avec répétition possible chaque jour de la semaine, chaque semaine, mois, année)
 * Conditions du type "scénario" permettant d'utiliser toutes les fonctions de calculs des champs **Si** des scénarios Jeedom (conditions sur les variables, calculs de dates sur des commandes, etc.)
-* Ces différentes conditions peuvent être évaluées en OU, en ET, en logique floue (x conditions sur N), selon l'ordre d’occurrence ou selon une condition personnalisée.
+* Ces différentes conditions peuvent être évaluées en OU, en ET, en logique floue (x conditions sur N), selon l'ordre d’occurrence ou selon une condition personnalisée mixant ces différentes conditions.
 
 Les principales fonctionnalités sont les suivantes :
 * Gestion illimitée d'actions séquentielles (immédiates ou retardées)
@@ -222,30 +222,52 @@ Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
 
 Choisir ici les conditions que vous voulez appliquer entre ces différents éléments :
 * **ET** : toutes les conditions (valeur, plage temporelle et scenario) doivent être valides pour déclencher la séquence d'action
+
 * **OU** : une seule condition suffit
+
 * **x conditions valides** : seules x parmi vos N conditions doivent être valides pour déclencher la séquence. Par exemple si vous avez plusieurs capteurs de températures et seuls 3 sur 4 doivent être sous un seuil donné pour déclencher une alerte ou le chauffage. Ou pour déclencher un arrosage automatique sans attendre que tous les capteurs soient hors seuils.
+
 * **Séquencement** : vous pouvez ici choisir l'ordre d'arrivée des conditions dans une durée donnée et choisir si toutes les conditions doivent toujours être valides ou non pour le déclenchement effectif. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-).
 Fonctionnement :
-  * Seules les conditions sur "valeur" peuvent être utilisées ici (les plages temporelles ou condition "scenarios" peuvent être utilisées en condition de validité mais elles n'ont pas de "date" d'exécution valide)
-  * Vous devez écrire la condition logique à respecter au format suivant : #Cond1#<#Cond2#&&#Cond2#<=#Cond3# (Condition 1 puis Condition 2 puis Condition 3, qui peut-être simultanée à la Condition2)
-  * Pour vous aider à écrire la condition, voilà le détail du traitement qui sera réalisé par le plugin : chaque #Condx# sera remplacée par le timestamp de son dernier déclenchement **valide**. Puis l'expression complète sera évaluée logiquement. Les timestamps de toutes les conditions utilisées dans l'expressions devront aussi respecter le champ timeout. Et si la case "Toutes conditions toujours valides" est cochée, le plugin évaluera en plus la validité de la totalité des conditions (toutes celles définies, pas uniquement celles utilisées dans la condition)
-  * Le nom de chaque condition doit être encadré par des # (n'utilisez pas de # par ailleurs dans la condition...)
-  * Vos conditions ne doivent pas contenir d'espace dans leur nom
+  * Seuls les "déclencheurs" peuvent être utilisés ici (les plages temporelles ou condition "scenarios" peuvent être utilisées en condition de validité mais elles n'ont pas de "date" d'exécution).
+  * Vous devez écrire la condition logique à respecter au format suivant : (§Cond1§<§Cond2§)&&(§Cond2§<=§Cond3§) (Condition 1 puis Condition 2 puis Condition 3, qui peut-être simultanée à la Condition2)
+  * Le nom de chaque condition doit être encadré par des § (n'utilisez pas de § par ailleurs dans la condition...)
+  * Vos conditions ne doivent pas contenir d'accents, de %, § ou # dans leurs noms (testé ok : lettres minuscules et majuscules, chiffres, espaces, "-" ou "_")
   * Vous pouvez utiliser des () pour déterminer les priorités
   * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), !(inversion),...)
-  * Le champ **Durée maximum** permet de limiter la prise en compte des déclencheurs trop anciens. Toutes les conditions comprises dans le champ **Condition** doivent avoir été validées dans la période correspondante. En secondes.
+  * Vous pouvez utiliser les tags Jeedom des scenarios dans l'expression, notamment #timestamp# pour avoir le timestamp actuel.
+  * Vous pouvez définir un délai spécifique entre chaque conditions, par exemple "§btblanc§+30<§btrouge§" pour demander minimum 30 secondes entre l'activation de "§btblanc§"" et "§btrouge§"
+  * Le champ **Durée maximum** permet de limiter la prise en compte des déclencheurs trop anciens. Toutes les conditions comprises dans le champ **Condition** doivent avoir été validées (= déclenchées et correct) dans la période correspondante. En secondes.
   * Si la case **Toutes conditions toujours valides** est cochée, le plugin évaluera en plus la validité de la totalité des conditions avant de déclencher (toutes les conditions définies, pas uniquement celles utilisées dans la condition)
+
+> Pour vous aider à écrire la condition, voilà le détail du traitement qui sera réalisé par le plugin :
+>    * chaque §Condx§ sera remplacée par le timestamp de son dernier déclenchement **valide**.
+>    * Puis l'expression complète sera évaluée logiquement, le résultat doit être == 1 pour être valide
+>    * Les timestamps de toutes les conditions utilisées dans l'expressions devront aussi respecter le champ timeout.
+>    * Et si la case "Toutes conditions toujours valides" est cochée, le plugin évaluera en plus la validité de la totalité des conditions (toutes celles définies, pas uniquement celles utilisées dans la condition)
+>    * Si ces 3 conditions sont réunies => la séquence d'action sera déclenchée
+
 * **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à réaliser. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-).
 Fonctionnement :
-  * Vous devez écrire la condition logique à respecter entre vos différentes conditions, sachant qu'une condition valide sera égale à 1 et non valide à 0.
-  * Le nom de chaque condition doit être encadré par des # (n'utilisez pas de # par ailleurs dans la condition...)
-  * Vos conditions ne doivent pas contenir d'espace dans leur nom
+  * Vous devez écrire la condition logique à respecter au format suivant : (§Cond1§<§Cond2§)&&(%Cond2%||%Cond3%) (Condition 1 puis Condition 2 et Condition 2 ou Condition 3 valide)
+  * Pour utiliser l'état de validité d'une condition (valide sera égale à 1 et non valide à 0) : encadrez son nom par des %
+  * Pour utiliser le timestamp du dernier déclenchement valide d'un déclencheur : encadrez son nom par des §
+  * Les noms des conditions/déclencheurs ne doivent pas contenir d'accents, de %, § ou # (testé ok : lettres minuscules et majuscules, chiffres, espaces, "-" ou "_")
   * Vous pouvez utiliser des () pour déterminer les priorités
   * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), !(inversion),...)
-  * Exemple : (#lundis#==1||#btrouge18#)&&#btblanc#
-  * Notes :
-    * si vous voulez tester une condition non valide (==0), cette condition ne pourra pas être le déclencheur
-    * il n'est pas nécessaire d'ajouter le ==1 dans la condition : "#lundis#==1" ou "#lundis#" auront un comportement identiques
+  * Vous pouvez utiliser les tags Jeedom des scenarios dans l'expression, notamment #timestamp# pour avoir le timestamp actuel.
+  * Vous pouvez utiliser directement une commande Jeedom dans l'expression, elle sera remplacée par sa valeur, par exemple " #[Developpement][Capteur porte][Etat]#"
+  * Vous pouvez utiliser directement toutes les opérations des scenarios Jeedom (time_op(), ...)
+  * Vous pouvez définir un délai spécifique entre chaque conditions, par exemple "§btblanc§+30<§btrouge§" pour demander minimum 30 secondes entre l'activation de "§btblanc§"" et "§btrouge§"
+  * Vous pouvez évaluer "x sur N conditions valides" en utilisant la syntaxe suivante : "%Cond1%+%Cond2%+%Cond3%+%Cond4%+%Cond5%>=3" (sur les 5 conditions données, au moins 3 doivent être valides)
+  * Il n'est pas nécessaire d'ajouter le ==1 dans la condition : "#lundis#==1" ou "#lundis#" auront un comportement identiques
+  * Si vous voulez tester une condition non valide (==0), cette condition ne pourra pas être le déclencheur
+
+> Pour vous aider à écrire la condition, voilà le détail du traitement qui sera réalisé par le plugin :
+>    * chaque §Condx§ sera remplacée par le timestamp de son dernier déclenchement **valide**.
+>    * chaque %Condx% sera remplacée par sa validité (0 ou 1)
+>    * chaque #xxx# sera remplacé par sa valeur Jeedom (commande, variables, tags, ...)
+>    * Puis l'expression complète sera évaluée logiquement, le résultat doit être == 1 pour déclencher la séquence d'action
 
 Onglet **Actions**
 ---

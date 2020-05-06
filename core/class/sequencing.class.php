@@ -28,6 +28,13 @@
 
 //cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName()
 
+
+/*    $valueDate = cmd::byId(str_replace('#', '', $trigger['cmd']))->getValueDate();
+
+    log::add('sequencing', 'debug', $this->getHumanName() . ' - ValueDate pour declencheurs sur valeur : ' . $valueDate);
+
+*/
+
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
@@ -264,7 +271,7 @@ class sequencing extends eqLogic {
       }
 
       foreach ($results as $key => $value) {
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Tous les résultats pour toutes les conditions : ' . $key . ' : ' . $value . ' - last valide : ' . date('Y-m-d H:i:s', $this->getCache('condValide_'.$key.'_timestamp')));
+        log::add('sequencing', 'info', $this->getHumanName() . ' - Tous les résultats pour toutes les conditions : ' . $key . ' : ' . $value . ' - last valide : ' . date('Y-m-d H:i:s', $this->getCache('condValide_'.$key.'_timestamp')));
       }
 
       $this->evaluateGlobalConditions($_type, $results);
@@ -362,16 +369,35 @@ class sequencing extends eqLogic {
         $condition = $this->getConfiguration('condition_perso_cancel');
       }
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "perso", condition : ' . $condition);
+      log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "perso", condition initiale : ' . $condition);
 
-      preg_match_all('/#(\w*)#/', $condition, $matches, PREG_SET_ORDER);
+      preg_match_all('/%([\w\s-]*)%/', $condition, $matches, PREG_SET_ORDER); // on veut matcher a-Z, 0-9, les espaces et les - qui sont inclus entre 2#. Ici on choppe pas les accents...
       foreach ($matches as $key => $matche) {
     //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
-        $condition = str_replace('#'.$matche[1].'#', $results[$matche[1]], $condition);
+        $condition = str_replace('%'.$matche[1].'%', $results[$matche[1]], $condition);
       }
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex : ' . $condition);
+  //    log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex % : ' . $condition);
 
-      return jeedom::evaluateExpression($condition);
+      preg_match_all('/§([\w\s-]*)§/', $condition, $matches, PREG_SET_ORDER);
+      foreach ($matches as $key => $matche) {
+    //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
+    //    $condition = str_replace('§'.$matche[1].'§', $results[$matche[1]], $condition);
+
+        $timestamp_cache = $this->getCache('condValide_'.$matche[1].'_timestamp');
+        $condition = str_replace('§'.$matche[1].'§', $timestamp_cache, $condition); // la condition a évaluer où les §xx§ sont remplacés par leur timestamp
+
+      }
+    //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex : ' . $condition);
+
+      $result = jeedom::evaluateExpression($condition);
+
+      log::add('sequencing', 'info', $this->getHumanName() . ' Evaluation de : ' . $condition . ' => ' . scenarioExpression::setTags(jeedom::fromHumanReadable($condition)) . ' => ' . $result);
+
+      if($result == "1"){
+        return 1;
+      } else {
+        return 0;
+      }
 
     }
 
@@ -396,7 +422,7 @@ class sequencing extends eqLogic {
 
       // on va aller chopper notre condition à évaluer et si les timestamps des conditions à évaluer sont bon
       $timestamp_valid = array(); // contiendra en $key le nom sans les # des conditions saisies et en $values 0 ou 1 selon si timestamp <= timeout
-      preg_match_all('/#(\w*)#/', $condition, $matches, PREG_SET_ORDER);
+      preg_match_all('/§([\w\s-]*)§/', $condition, $matches, PREG_SET_ORDER);
       foreach ($matches as $matche) {
       //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
 
@@ -408,7 +434,7 @@ class sequencing extends eqLogic {
           $timestamp_valid[$matche[1]] = 0; //non-valide
         }
 
-        $condition = str_replace('#'.$matche[1].'#', $timestamp_cache, $condition); // la condition a évaluer où les #xx# sont remplacés par leur timestamp
+        $condition = str_replace('§'.$matche[1].'§', $timestamp_cache, $condition); // la condition a évaluer où les #xx# sont remplacés par leur timestamp
       }
 
       // on vérifie que toutes les conditions demandées dans la condition ont un timestamp qui ne sort pas du timeout
@@ -418,12 +444,15 @@ class sequencing extends eqLogic {
         $evaluationTimestamp_valid = 0;
       }
 
+      $condition = scenarioExpression::setTags(jeedom::fromHumanReadable($condition)); // permet de traiter les tags des scenarios genre #time#
+
       if($evaluationTimestamp_valid){ //timeout ok, on va évaluer l'ordre
 
         $evaluationSequenceConditions = jeedom::evaluateExpression($condition);
-        log::add('sequencing', 'debug', $this->getHumanName() . ' - Toutes les conditions valident le timeout => OK. Condition à évaluer après moulinette regex : ' . $condition . ', resultat : ' . $evaluationSequenceConditions);
 
-        if($evaluationSequenceConditions && $all_valid){ // si notre condition d'ordre est valide, ET qu'on veut que les conditions soient toutes toujours valides
+        log::add('sequencing', 'info', $this->getHumanName() . ' - Toutes les conditions valident le timeout => OK. Evaluation de : ' . $condition . ' => ' . scenarioExpression::setTags(jeedom::fromHumanReadable($condition)) . ' => ' . $evaluationSequenceConditions);
+
+        if($evaluationSequenceConditions == "1" && $all_valid){ // si notre condition d'ordre est valide, ET qu'on veut que les conditions soient toutes toujours valides
 
           if(!empty($results)){ //il faut absolument tester que le tableau n'est pas vide car cette fonction renvoie un 1 si vide...
             $evaluationTotaleTrigger = array_product($results); // renverra 1 uniquement si tous les resultats sont 1 (tous corrects)
@@ -441,7 +470,11 @@ class sequencing extends eqLogic {
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Toutes les conditions ne valident PAS le timeout => On déclenche pas !');
       }
 
-      return $evaluationTotaleTrigger;
+      if($evaluationTotaleTrigger == "1"){
+        return 1;
+      } else {
+        return 0;
+      }
 
     }
 

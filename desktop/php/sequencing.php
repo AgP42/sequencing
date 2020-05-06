@@ -240,7 +240,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
             <div class="sequencement">
               <div class="form-group">
-                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir l'ordre des conditions (uniquement pour des conditions sur valeurs). Pour Cond1 puis Cond2 puis Cond3, saisir '#Cond1#<#Cond2#&&#Cond2<#Cond3#'}}"></i></sup></label>
+                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir l'ordre des conditions (uniquement pour des conditions sur valeurs). Pour Cond1 puis Cond2 puis Cond3, saisir '§Cond1§<§Cond2§&&§Cond2§<§Cond3§'}}"></i></sup></label>
                 <div class="col-sm-5 col-md-3">
                   <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_sequence"/>
                 </div>
@@ -256,8 +256,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
             <div class="condition_perso">
               <div class="form-group">
-                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Utilisez des # autour de vos noms de conditions et définissez la logique voulue. Exemple '(#Cond1#||#Cond2)&&#Cond3#'}}"></i></sup></label>
-                <div class="col-sm-5">
+                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Utilisez des % (resultat) ou % (timestamp) autour de vos noms de conditions et définissez la logique voulue. Voir la documentation}}"></i></sup></label>
+                <div class="col-sm-7">
                   <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_perso"/>
                 </div>
               </div>
@@ -392,7 +392,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
             <div class="sequencement_cancel">
               <div class="form-group">
-                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir l'ordre des conditions (uniquement pour des conditions sur valeurs). Pour Cond1 puis Cond2 puis Cond3, saisir '#Cond1#<#Cond2#&&#Cond2<#Cond3#'}}"></i></sup></label>
+                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir l'ordre des conditions (uniquement pour des conditions sur valeurs). Pour Cond1 puis Cond2 puis Cond3, saisir '§Cond1§<§Cond2§&&§Cond2§<§Cond3§'}}"></i></sup></label>
                 <div class="col-sm-5 col-md-3">
                   <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_sequence_cancel"/>
                 </div>
@@ -408,8 +408,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
             <div class="condition_perso_cancel">
               <div class="form-group">
-                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Utilisez des # autour de vos noms de conditions et définissez la logique voulue. Exemple '(#Cond1#||#Cond2)&&#Cond3#'}}"></i></sup></label>
-                <div class="col-sm-5">
+                <label class="col-sm-1 control-label">{{condition}} <sup><i class="fas fa-question-circle tooltips" title="{{Utilisez des % (resultat) ou % (timestamp) autour de vos noms de conditions et définissez la logique voulue. Voir la documentation}}"></i></sup></label>
+                <div class="col-sm-7">
                   <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_perso_cancel"/>
                 </div>
               </div>

@@ -96,7 +96,6 @@ $('.addCondScenario').off('click').on('click', function () {
   addCondScenario({}, $(this).attr('data-type'));
 });
 
-
 var _labels; // variable pour memoriser les labels "action", la variable est remplie à la sauvegarde dans printEqLogic
 // ajoute chaque ligne d'action ou action_cancel
 $('.addAction').off('click').on('click', function () {

@@ -271,7 +271,15 @@ class sequencing extends eqLogic {
       }
 
       foreach ($results as $key => $value) {
-        log::add('sequencing', 'info', $this->getHumanName() . ' - Tous les résultats pour toutes les conditions : ' . $key . ' : ' . $value . ' - last valide : ' . date('Y-m-d H:i:s', $this->getCache('condValide_'.$key.'_timestamp')));
+
+        if($this->getCache('condValide_'.$key.'_timestamp') != ''){
+          $lastValid = ' - last valide : ' . date('Y-m-d H:i:s', $this->getCache('condValide_'.$key.'_timestamp'));
+        } else {
+          $lastValid = ' - pas de timestamp associée';
+        }
+
+
+        log::add('sequencing', 'info', $this->getHumanName() . ' - Tous les résultats pour toutes les conditions : ' . $key . ' : ' . $value . $lastValid);
       }
 
       $this->evaluateGlobalConditions($_type, $results);

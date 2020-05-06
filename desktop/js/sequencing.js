@@ -239,59 +239,68 @@ function addTriggerValue(_action, _type) {
         div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="new_value_only"/>{{Filtrer répétitions}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour ne prendre en compte que les nouvelles valeurs}}"></i></sup></label></span>';
       div += '</div>';*/
 
-      div += '<label class="col-sm-2 col-md-1 control-label">{{Conditions}}</label>';
-      div += '<div class="col-sm-2 col-md-1">';
-        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1" placeholder="{{Opérateur 1}}">'; // dans la class : ['condition_operator1']
-        div += '<option value="" select></option>';
-        div += '<option value="==">{{égal}}</option>';
-        div += '<option value="!=">{{différent}}</option>';
-        div += '<option value=">=">{{supérieur ou égal}}</option>';
-        div += '<option value=">">{{strictement supérieur}}</option>';
-        div += '<option value="<=">{{inférieur ou égal}}</option>';
-        div += '<option value="<">{{strictement inférieur}}</option>';
-    //    div += '<option value="matches">{{contient (matches)}}</option>';
-        div += '</select>';
-      div += '</div>';
-// TODO : ajouter matches et not() ? (donc ce cas c'est plus des types number dessous)
+      div += '<div class="col-sm-12 col-md-8">';
+        div += '<label class="col-sm-2 col-md-2 control-label">{{Conditions}}</label>';
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1" placeholder="{{Opérateur 1}}">'; // dans la class : ['condition_operator1']
+          div += '<option value="" select></option>';
+          div += '<option value="==">{{égal}}</option>';
+          div += '<option value="!=">{{différent}}</option>';
+          div += '<option value=">=">{{supérieur ou égal}}</option>';
+          div += '<option value=">">{{strictement supérieur}}</option>';
+          div += '<option value="<=">{{inférieur ou égal}}</option>';
+          div += '<option value="<">{{strictement inférieur}}</option>';
+          div += '</select>';
+        div += '</div>';
 
-      div += '<div class="col-sm-2 col-md-1">';
-        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test1" placeholder="{{Condition 1}}"/>';
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test1" placeholder="{{Condition 1}}"/>';
+        div += '</div>';
+
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator">';
+          div += '<option value="" select></option>';
+          div += '<option value="&&">{{ET}}</option>';
+          div += '<option value="||">{{OU}}</option>';
+          div += '<option value="|^">{{OU Exclusif}}</option>';
+          div += '</select>';
+        div += '</div>';
+
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2" placeholder="{{Opérateur 1}}">';
+          div += '<option value="" select></option>';
+          div += '<option value="==">{{égal}}</option>';
+          div += '<option value=">=">{{supérieur ou égal}}</option>';
+          div += '<option value=">">{{strictement supérieur}}</option>';
+          div += '<option value="<=">{{inférieur ou égal}}</option>';
+          div += '<option value="<">{{strictement inférieur}}</option>';
+          div += '<option value="!=">{{différent}}</option>';
+          div += '</select>';
+        div += '</div>';
+
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test2" placeholder="{{Condition 2}}"/>';
+        div += '</div>';
+
+
+        div += '<label class="col-sm-2 col-md-2 control-label" style="margin-top:2px;">{{Durée ou répétition}}</label>';
+
+        div += '<div class="col-sm-2 col-md-2" style="margin-top:2px;">';
+          div += '<input type="number" min="0" class="expressionAttr form-control" data-l1key="condition_duree" placeholder="{{Pendant (min)}}"/>';
+        div += '</div>';
+
+        div += '<label class="col-sm-2 col-md-2 control-label" style="margin-top:2px;">{{ou}}</label>';
+        div += '<div class="col-sm-2 col-md-2" style="margin-top:2px;">';
+          div += '<input type="number" min="2" class="expressionAttr form-control" data-l1key="condition_rep_nb_fois" placeholder="{{Nombre de fois}}"/>';
+        div += '</div>';
+
+    //    div += '<label class="col-sm-4 col-md-2 control-label">{{Pendant}}</label>';
+        div += '<div class="col-sm-2 col-md-2" style="margin-top:2px;">';
+          div += '<input type="number" min="0" class="expressionAttr form-control" data-l1key="condition_rep_periode" placeholder="{{en x secondes}}"/>';
+        div += '</div>';
+
       div += '</div>';
 
-      div += '<div class="col-sm-2 col-md-1">';
-        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator">';
-        div += '<option value="" select></option>';
-        div += '<option value="&&">{{ET}}</option>';
-        div += '<option value="||">{{OU}}</option>';
-        div += '<option value="|^">{{OU Exclusif}}</option>';
-        div += '</select>';
-      div += '</div>';
-
-      div += '<div class="col-sm-2 col-md-1">';
-        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2" placeholder="{{Opérateur 1}}">';
-        div += '<option value="" select></option>';
-        div += '<option value="==">{{égal}}</option>';
-        div += '<option value=">=">{{supérieur ou égal}}</option>';
-        div += '<option value=">">{{strictement supérieur}}</option>';
-        div += '<option value="<=">{{inférieur ou égal}}</option>';
-        div += '<option value="<">{{strictement inférieur}}</option>';
-        div += '<option value="!=">{{différent}}</option>';
-        div += '</select>';
-      div += '</div>';
-
-      div += '<div class="col-sm-2 col-md-1">';
-        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test2" placeholder="{{Condition 2}}"/>';
-      div += '</div>';
-
-  //    div += '<label class="col-sm-2 col-md-1 control-label">{{Nombre de fois}}</label>';
-      div += '<div class="col-sm-3 col-md-1">';
-        div += '<input type="number" min="2" class="expressionAttr form-control" data-l1key="condition_rep_nb_fois" placeholder="{{Nombre de fois}}"/>';
-      div += '</div>';
-
-  //    div += '<label class="col-sm-2 col-md-1 control-label">{{Pendant}}</label>';
-      div += '<div class="col-sm-3 col-md-1">';
-        div += '<input type="number" min="0" class="expressionAttr form-control" data-l1key="condition_rep_periode" placeholder="{{Pendant (secondes)}}"/>';
-      div += '</div>';
 
     div += '</div>';
   div += '</div>';
@@ -303,14 +312,17 @@ function addTriggerProg(_action, _type) {
   var div = '<div class="' + _type + '">';
     div += '<div class="form-group">';
 
-      div += '<label class="col-sm-3 control-label">{{Déclencheur programmé ou périodique}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette programmation déclenchera l\'évaluation des conditions ci-dessous.}}"></i></sup></label>';
-      div += '<div class="input-group col-sm-6 col-md-3">';
+    //  div += '<label class="col-sm-3 control-label">{{Déclencheur programmé ou périodique}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette programmation déclenchera l\'évaluation des conditions ci-dessous.}}"></i></sup></label>';
+      div += '<div class="input-group col-sm-4 col-md-2">';
+      div += '<span class="input-group-btn">';
+      div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+      div += '</span>';
         div += '<input type="text" class="expressionAttr form-control" data-l1key="trigger_prog" placeholder="{{format cron}}"/>';
         div += '<span class="input-group-btn">';
           div += '<a class="btn btn-default cursor jeeHelper" data-helper="cron">';
             div += '<i class="fas fa-question-circle"></i>';
           div += '</a>';
-        div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+      //  div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
         div += '</span>';
       div += '</div>';
 

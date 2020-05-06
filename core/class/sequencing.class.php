@@ -278,7 +278,6 @@ class sequencing extends eqLogic {
           $lastValid = ' - pas de timestamp associée';
         }
 
-
         log::add('sequencing', 'info', $this->getHumanName() . ' - Tous les résultats pour toutes les conditions : ' . $key . ' : ' . $value . $lastValid);
       }
 
@@ -379,20 +378,20 @@ class sequencing extends eqLogic {
 
       log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "perso", condition initiale : ' . $condition);
 
-      preg_match_all('/%([\w\s-]*)%/', $condition, $matches, PREG_SET_ORDER); // on veut matcher a-Z, 0-9, les espaces et les - qui sont inclus entre 2#. Ici on choppe pas les accents...
+      preg_match_all('/%([\w\sÀ-öø-ÿ-]*)%/', $condition, $matches, PREG_SET_ORDER); // on veut matcher a-Z, 0-9, les espaces et les - qui sont inclus entre 2#. Ici on choppe pas les accents...
       foreach ($matches as $key => $matche) {
     //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
         $condition = str_replace('%'.$matche[1].'%', $results[$matche[1]], $condition);
       }
   //    log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex % : ' . $condition);
 
-      preg_match_all('/§([\w\s-]*)§/', $condition, $matches, PREG_SET_ORDER);
+      preg_match_all('/@([\w\sÀ-öø-ÿ-]*)@/', $condition, $matches, PREG_SET_ORDER);
       foreach ($matches as $key => $matche) {
     //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
     //    $condition = str_replace('§'.$matche[1].'§', $results[$matche[1]], $condition);
 
         $timestamp_cache = $this->getCache('condValide_'.$matche[1].'_timestamp');
-        $condition = str_replace('§'.$matche[1].'§', $timestamp_cache, $condition); // la condition a évaluer où les §xx§ sont remplacés par leur timestamp
+        $condition = str_replace('@'.$matche[1].'@', $timestamp_cache, $condition); // la condition a évaluer où les §xx§ sont remplacés par leur timestamp
 
       }
     //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex : ' . $condition);
@@ -430,7 +429,7 @@ class sequencing extends eqLogic {
 
       // on va aller chopper notre condition à évaluer et si les timestamps des conditions à évaluer sont bon
       $timestamp_valid = array(); // contiendra en $key le nom sans les # des conditions saisies et en $values 0 ou 1 selon si timestamp <= timeout
-      preg_match_all('/§([\w\s-]*)§/', $condition, $matches, PREG_SET_ORDER);
+      preg_match_all('/@([\w\sÀ-öø-ÿ-]*)@/', $condition, $matches, PREG_SET_ORDER);
       foreach ($matches as $matche) {
       //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
 
@@ -442,7 +441,7 @@ class sequencing extends eqLogic {
           $timestamp_valid[$matche[1]] = 0; //non-valide
         }
 
-        $condition = str_replace('§'.$matche[1].'§', $timestamp_cache, $condition); // la condition a évaluer où les #xx# sont remplacés par leur timestamp
+        $condition = str_replace('@'.$matche[1].'@', $timestamp_cache, $condition); // la condition a évaluer où les #xx# sont remplacés par leur timestamp
       }
 
       // on vérifie que toutes les conditions demandées dans la condition ont un timestamp qui ne sort pas du timeout
@@ -492,46 +491,15 @@ class sequencing extends eqLogic {
 
         if($trigger['condition_rep_nb_fois'] > 1){ // si on doit évaluer en plus la repetition de cette valeur
 
-          // on met à jour les caches concernant la repetition de valeur
-          if($conditions){ // conditions de valeur valide, il faut évaluer nos conditions de repetitions
+          $check = $this->checkTriggerValuesRepetition($trigger, $conditions, $_fromTrigger); // on évalue nos conditions sur la valeur
 
-            // On va couper le compteur si délai dépassé, ce qui permet de ne pas avoir à tester le timestamp par la suite mais uniquement les valeurs du compteur.
-            $tempsDepuisTrigger = time() - $this->getCache('timestamp_counter_trigger_' . $trigger['name']);
-            if($tempsDepuisTrigger > $trigger['condition_rep_periode']){ // la durée est échue, on reinitialise notre compteur.
-              $this->setCache('counter_trigger_' . $trigger['name'], 0);
-            }
+        } else if($trigger['condition_duree'] != '' && is_numeric($trigger['condition_duree'])){
 
-            $compteur_cache = $this->getCache('counter_trigger_' . $trigger['name']);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - On veut évaluer la validitée pendant : ' . $trigger['condition_duree'] . ' min - last valide : ' . date('Y-m-d H:i:s', $this->getCache('condValide_'.$trigger['name'].'_timestamp')));
 
-            if($_fromTrigger){ // si on a été appelé par un trigger et non par la fonction d'évaluation de toutes les conditions, on va setter nos caches
-              if($compteur_cache == '' || $compteur_cache == 0){ // si c'est notre 1er trigger valide => on commence le compte
-              // cache inexistant ou 0 c'est pareil pour Jeedom, le 0 ne semble pas stocké, mais on le test quand meme au cas où...
-                $this->setCache('counter_trigger_' . $trigger['name'], 1);
-                $this->setCache('timestamp_counter_trigger_' . $trigger['name'], time()); // on garde le timestamp en mémoire pour pouvoir évaluer la période
-              } else { // on est dans les délais (sinon on serait à 0 par le if d'avant), on incremente
-                $this->setCache('counter_trigger_' . $trigger['name'], $compteur_cache + 1);
-              }
-            }
+         // TODO TODO TODO
 
-            log::add('sequencing', 'debug', $this->getHumanName() . ' - Compteur répétition pour : ' . $trigger['name'] . ' : ' . $this->getCache('counter_trigger_' . $trigger['name']));
-
-            // on va lire les caches de repetition pour savoir si valide ou non ($check)
-            if($this->getCache('counter_trigger_' . $trigger['name']) >= $trigger['condition_rep_nb_fois']){ // on a atteint la quantité de repetition voulue
-
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - On a atteint le nombre de repetition dans le temps imparti => cette condition est VALIDÉE !');
-              $check = 1;
-
-            }else{
-              log::add('sequencing', 'debug', $this->getHumanName() . ' - On a pas encore atteint le nombre de repetition => cette condition n\'est pas validée ! (on ne fait rien)');
-              $check = 0;
-            }
-
-          }
-/*else{ // conditions de valeur NON valide, il faut reinitialiser notre compteur
-            $this->setCache('counter_trigger_' . $trigger['name'], 0);
-          }*/
-
-        }else{ // on regarde pas les repetitions pour validité, on prend le resultat precedent directement
+        } else{ // on regarde pas les repetitions pour validité, on prend le resultat precedent directement
           $check = $conditions;
         }
 
@@ -570,6 +538,50 @@ class sequencing extends eqLogic {
     //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Résultat checkTriggerValuesConditions pour : ' . $trigger['name'] . ' : ' . $check);
 
       return $check;
+
+    }
+
+    public function checkTriggerValuesRepetition($trigger, $conditions, $_fromTrigger = false){
+
+      // on met à jour les caches concernant la repetition de valeur
+      if($conditions){ // conditions de valeur valide, il faut évaluer nos conditions de repetitions
+
+        // On va couper le compteur si délai dépassé, ce qui permet de ne pas avoir à tester le timestamp par la suite mais uniquement les valeurs du compteur.
+        $tempsDepuisTrigger = time() - $this->getCache('timestamp_counter_trigger_' . $trigger['name']);
+        if($tempsDepuisTrigger > $trigger['condition_rep_periode']){ // la durée est échue, on reinitialise notre compteur.
+          $this->setCache('counter_trigger_' . $trigger['name'], 0);
+        }
+
+        $compteur_cache = $this->getCache('counter_trigger_' . $trigger['name']);
+
+        if($_fromTrigger){ // si on a été appelé par un trigger et non par la fonction d'évaluation de toutes les conditions, on va setter nos caches
+
+          if($compteur_cache == '' || $compteur_cache == 0){ // si c'est notre 1er trigger valide => on commence le compte
+            // cache inexistant ou 0 c'est pareil pour Jeedom, le 0 ne semble pas stocké, mais on le test quand meme au cas où...
+            $this->setCache('counter_trigger_' . $trigger['name'], 1);
+            $this->setCache('timestamp_counter_trigger_' . $trigger['name'], time()); // on garde le timestamp en mémoire pour pouvoir évaluer la période
+          } else { // on est dans les délais (sinon on serait à 0 par le if d'avant), on incremente
+            $this->setCache('counter_trigger_' . $trigger['name'], $compteur_cache + 1);
+          }
+        }
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Compteur répétition pour : ' . $trigger['name'] . ' : ' . $this->getCache('counter_trigger_' . $trigger['name']));
+
+        // on va lire les caches de repetition pour savoir si valide ou non ($check)
+        if($this->getCache('counter_trigger_' . $trigger['name']) >= $trigger['condition_rep_nb_fois']){ // on a atteint la quantité de repetition voulue
+
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - On a atteint le nombre de repetition dans le temps imparti => cette condition est VALIDÉE !');
+          return 1;
+
+        }else{
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - On a pas encore atteint le nombre de repetition => cette condition n\'est pas validée ! (on ne fait rien)');
+          return 0;
+        }
+
+      }
+/*else{ // conditions de valeur NON valide, il faut reinitialiser notre compteur
+            $this->setCache('counter_trigger_' . $trigger['name'], 0);
+          }*/
 
     }
 
@@ -917,7 +929,7 @@ class sequencing extends eqLogic {
 
               $cron = new cron();
               $cron->setClass('sequencing');
-              $cron->setFunction($fonction ) ;
+              $cron->setFunction($fonction );
 
               $options['eqLogic_id'] = intval($this->getId());
               $options['prog'] = $prog['trigger_prog'];

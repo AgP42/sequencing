@@ -15,7 +15,7 @@ Divers :
   * DONE - conditions sur valeurs et répétition de la même valeur au moins x fois en N minutes
   * DONE - programmé (CRON)
   * DONE plage horaire (datetime picker de début et fin de période)
-  * (plage temporelle via des commandes (heure de levé du soleil, …) ?)
+  * (plage temporelle via des commandes (heure de levé du soleil, …) ?) => fait à peu pret avec les conditions de type scenarios ajoutés
   * (condition valide plus de x minutes)
 * conditions entre triggers :
   * DONE - ET (all conditions valides)

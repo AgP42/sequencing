@@ -5,10 +5,16 @@
 
 # Betas
 
-1.0.6 - 6 mai
+1.0.7 - 7 mai
 ---
 
 /!\ changer les liens des images de la doc avant de mettre en stable !
+
+* Update regex pour les évaluation "Sequencement" et "Perso" pour ajouter les accents et caractéres chelous. Merci @naboleo
+* Ajout évaluation sur la durée de validité pour les triggers sur "valeur"
+
+1.0.6 - 6 mai
+---
 
 * Update des évaluation "Sequencement" et "Perso" pour utiliser les tags Jeedom # et mixer les conditions de temps et de résultat
 * Debug (Jeedom v4.0.54)

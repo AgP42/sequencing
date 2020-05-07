@@ -46,40 +46,25 @@ class sequencing extends eqLogic {
     /*     * ***********************Methode static*************************** */
 
 
-    public static function startProgrammed($_options) { // fonction appelée par le cron de programmation start (celui immédiat qui bypass les conditions)
+    public static function launchNow($_options) { // fonction appelée par l'un des crons de programmation immédiat (ceux qui bypassent les conditions)
 
       $sequencing = sequencing::byId($_options['eqLogic_id']);
 
       if (is_object($sequencing)) {
-        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct startProgrammed appelée par le CRON principal (qui bypass les conditions)');
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct launchNow appelée par le CRON principal (qui bypass les conditions) pour : ' . $_options['type']);
 
-        $sequencing->setCache('trigger_name', 'lancement programmé');
-        $sequencing->setCache('trigger_full_name', 'lancement programmé');
+        $sequencing->setCache('trigger_name', 'programmé immédiat');
+        $sequencing->setCache('trigger_full_name', 'programmé immédiat');
         $sequencing->setCache('trigger_value', '');
         $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
         $sequencing->setCache('trigger_time', date('H:i:s'));
 
-        $sequencing->actionsLaunch();
-      } else {
-        log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
-      }
+        if($_options['type'] == 'programmation'){
+          $sequencing->actionsLaunch();
+        } else if($_options['type'] == 'programmation_cancel'){
+          $sequencing->actionsCancel();
+        }
 
-    }
-
-    public static function endProgrammed($_options) { // fonction appelée par le cron de programmation cancel (celui immédiat qui bypass les conditions)
-
-      $sequencing = sequencing::byId($_options['eqLogic_id']);
-
-      if (is_object($sequencing)) {
-        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct endProgrammed appelée par le CRON principal (qui bypass les conditions)');
-
-        $sequencing->setCache('trigger_name', 'annulation programmée');
-        $sequencing->setCache('trigger_full_name', 'annulation programmée');
-        $sequencing->setCache('trigger_value', '');
-        $sequencing->setCache('trigger_datetime', date('Y-m-d H:i:s'));
-        $sequencing->setCache('trigger_time', date('H:i:s'));
-
-        $sequencing->actionsCancel();
       } else {
         log::add('sequencing', 'erreur', $sequencing->getHumanName() . ' - Erreur lors de l\'exécution de la programmation - EqLogic inconnu. Vérifiez l\'ID');
       }
@@ -108,10 +93,10 @@ class sequencing extends eqLogic {
 
     public static function triggerCheckDelayed($_options) { // fonction appelée par l'un des crons de trigger avec vérification de validitée sur la durée
 
-    $sequencing = sequencing::byId($_options['eqLogic_id']);
+      $sequencing = sequencing::byId($_options['eqLogic_id']);
 
       if (is_object($sequencing)) {
-        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct triggerCheckDelayed appelée par un CRON (on va aller évaluer toutes les conditions), trigger_type : ' . $_options['type'] . ', trigger name : ' . $_options['trigger']['name']);
+        log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - Fct triggerCheckDelayed appelée par un CRON de vérification de valeur sur une durée, trigger_type : ' . $_options['type'] . ', trigger name : ' . $_options['trigger']['name']);
 
         // on garde "temporairement" nos infos en cache, si elles s'averent valides, on les mettra dans le cache des tags...
         $sequencing->setCache('trigger_name_temp', $_options['trigger']['name']);
@@ -121,11 +106,12 @@ class sequencing extends eqLogic {
         $sequencing->setCache('trigger_time_temp', date('H:i:s'));
         // TODO : tester
 
-        $check = $sequencing->checkTriggerValues($_options['trigger'], false, $_options['type']); // évalue si cette condition est toujours valide
+        $check = $sequencing->checkTriggerValues($_options['trigger'], false, $_options['type']); // évalue si cette condition est toujours valide aprés le délai
 
         log::add('sequencing', 'debug', $sequencing->getHumanName() . ' - résultat de ce trigger apres delai : ' . $check);
 
         if($check == "1"){ // si cette condition là est valide, on va évaluer tout le monde selon toutes les autres conditions
+          $sequencing->setCache('condValide_'.$_options['trigger']['name'].'_timestamp', time()); // on garde le timestamp de la validité complete en cache pour les évaluation de séquencement et perso !
           $sequencing->evaluateEachConditions($_options['type']);
         }
 
@@ -199,7 +185,7 @@ class sequencing extends eqLogic {
 
     // Cette fonction va évaluer toutes les conditions associées à 1 trigger donné qui vient de se déclencher //
     public function evaluateTrigger($_option, $_type) { // $_option nous donne l'event_id et la valeur du trigger, $_type nous dit si c'est un trigger ou trigger_cancel
-    // on peut avoir plusieurs triggers qui utilisent la meme cmd et donc arrivent 1 seule fois ici. On va tous les évaluer et si 1 est correcte, on continu
+    // on peut avoir plusieurs triggers qui utilisent la meme cmd et donc arrivent 1 seule fois ici. On va tous les évaluer et si 1 est correct, on continu
 
     //  log::add('sequencing', 'debug', $this->getHumanName() . ' => Détection d\'un trigger encore inconnu');
 
@@ -212,7 +198,7 @@ class sequencing extends eqLogic {
 
           log::add('sequencing', 'debug', $this->getHumanName() . ' Nom : ' . $trigger['name'] . ' - cmd : ' . $trigger['cmd'] . ' - valeur : ' . $value);
 
-          $results[$trigger['name']] = $this->checkTriggerValues($trigger, true, $_type); // true : c'est un trigger
+          $results[$trigger['name']] = $this->checkTriggerValues($trigger, true, $_type); // true : c'est un trigger. Cette ligne lance l'évaluation de toutes les conditions de ce trigger : valeur, répétition, durée et on garde le resultat de chacune dans le tableau $results
 
           // on garde "temporairement" nos infos en cache, si elles s'averent valides, on les mettra dans le cache des tags...
           $this->setCache('trigger_name_temp', $trigger['name']);
@@ -264,8 +250,6 @@ class sequencing extends eqLogic {
     public function evaluateEachConditions($_type){ // $_type ici peut etre trigger ou trigger_cancel
       // Cette fonction va renvoyer un tableau avec le resultat de toutes les conditions ($key : le nom de la condition, et $value : 0 ou 1(valide))
       // les infos du JS peuvent etre : trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_cancel_prog et trigger_cancel_timerange.
-
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - evaluateEachConditions, _type : ' . $_type);
 
       $results = array(); // va stocker le resultat de toutes les conditions (oui on va recalculer notre trigger éventuel aussi...;-( ))
       foreach ($this->getConfiguration($_type) as $triggerOrCond) {
@@ -603,11 +587,11 @@ class sequencing extends eqLogic {
       //    => si la condition est valide, on lit les valeurs du timestamp pour s'assurer qu'on est valide depuis assez longtemps et on return 0 (non valide) ou 1 (valide).
       //    => si la condition n'est pas valide, on reset notre état à 0, ON VIRE LE CRON EVENTUEL EN COURS et on return 0 (non valide)
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - On veut évaluer la validitée pendant : ' . $trigger['condition_duree'] . ' min');
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - checkTriggerValuesDuree, type : ' . $type);
 
       // on met à jour les caches concernant la repetition de valeur
       if($conditions){ // conditions de valeur valide, il faut évaluer nos conditions de durée
+
+        log::add('sequencing', 'debug', $this->getHumanName() . ' - Conditions sur valeur ok, on va évaluer la validitée pendant : ' . $trigger['condition_duree'] . ' min');
 
         $etat_cond_valid_cache = $this->getCache('etat_trigger_condition_valid_' . $trigger['name']);
 
@@ -630,11 +614,9 @@ class sequencing extends eqLogic {
         log::add('sequencing', 'debug', $this->getHumanName() . ' - Nom : ' . $trigger['name'] . ', Derniere date où les conditions (simples) étaient validées : ' . date('Y-m-d H:i:s', $timestamp_cond_valid_cache));
 
         // on va lire les caches pour savoir si valide ou non ($check)
-        if($timestamp_cond_valid_cache + $trigger['condition_duree']*60 - 60 <= time()){ // TODO : a documenter que ca peut etre valide 1 min avant
+        if($timestamp_cond_valid_cache + $trigger['condition_duree'] * 60 - 59 <= time()){ // -59s au cas où on a setté notre cron pile poil juste avant la minute pleine...
 
           log::add('sequencing', 'debug', $this->getHumanName() . ' - On est valide depuis plus que le temps demandé => cette condition est VALIDÉE !');
-          $this->setCache('condValide_'.$trigger['name'].'_timestamp', $timestamp_cond_valid_cache + $trigger['condition_duree']*60); // on garde le timestamp de la validité complete en cache pour les évaluation de séquencement et perso !
-          // TODO : a documenter que la date est la date "theorique" qui ne prend pas en compte l'approximation de 1 min avant le cron...
           return 1;
 
         }else{
@@ -642,7 +624,7 @@ class sequencing extends eqLogic {
           return 0;
         }
 
-      } else { // conditions de valeur NON valide, il faut reinitialiser notre cache d'état
+      } else { // conditions de valeur NON valide, il faut reinitialiser notre cache d'état et virer le cron
         $this->setCache('etat_trigger_condition_valid_' . $trigger['name'], 0);
         $this->cleanTriggerCheckDelayedCron($trigger, $type);
         return 0;
@@ -661,7 +643,6 @@ class sequencing extends eqLogic {
       }
 
     }
-
 
     public function checkCondTimeRange($timerange){
 
@@ -779,40 +760,20 @@ class sequencing extends eqLogic {
             $value = str_replace('#trigger_datetime#', $this->getCache('trigger_datetime'), $value);
             $value = str_replace('#trigger_time#', $this->getCache('trigger_time'), $value);
 
-            // reprise des tags jeedom des scenatios => inutile, c'est deja fait par scenarioExpression::createAndExec après
-/*            $value = str_replace('#seconde#', (int) date('s'), $value);
-            $value = str_replace('#minute#', (int) date('i'), $value);
-            $value = str_replace('#heure#', (int) date('G'), $value);
-            $value = str_replace('#heure12#', (int) date('g'), $value);
-            $value = str_replace('#jour#', (int) date('d'), $value);
-            $value = str_replace('#semaine#', date('W'), $value);
-            $value = str_replace('#mois#', (int) date('m'), $value);
-            $value = str_replace('#annee#', (int) date('Y'), $value);
-            $value = str_replace('#date#', (int) date('md'), $value);
-            $value = str_replace('#time#', date('Gi'), $value);
-            $value = str_replace('#timestamp#', time(), $value);
-            $value = str_replace('#sjour#', '"' . date_fr(date('l')) . '"', $value);
-            $value = str_replace('#smois#', '"' . date_fr(date('F')) . '"', $value);
-            $value = str_replace('#njour#', (int) date('w'), $value);
-            $value = str_replace('#jeedom_name#', '"' . config::byKey('name') . '"', $value);
-            $value = str_replace('#hostname#', '"' . gethostname() . '"', $value);
-            $value = str_replace('#IP#', '"' . network::getNetworkAccess('internal', 'ip', '', false) . '"', $value);*/
-
             $value = str_replace('#eq_full_name#', $this->getHumanName(), $value);
             $options[$key] = str_replace('#eq_name#', $this->getName(), $value);
           }
         }
-        scenarioExpression::createAndExec('action', $action['cmd'], $options);
+        scenarioExpression::createAndExec('action', $action['cmd'], $options); // cette ligne mettra les tags des scenarios
 
         if(isset($action['action_label']) && $action['action_label'] != ''){ // si on avait un label (donc c'est une action), on memorise qu'on l'a lancé
           $this->setCache('execAction_'.trim($action['action_label']), 1);
-      //    log::add('sequencing', 'debug', 'setCache TRUE pour label : ' . $action['action_label']);
         }
 
         if(isset($action['action_time_limit']) && $action['action_time_limit'] != '' && is_numeric($action['action_time_limit'])){ // si on veut limiter la fréquence d'exécution
           // garde en cache le timestamp de la derniere exéc
           $this->setCache('execAction_'.$action['cmd'].'_'.trim($action['action_label']).'_'.trim($action['action_label_liee']).'_lastExec', $now); // on met un max de truc pour eviter les interferences entre actions, vu qu'on demande pas de nom unique et que la cmd peut etre utilisée plusieurs fois...
-          log::add('sequencing', 'debug', 'setCache : execAction_'.$action['cmd'].'_'.trim($action['action_label']).'_'.trim($action['action_label_liee']).'_lastExec - timestamp : ' . $now);
+      //    log::add('sequencing', 'debug', 'setCache : execAction_'.$action['cmd'].'_'.trim($action['action_label']).'_'.trim($action['action_label_liee']).'_lastExec - timestamp : ' . $now);
         }
 
       } catch (Exception $e) {
@@ -929,8 +890,6 @@ class sequencing extends eqLogic {
 
     public function setTriggerCheckDelayedCron($trigger, $type){ // appelé pour les triggers dont on veut check la durée de validité des conditions
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - setTriggerCheckDelayedCron, type : ' . $type);
-
       $cron = cron::byClassAndFunction('sequencing', 'triggerCheckDelayed', array('eqLogic_id' => intval($this->getId()), 'trigger' => $trigger, 'type' => $type)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options
 
       if (!is_object($cron)) { // pas de cron trouvé, on le cree
@@ -957,7 +916,6 @@ class sequencing extends eqLogic {
           $cron->save();
 
       } else { // sinon : le cron existe deja : on fait rien !
-
         log::add('sequencing', 'debug', $this->getHumanName() . ' - CRON existe déjà pour le trigger : ' . $options['trigger']['name'] . ' => on ne fait rien !');
       }
 
@@ -965,22 +923,17 @@ class sequencing extends eqLogic {
 
     public function setLaunchAndCancelSequenceCron($type) { // appelé lors de l'enregistrement de l'eqLogic, 1 fois pour 'programmation' et 1 fois pour 'programmation_cancel'
 
-      if($type == 'programmation'){
-        $fonction = 'startProgrammed';
-      } else if($type == 'programmation_cancel'){
-        $fonction = 'endProgrammed';
-      }
-
       $prog = $this->getConfiguration($type);
-      $cron = cron::byClassAndFunction('sequencing', $fonction, array('eqLogic_id' => intval($this->getId()))); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (eqLogic)"
+      $cron = cron::byClassAndFunction('sequencing', 'launchNow', array('eqLogic_id' => intval($this->getId()), 'type' => $type)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options (eqLogic)"
 
       if (!is_object($cron) && $prog != '') { // pas de cron trouvé et on en veut 1, on le cree
 
           $cron = new cron();
           $cron->setClass('sequencing');
-          $cron->setFunction($fonction);
+          $cron->setFunction('launchNow');
 
           $options['eqLogic_id'] = intval($this->getId());
+          $options['type'] = $type;
           $cron->setOption($options);
 
           $cron->setEnable(1);
@@ -1014,12 +967,6 @@ class sequencing extends eqLogic {
 
 
     public function setTriggersCron($type_prog) { // appelé lors de l'enregistrement de l'eqLogic, 1 fois pour 'trigger_prog' et 1 fois pour 'trigger_cancel_prog'
-
-/*      if($type == 'trigger_prog'){
-        $fonction = 'triggerCron';
-      } else if($type == 'trigger_cancel_prog'){
-        $fonction = 'triggerCancelCron';
-      }*/
 
       $type = str_replace('_prog', '', $type_prog); // permet que $type soit "trigger" ou "trigger_cancel", ce dont on a besoin par la suite
 
@@ -1059,13 +1006,11 @@ class sequencing extends eqLogic {
 
     public function cleanTriggerCheckDelayedCron($trigger, $type){ // appelé pour supprimer 1 cron pour 1 trigger qui deviendrait non valide sur la période
 
-      log::add('sequencing', 'debug', $this->getHumanName() . ' - cleanTriggerCheckDelayedCron, type : ' . $type);
-
       $cron = cron::byClassAndFunction('sequencing', 'triggerCheckDelayed', array('eqLogic_id' => intval($this->getId()), 'trigger' => $trigger, 'type' => $type)); // cherche le cron qui correspond exactement à "ce plugin, cette fonction et ces options
 
       if (is_object($cron)) { // pas de cron trouvé, on le cree
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - remove CRON pour le trigger : ' . $options['trigger']['name']);
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - remove CRON pour le trigger : ' . $trigger['name']);
 
           $cron->remove();
 
@@ -1115,7 +1060,7 @@ class sequencing extends eqLogic {
 
       log::add('sequencing', 'debug', $this->getHumanName() . ' - Fct cleanLaunchAndCancelSequenceCron');
 
-      $crons = cron::searchClassAndFunction('sequencing','startProgrammed'); // on prend tous nos crons de ce plugin, cette fonction, pour tous les equipements
+      $crons = cron::searchClassAndFunction('sequencing','launchNow'); // on prend tous nos crons de ce plugin, cette fonction, pour tous les equipements
       if (is_array($crons) && count($crons) > 0) {
         foreach ($crons as $cron) {
           if (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId() && $cron->getState() != 'run') { // si l'id correspond et qu'il est pas en cours, on le vire
@@ -1125,7 +1070,7 @@ class sequencing extends eqLogic {
         }
       }
 
-      $crons = cron::searchClassAndFunction('sequencing','endProgrammed'); // on prend tous nos crons de ce plugin, cette fonction, pour tous les equipements
+/*      $crons = cron::searchClassAndFunction('sequencing','endProgrammed'); // on prend tous nos crons de ce plugin, cette fonction, pour tous les equipements
       if (is_array($crons) && count($crons) > 0) {
         foreach ($crons as $cron) {
           if (is_object($cron) && $cron->getOption()['eqLogic_id'] == $this->getId() && $cron->getState() != 'run') { // si l'id correspond et qu'il est pas en cours, on le vire
@@ -1133,7 +1078,7 @@ class sequencing extends eqLogic {
             $cron->remove();
           }
         }
-      }
+      }*/
 
     }
 
@@ -1359,7 +1304,7 @@ class sequencing extends eqLogic {
 
         $this->cleanLaunchAndCancelSequenceCron();
         $this->cleanAllTriggersCron();
-        $this->cleanAllDelayedctionsCron(true); // clean tous les cron des actions, avec alerte s'il y en avait en cours
+        $this->cleanAllDelayedActionsCron(true); // clean tous les cron des actions, avec alerte s'il y en avait en cours
         $this->cleanAllTriggerCheckDelayedCron();
 
       }

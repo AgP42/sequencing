@@ -12,6 +12,8 @@
 
 * Update regex pour les évaluation "Sequencement" et "Perso" pour ajouter les accents et caractéres chelous. Merci @naboleo
 * Ajout évaluation sur la durée de validité pour les triggers sur "valeur"
+* Refactorisation code notamment sur les crons
+* Update logs
 
 1.0.6 - 6 mai
 ---

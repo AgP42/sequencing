@@ -6,7 +6,7 @@
 Divers :
   * tester si la date des crons est pas dans le passé ?
   * pouvoir appliquer un délai d’exécution sur une action annulation => NON
-  * Ajout des déclencheurs de type « variables » => comment on met un listener sur une variable ???
+  * Ajout des déclencheurs de type « variables » => comment on met un listener sur une variable ??? => quasi ok avec les conditions type scenarios
   * Ajout des conditions d’évaluation Regex (matches)
   * datetimepicker : jours en anglais à passer en fr
 
@@ -15,8 +15,8 @@ Divers :
   * DONE - conditions sur valeurs et répétition de la même valeur au moins x fois en N minutes
   * DONE - programmé (CRON)
   * DONE plage horaire (datetime picker de début et fin de période)
-  * (plage temporelle via des commandes (heure de levé du soleil, …) ?) => fait à peu pret avec les conditions de type scenarios ajoutés
-  * (condition valide plus de x minutes)
+  * Quasi ok(plage temporelle via des commandes (heure de levé du soleil, …) ?) => fait à peu pret avec les conditions de type scenarios ajoutés
+  * DONE (condition valide plus de x minutes)
 * conditions entre triggers :
   * DONE - ET (all conditions valides)
   * DONE - OU (1 condition valide)
@@ -28,6 +28,8 @@ Divers :
 
 * comment passer par un virtuel pour avoir un trigger cmd (à tester avant... éventuellement créér des cmd à la demande ?)
 * Utiliser domogeek et ou Heliotrope pour les conditions
+
+* Validité sur durée peut etre jusqu'à 1 min de moins que configurée
 
 # Notes
 les plugins avec des crons :

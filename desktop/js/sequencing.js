@@ -140,16 +140,6 @@ $('body').off('click','.bt_selectScenarioExpression').on('click','.bt_selectScen
     //  el.value(result.human); // remplace tout
     el.atCaret('insert', result.human); // ajoute
   });
-
-/*  var expression = $(this).closest('.expression');
-  jeedom.scenario.getSelectModal({}, function (result) {
-    if (expression.find('.expressionAttr[data-l1key=type]').value() == 'action') {
-      expression.find('.expressionAttr[data-l1key=expression]').value(result.human);
-    }
-    if (expression.find('.expressionAttr[data-l1key=type]').value() == 'condition') {
-      expression.find('.expressionAttr[data-l1key=expression]').atCaret('insert', result.human);
-    }
-  });*/
 });
 
 // pour selectionner un equipement
@@ -159,16 +149,6 @@ $('body').off('click','.bt_selectEqLogicExpression').on('click','.bt_selectEqLog
   //  el.value(result.human); // remplace tout
     el.atCaret('insert', result.human); // ajoute
   });
-
-/*  var expression = $(this).closest('.expression');
-  jeedom.eqLogic.getSelectModal({}, function (result) {
-    if (expression.find('.expressionAttr[data-l1key=type]').value() == 'action') {
-      expression.find('.expressionAttr[data-l1key=expression]').value(result.human);
-    }
-    if (expression.find('.expressionAttr[data-l1key=type]').value() == 'condition') {
-      expression.find('.expressionAttr[data-l1key=expression]').atCaret('insert', result.human);
-    }
-  });*/
 });
 
 // affiche les cmd jeedom de type action
@@ -180,7 +160,6 @@ $("body").off('click','.listCmdAction').on('click','.listCmdAction', function ()
     jeedom.cmd.displayActionOption(el.value(), '', function (html) {
       el.closest('.' + type).find('.actionOptions').html(html);
     });
-
   });
 });
 
@@ -192,7 +171,6 @@ $('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focuso
   jeedom.cmd.displayActionOption($(this).value(), init(expression[0].options), function (html) {
     el.closest('.' + type).find('.actionOptions').html(html);
   });
-
 });
 
 // copier/coller du core (cmd.configure.php), permet de choisir la liste des actions (scenario, attendre, ...)

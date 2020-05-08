@@ -1,15 +1,9 @@
 Présentation
 ============
 
-Ce plugin permet de déclencher des actions séquencées (actions immédiates ou actions retardées) suite à l'activation d'un ou plusieurs déclencheurs, par programmation, ou via appel externe (par un autre plugin, un scénario, un appel API, ...).
+Ce plugin permet de déclencher des actions séquencées (actions immédiates ou actions retardées) suite à l'activation d'un ou plusieurs déclencheurs : par programmation, via appel externe (par un autre plugin, un scénario, un appel API, ...) ou via des conditions élaborées (conditions sur valeur d'un déclencheur, répétition de valeur dans un délai donné, condition valable plus de x min, plage temporelle, logique floue, activations de capteurs dans un ordre donné, etc.)
 
 Un mécanisme d'annulation permet de stopper la séquence et d'exécuter des actions d'annulation spécifiques selon les actions déjà réalisées ou non.
-
-Il est possible d'utiliser des conditions complexes pour déclencher/annuler la séquence :
-* Conditions sur valeur (binaires, numériques ou chaîne de caractères) et/ou selon répétition dans une durée donnée
-* Conditions selon plage temporelle (avec répétition possible chaque jour de la semaine, chaque semaine, mois, année)
-* Conditions du type "scénario" permettant d'utiliser toutes les fonctions de calculs des champs **Si** des scénarios Jeedom (conditions sur les variables, calculs de dates sur des commandes, etc.)
-* Ces différentes conditions peuvent être évaluées en OU, en ET, en logique floue (x conditions sur N), selon l'ordre d’occurrence ou selon une condition personnalisée mixant ces différentes conditions.
 
 Les principales fonctionnalités sont les suivantes :
 * Gestion illimitée d'actions séquentielles (immédiates ou retardées)
@@ -17,10 +11,12 @@ Les principales fonctionnalités sont les suivantes :
    * Programmation du déclenchement (cron) à une date/horaire ou périodiquement
    * Gestion d'appel externe pour déclencher la séquence d'actions (via un autre plugin, scénario, appel API, le Dashboard Jeedom, ...)
 * Déclenchement conditionné :
-   * Ajout d'une quantité illimité de déclencheurs selon programmation (date-heure précise ou périodique) et/ou selon la valeur et répétition d'une commande Jeedom
-   * Ajout d'une quantité illimité de conditions selon plage temporelle et/ou selon la valeur et répétition d'une commande Jeedom et/ou selon des conditions de type "scenario"
-   * Déclencheurs selon la valeur et répétition d'une commande Jeedom (capteur, bouton, info virtuelle, ...) : chacun jusqu'à 2 conditions selon leur valeur (binaire, numérique ou chaîne de caractères) et la possibilité de ne déclencher qu'après plusieurs occurrences successives valides
+   * Quantité illimité de déclencheurs selon programmation (date-heure précise ou périodique)
+   * Quantité illimité de déclencheurs selon commande Jeedom avec conditions sur valeur (binaires, numériques ou chaîne de caractères) et/ou selon répétition dans une durée donnée et/ou selon une durée minimum de validité
+   * Quantité illimité de conditions selon plage temporelle (avec répétition possible chaque jour de la semaine, chaque semaine, mois, année)
+   * Quantité illimité de conditions type "scénario" permettant d'utiliser toutes les fonctions de calculs des champs **Si** des scénarios Jeedom (conditions sur les variables, calculs de dates sur des commandes, etc.)
    * Historisation des déclencheurs (ceux liés à une commande Jeedom uniquement)
+   * Toutes ces différentes conditions peuvent être évaluées en OU, en ET, en logique floue (x conditions sur N), selon l'ordre d’occurrence ou selon une condition totalement personnalisée mixant ces différentes conditions.
 * En cas de multi-déclenchement de la séquence d'action, choix de garder la programmation initiale de chaque action ou de les reporter
 * Gestion d'annulation de la séquence (immédiat ou conditionné, identique gestion du déclenchement) et liste d'actions associées
 * Les actions d'annulation peuvent être conditionnées par l'exécution ou non d'une action de la séquence initiale
@@ -39,6 +35,13 @@ Voir le [Changelog](https://agp42.github.io/sequencing/fr_FR/changelog)
 
 Seules les modifications ayant un impact fonctionnel sur le plugin sont listées dans le changelog.
 
+Exemples détaillés
+==========
+
+Voir la page [Exemples Séquencement](https://agp42.github.io/sequencing/fr_FR/exemples)
+
+(N'hésitez pas à me proposer des exemples de vos utilisations !)
+
 Configuration du plugin
 ========================
 
@@ -54,7 +57,7 @@ Onglet **Général**
    * Objet parent : il s'agit de l'objet Jeedom auquel rattacher l'équipement
    * Catégorie : catégorie Jeedom à laquelle rattacher l'équipement
    * Activer le plugin
-   * Visible sert à visualiser les informations sur le Dashboard, par défaut vous aurez uniquement les commandes pour déclencher et arrêter la séquence. Vous pouvez choisir (onglet **Avancé - Commandes**) de visualiser les capteurs de déclenchement et d'annulation. Le plugin n'a pas besoin d'être visible sur le Dashboard pour fonctionner.
+   * Visible sert à visualiser les informations sur le Dashboard, par défaut vous aurez uniquement les commandes pour déclencher et arrêter la séquence. Vous pouvez renommer ces boutons via l'onglet **Avancé - Commandes**. Vous pouvez choisir (onglet **Avancé - Commandes**) de visualiser les capteurs de déclenchement et d'annulation sur le dashboard. Le plugin n'a pas besoin d'être visible sur le Dashboard pour fonctionner.
 
 ### **Tags messages**
 
@@ -85,20 +88,18 @@ Vous pouvez notamment utiliser des tags dans ces tags, par exemple vous pouvez d
    * #trigger_name# : plusieurs possibilités :
       * le **Nom** du déclencheur (celui que vous avez saisi dans l'onglet Déclencheur ou Déclencheur d'annulation) s'il s'agit d'un déclencheur interne du plugin.
       * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
-      * "lancement programmé" ou "annulation programmée" si déclenché par la programmation générale du plugin (celle qui ne vérifie pas les autres conditions).
-      * "programmé" si déclenché par la programmation du plugin (celle qui vérifie les autres conditions).
+      * "programmé" si déclenché par la programmation du plugin (celle qui ne vérifie pas les autres conditions ou celle permettant de déclencher l'évaluation des conditions).
    * #trigger_full_name# : plusieurs possibilités :
       * le **HumanName** Jeedom du déclencheur s'il s'agit d'une commande de déclencheur interne du plugin ([Objet][Equipement][cmd])
       * "user/api" si déclenché par l'API ou par la commande du Dashboard ou via un autre plugin.
-      * "lancement programmé" ou "annulation programmée" si déclenché par la programmation générale du plugin (celle qui ne vérifie pas les autres conditions).
-      * "programmé" si déclenché par la programmation du plugin. Uniquement pour les **Actions**.
+      * "programmé" si déclenché par la programmation du plugin (celle qui ne vérifie pas les autres conditions ou celle permettant de déclencher l'évaluation des conditions).
    * #trigger_value# : la valeur du déclencheur, uniquement pour les déclenchements par un déclencheur interne du plugin. Sera vide dans les autres cas.
    * #trigger_datetime# : La date et l'heure du déclenchement au format "2020-04-16 18:50:18". Il ne s'agit pas de la date et heure de l'action s'il s'agit d'une action retardée.
    * #trigger_time# : idem uniquement l'heure "18:50:18"
 
 ##### Tags généraux (idem scénarios)
 * les informations de date et heure correspondent à l'instant de l'exécution effective de l'action :
-* Rappel des tags scenarios utilisables
+* Rappel des tags scenarios utilisables (tous les tags scenarios qui seront ajoutés dans le core jeedom par la suite seront aussi fonctionnels)
   * #seconde# : Seconde courante (sans les zéros initiaux, ex : 6 pour 08:07:06),
   * #minute# : Minute courante (sans les zéros initiaux, ex : 7 pour 08:07:06),
   * #heure# : Heure courante au format 24h (sans les zéros initiaux, ex : 8 pour 8:07:06 ou 17 pour 17:15),
@@ -144,31 +145,37 @@ Vous pouvez programmer un cron directement via le plugin pour une exécution sim
 Onglet **Déclenchement conditionné**
 ---
 
-Cet onglet permet de configurer des déclencheurs complexes pour lancer la séquence d'action. Ils sont indépendant du déclenchement immédiat défini à l'onglet précédent, ils peuvent donc être utilisés en complément ou à la place du déclenchement immédiat.
+Cet onglet permet de configurer des déclencheurs complexes pour lancer la séquence d'action. Ils sont indépendant du déclenchement immédiat défini à l'onglet précédent.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletDeclencheursConditionnes.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletDeclencheursConditionnesVide.png)
 
 ### Principe de fonctionnement
-Cette partie contient 4 catégories d'éléments :
-* **Déclencheurs selon programmation** : il s'agit d'un ou plusieurs cron(s) (programmation) que vous pouvez choisir d'exécuter à une heure donnée ou périodiquement. Ici cette programmation permettra de déclencher l'évaluation des conditions suivante uniquement. S'il n'y a aucune autre condition, il ne se passera rien (utilisez pour cela la programmation en déclenchement immédiat).
-* **Déclencheurs selon valeur et répétition** : il s'agit ici de déclencheurs **et** de conditions. Chaque changement de valeur ou d'état d'une de ces commandes déclenchera l'évaluation des conditions liées à cette commande. Si ce déclencheur est valide, les autres conditions seront alors évaluées.
-* **Conditions selon plage temporelle** : il s'agit d'une ou plusieurs plage(s) de date-heure, éventuellement répétées, pendant lesquels la séquence d'action peut-être activée. Il s'agit uniquement de **conditions** et non de **déclencheurs** (la séquence ne se déclenchera pas spontanément en début de plage)
-* **Conditions type scénario** : il s'agit d'un champ de condition quasi identique aux conditions (Si/Alors/Sinon) des scénarios du core de Jeedom. Il permet d'écrire des conditions complexes et d'utiliser les différentes fonctions des scénarios Jeedom [Doc scenario v4.0](https://doc.jeedom.com/fr_FR/core/4.0/scenario). Il s'agit uniquement de **conditions** et non de **déclencheurs** (la séquence ne se déclenchera pas spontanément lorsque la condition devient valide)
+Cet onglet contient 2 parties : **Déclencheurs et conditions** et **Évaluation**.
 
-Ainsi que la possibilité de choisir les conditions que vous voulez appliquer entre ces différents éléments :
+**Déclencheurs et conditions** permet de définir une multitude de déclencheurs et de conditions, puis **Évaluation** permettra de déterminer les relations entre ces déclencheurs et conditions.
+
+**Déclencheurs et conditions** contient 4 catégories d'éléments :
+* **Déclencheurs programmés** : il s'agit d'un ou plusieurs cron(s) (programmation) que vous pouvez choisir d'exécuter à une heure donnée ou périodiquement. Ici cette programmation permettra de déclencher l'évaluation des conditions suivante uniquement. S'il n'y a aucune autre condition, il ne se passera rien (utilisez pour cela la programmation en déclenchement immédiat).
+* **Déclencheurs avec conditions** : il s'agit ici de déclencheurs **et** de conditions. Chaque changement de valeur ou d'état d'une de ces commandes déclenchera l'évaluation des conditions liées à cette commande. Si ce déclencheur est valide, les autres conditions seront alors évaluées.
+* **Conditions selon plage temporelle** : il s'agit d'une ou plusieurs plage(s) de date-heure, éventuellement répétées, pendant lesquels la séquence d'action peut-être activée. Il s'agit uniquement de **conditions** et non de **déclencheurs** (la séquence ne se déclenchera pas spontanément en début de plage)
+* **Conditions type scénario** : il s'agit d'un champ de condition quasi identique aux conditions **Si** des scénarios du core de Jeedom. Il permet d'écrire des conditions complexes et d'utiliser les différentes fonctions des scénarios Jeedom [Doc scenario v4.0](https://doc.jeedom.com/fr_FR/core/4.0/scenario). Il s'agit uniquement de **conditions** et non de **déclencheurs** (la séquence ne se déclenchera pas spontanément lorsque la condition devient valide)
+
+**Évaluation** permet de choisir les conditions que vous voulez appliquer entre ces différents éléments :
 * **ET** : toutes les conditions (valeur, plage temporelle et conditions "scenarios") doivent être valides pour déclencher la séquence d'action
 * **OU** : une seule condition suffit
 * **x conditions valides** : seules x parmi vos N conditions doivent être valides pour déclencher la séquence
-* **Séquencement** : vous pouvez ici choisir l'ordre d'arrivée des conditions pendant une durée donnée et choisir si toutes les conditions doivent toujours être valides ou non. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels pour que je puisse l'améliorer ;-)
-* **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels pour que je puisse l'améliorer ;-)
+* **Séquencement** : vous pouvez ici choisir l'ordre d'arrivée des conditions pendant une durée donnée et choisir si toutes les conditions doivent toujours être valides ou non.
+* **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à faire.
 
 ### Configuration
 
 Cliquez sur le bouton correspondant à l'élément que vous souhaitez ajouter.
 
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletDeclencheursConditionnes.png)
+
 Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
 
-* **Déclencheur selon programmation** :
+* **Déclencheurs programmés** :
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/TriggerCron.png)
 
@@ -181,11 +188,20 @@ Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
 
 ![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/TriggersValeur.png)
 
-  * **Nom** : chaque déclencheur doit avoir un nom unique. Champ obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu. Chaque déclencheur de cette catégorie est automatiquement historisée, vous pouvez changer ceci via l'onglet **Avancé - commandes**
+  * **Nom** : chaque déclencheur doit avoir un nom unique. Champ obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu. Chaque déclencheur de cette catégorie est automatiquement historisé, vous pouvez changer ceci via l'onglet **Avancé - commandes**
   * **Commande** : la commande Jeedom du déclencheur. Champ obligatoire. Il ne peut s'agir que d'une commande (pas d'une variable ou autre).
   * **Conditions** :
     * 1 ou 2 condition(s) possible(s) sur la valeur du capteur. Il peut s'agit d'une valeur binaire, numérique ou d'un texte. Pour un texte, vous pouvez ajouter des "guillemets doubles" ou aucun guillemet, mais il ne faut pas utiliser de 'guillemets simples'.
-    * **Nombre de fois** et **Pendant** : permet d'ajouter comme condition une répétition de la valeur (seules les conditions valides sont comptées) sur une période donnée. Par exemple si vous souhaitez ne déclencher la fermeture d'un store qu'après 3 rafales de vents > 50km/h en 10min : condition 1 "strictement supérieur" "50". Pas de condition 2. Répétition : "3" en "600" secondes. Vous pouvez utiliser les champs de répétitions sans définir de conditions, dans ce cas toutes les valeurs de la commande seront considérées dans la répétition. Cette condition sera valide pour toutes les occurrences à partir de la limite choisie. Dans l'exemple précédent, les 3ème, 4ème ou 5ème occurrences >50km/h dans les 10min seront considérées comme des déclencheurs valides, et ce même s'il y a aussi eu des occurences non valide pendant la période.
+    * **Durée** :
+      * permet de ne considérer cette condition valide que si les conditions de valeurs restent valablent une certaine durée (en minutes).
+      * Attention, l'évaluation de la durée est réalisée par les crons Jeedom qui peuvent avoir jusqu'à 1 min de moins que voulu (voir **Comportement des évaluations sur la durée** ci-dessous)
+      * Par exemple si vous souhaitez une alerte lorsque la température est inférieur à 18° ou supérieur à 25° pendant plus d'1h : condition 1 : <18 "ET" condition 2 : >25, pendant "60". La condition peut varier pendant la période considerée tant qu'elle ne sort pas des bornes définies.
+    * **Nombre de fois** et **en x secondes** :
+      * permet d'ajouter comme condition une répétition de la valeur (seules les conditions valides sont comptées) sur une période donnée.
+      * Par exemple si vous souhaitez ne déclencher la fermeture d'un store qu'après 3 rafales de vents > 50km/h en 10min : condition 1 "strictement supérieur" "50". Pas de condition 2. Répétition : "3" en "600" secondes.
+      * Vous pouvez utiliser les champs de répétitions sans définir de conditions, dans ce cas toutes les valeurs de la commande seront considérées dans la répétition.
+      * La condition sera valide pour toutes les occurrences à partir de la limite choisie. Dans l'exemple précédent, les 3ème, 4ème ou 5ème occurrences >50km/h dans les 10min seront considérées comme des déclencheurs valides, et ce même s'il y a aussi eu des occurences non valide pendant la période.
+      * la durée doit être donné en secondes
 
 > si votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions (strictement identiques) via l'onglet **Avancé - commandes**. Pour la commande voulue (le nom dans cet onglet correspond au nom que vous avez donné dans l'onglet **Déclenchement conditionné**), cliquez sur le bouton de configuration (engrenage) puis "Configuration" et "Gestion de la répétition des valeurs" puis choisir "Jamais répéter".
 
@@ -368,68 +384,10 @@ Le comportement du core Jeedom concernant ces crons périodiques est le suivant 
 
 Ceci est un bug Jeedom que je n'ai pas encore réussi à contourner, toute personne ayant un indice : merci de m'en faire part ;-)
 
-Exemples d'utilisation
-===
-
-Cloche 2.0
+Comportement des évaluations sur la durée
 ---
 
-Quand j'étais enfant ma grand-mère nous appelait pour les repas en sonnant la cloche. Aujourd'hui elle aurait un bouton dans sa cuisine avec déclenchement de la séquence suivante :
-* Immédiatement : mémoriser les états des lampes et faire clignoter toutes les lampes de la maison (label : lampes)
-* Immédiatement : envoyer une notification sur les smartphones des grands
-* Délai 1 min : couper le clignotement des lampes et retour état précédent
-* Délai 5 min : couper le courant de la télévision, des consoles de jeux et des radios (label : tv)
-
-Annulation (un autre bouton ou 2 appuis sur le même bouton) :
-* Si "lampe" : couper le clignotement des lampes et retour état précédent
-* Si "tv" : rallumer le courant de la télévision, des consoles de jeux et des radios
-
-Réveil
----
-
-Séquence programmée tous les matins, les jours de semaines, hors jours fériés à 6h :
-* Immédiatement : changer le thermostat pour baisser le chauffage dans les chambres et l'augmenter dans les pièces de vie (label : thermostat)
-* Délai 60 min : allumer progressivement la lumière (label : lumière)
-* Délai 60 min : ouvrir les volets (label : volets)
-* Délai 65 min : activer la machine à café (label : café)
-
-Annulation :
-* Si "thermostat" : remettre le thermostat en "nuit"
-* Si "lumière" : couper la lumière
-* Si "volets" : fermer les volets
-* Si "café" : couper la machine à café
-
-Et pour les matins difficiles : un bouton sur la table de nuit pour annuler la séquence !
-
-Départ/retour maison
----
-
-Séquence déclenchée par le plugin "Mode" ou "Présence" :
-* Immédiatement : fermer les volets
-* Immédiatement : couper les lumières
-* Immédiatement : baisser le chauffage
-* Délai 5 min : activer l'alarme
-
-Annulation, déclenchée par le plugin "Mode" ou "Présence" :
-* Ouvrir les volets
-* Relancer le chauffage
-* Désactiver l'alarme
-
-Gestion arrosage automatique (déclencheurs complexes)
----
-
-Si vous avez 5 capteurs d'humidité dans votre jardin et le plugin Weather
-* Déclenchement conditionné :
-  * Définir vos 5 capteurs avec pour chacun, un seuil minimum et éventuellement la condition de 3 répétitions dans l'heure pour être valide (**Déclencheur selon valeur et répétition**)
-  * Choisir comme évaluation "x conditions valides suffisent" et choisir par exemple 3 capteurs sur les 5
-* Actions : lancer l'arrosage automatique avec un délai de 2 minutes (pour laisser au plugin le temps d'évaluer les conditions d'annulation éventuelles)
-* Déclenchement d'annulation conditionné (évaluation en OU) :
-  * Si la météo prévoit de la pluie dans l'heure (**Déclencheur selon valeur et répétition** avec les infos du plugin Weather)
-  * Si le soleil va se coucher dans moins de 15 min (**Condition type scénario** avec time_op())
-  * Si la plage horaire est entre 21h et 6h du matin (répété tous les jours) (**Condition selon plage temporelle**)
-  * Si l'arrosage a déjà été déclenché plus de 4h aujourd'hui (**Condition type scénario** avec duration() ou durationBetween())
-  * Et ajouter un programmateur de type cron toutes les minutes pour évaluer ces conditions (les "Condition type scénario" et "Condition selon plage temporelle" pas des déclencheurs mais juste des conditions) (**Déclencheur selon programmation**)
-* Actions d'annulation : couper l'arrosage
+Lorsque vous definissez une évaluation sur une durée, le plugin peut mettre jusqu'à 1 min de moins que choisie car l'évaluation se fera toujours en début de minute. Par exemple si votre déclencheurs se déclenche à 11h50min58s et que vous demandez 3 minutes de validité, la validité sera déclarée à 11h53min02s.
 
 Support
 ===

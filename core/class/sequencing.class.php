@@ -372,7 +372,7 @@ class sequencing extends eqLogic {
 
       log::add('sequencing', 'debug', $this->getHumanName() . ' - Evaluation "perso", condition initiale : ' . $condition);
 
-      preg_match_all('/%([\p{L}\p{M}-_\s]*)%/', $condition, $matches, PREG_SET_ORDER); // on veut matcher a-Z, 0-9, les espaces et les - qui sont inclus entre 2#. Ici on choppe pas les accents...
+      preg_match_all('/%([\p{L}\p{M}-_\s]*)%/', $condition, $matches, PREG_SET_ORDER); // on veut matcher a-Z, 0-9, les espaces et les - qui sont inclus entre 2%. Ici on choppe pas les accents...
       foreach ($matches as $key => $matche) {
     //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
         $condition = str_replace('%'.$matche[1].'%', $results[$matche[1]], $condition);
@@ -425,7 +425,7 @@ class sequencing extends eqLogic {
       $timestamp_valid = array(); // contiendra en $key le nom sans les # des conditions saisies et en $values 0 ou 1 selon si timestamp <= timeout
       preg_match_all('/@([\p{L}\p{M}-_\s]*)@/', $condition, $matches, PREG_SET_ORDER);
       foreach ($matches as $matche) {
-      //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
+      //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les @. C'est donc aussi le $key de notre tableau ou de notre variable de cache
 
         $timestamp_cache = $this->getCache('condValide_'.$matche[1].'_timestamp');
 

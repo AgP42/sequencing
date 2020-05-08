@@ -37,12 +37,12 @@ Vous avez 5 capteurs d'humidité dans votre jardin et le plugin Weather
 
 * **Déclenchement** :
 
-  * Définir vos 5 capteurs avec pour chacun, un seuil minimum et éventuellement une durée minimum de 30 min sous ce seuil pour être valide (**Déclencheur selon valeur et répétition**) :
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExArrosageHumidite.png)
+  * Définir vos 5 capteurs avec pour chacun, un seuil minimum et éventuellement une durée minimum de 20 min sous ce seuil pour être valide (**Déclencheur selon valeur et répétition**) :
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExArrosage5Humid.png)
   * Puis choisir comme évaluation "x conditions valides suffisent" et choisir par exemple 3 capteurs sur les 5
 
 Un peu plus complexe : avec 5 capteurs et des conditions sur la météo, les heures de levé/couché du soleil et la durée d'arrosage déjà effectuée dans la journée :
-  * Définir vos 5 capteurs avec pour chacun, un seuil minimum et éventuellement une durée minimum de 30 min sous ce seuil pour être valide (**Déclencheur selon valeur et répétition**) :
+  * Définir vos 5 capteurs avec pour chacun, un seuil minimum et éventuellement une durée minimum de 20 min sous ce seuil pour être valide (**Déclencheur selon valeur et répétition**) :
 ![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExArrosage5Humid.png)
   * Ajouter la condition "la météo prévoit de la pluie" (**Déclencheur selon valeur et répétition** avec les infos du plugin Weather)
 ![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExArrosagePluie.png)

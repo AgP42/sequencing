@@ -7,6 +7,7 @@ Réveil
 * **Déclenchement** :
 
 Séquence programmée tous les matins à 6h, les jours de semaines, hors jours fériés (pour un reveil à 7h):
+
 ![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExOngletTriggerReveil.png)
 
 * **Actions** :
@@ -20,8 +21,7 @@ Séquence programmée tous les matins à 6h, les jours de semaines, hors jours f
 
 Pour les matins difficiles : un bouton sur la table de nuit pour annuler la séquence :
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExTriggerAnnulationReveil.png
-.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExTriggerAnnulationReveil.png)
 
 * **Actions d'annulation** :
 

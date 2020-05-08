@@ -19,6 +19,7 @@ Séquence programmée tous les matins à 6h, les jours de semaines, hors jours f
 * **Déclenchement d'annulation** :
 
 Pour les matins difficiles : un bouton sur la table de nuit pour annuler la séquence :
+
 ![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExTriggerAnnulationReveil.png
 .png)
 

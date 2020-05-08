@@ -40,6 +40,8 @@ Exemples détaillés
 
 Voir la page [Exemples Séquencement](https://agp42.github.io/sequencing/fr_FR/exemples)
 
+> (en beta, ici : https://github.com/AgP42/sequencing/blob/dev/docs/fr_FR/exemples.md)
+
 (N'hésitez pas à me proposer des exemples de vos utilisations !)
 
 Configuration du plugin

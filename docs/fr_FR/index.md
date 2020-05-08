@@ -193,15 +193,16 @@ Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
   * **Conditions** :
     * 1 ou 2 condition(s) possible(s) sur la valeur du capteur. Il peut s'agit d'une valeur binaire, numérique ou d'un texte. Pour un texte, vous pouvez ajouter des "guillemets doubles" ou aucun guillemet, mais il ne faut pas utiliser de 'guillemets simples'.
     * **Durée** :
-      * permet de ne considérer cette condition valide que si les conditions de valeurs restent valablent une certaine durée (en minutes).
+      * permet de ne considérer cette condition valide que si les conditions de valeurs restent valable un certain temps (en minutes).
       * Attention, l'évaluation de la durée est réalisée par les crons Jeedom qui peuvent avoir jusqu'à 1 min de moins que voulu (voir **Comportement des évaluations sur la durée** ci-dessous)
-      * Par exemple si vous souhaitez une alerte lorsque la température est inférieur à 18° ou supérieur à 25° pendant plus d'1h : condition 1 : <18 "ET" condition 2 : >25, pendant "60". La condition peut varier pendant la période considerée tant qu'elle ne sort pas des bornes définies.
+      * Exemple si vous souhaitez une alerte lorsque la température est inférieur à 18° ou supérieur à 25° pendant plus d'1h : condition 1 : <18 "ET" condition 2 : >25, pendant "60".
     * **Nombre de fois** et **en x secondes** :
       * permet d'ajouter comme condition une répétition de la valeur (seules les conditions valides sont comptées) sur une période donnée.
       * Par exemple si vous souhaitez ne déclencher la fermeture d'un store qu'après 3 rafales de vents > 50km/h en 10min : condition 1 "strictement supérieur" "50". Pas de condition 2. Répétition : "3" en "600" secondes.
       * Vous pouvez utiliser les champs de répétitions sans définir de conditions, dans ce cas toutes les valeurs de la commande seront considérées dans la répétition.
-      * La condition sera valide pour toutes les occurrences à partir de la limite choisie. Dans l'exemple précédent, les 3ème, 4ème ou 5ème occurrences >50km/h dans les 10min seront considérées comme des déclencheurs valides, et ce même s'il y a aussi eu des occurences non valide pendant la période.
+      * La condition sera valide pour toutes les occurrences à partir de la limite choisie. Dans l'exemple précédent, les 3ème, 4ème ou 5ème occurrences >50km/h dans les 10min seront considérées comme des déclencheurs valides, et ce même s'il y a aussi eu des occurrences non valide pendant la période.
       * la durée doit être donné en secondes
+    * **Durée** et **Nombre de fois en x secondes** sont exclusifs : vous pouvez utiliser l'un ou l'autre mais pas les 2 ensemble
 
 > si votre capteur est susceptible de répéter régulièrement sa valeur, vous pouvez choisir d'ignorer les répétitions (strictement identiques) via l'onglet **Avancé - commandes**. Pour la commande voulue (le nom dans cet onglet correspond au nom que vous avez donné dans l'onglet **Déclenchement conditionné**), cliquez sur le bouton de configuration (engrenage) puis "Configuration" et "Gestion de la répétition des valeurs" puis choisir "Jamais répéter".
 
@@ -229,8 +230,8 @@ Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
       * Une variable
       * Un scénario
       * Un équipement
-    * Ecrivez votre condition suivant la synthaxe définie dans la documentation des scénarios
-    * Vous pouvez tester votre synthaxe via la fonction core "Outils/Testeur expression" (tout en restant sur la page du plugin !)
+    * Écrivez votre condition suivant la syntaxe définie dans la documentation des scénarios
+    * Vous pouvez tester votre syntaxe via la fonction core "Outils/Testeur expression" (tout en restant sur la page du plugin)
 
 * **Évaluation**
 
@@ -245,44 +246,44 @@ Choisir ici les conditions que vous voulez appliquer entre ces différents élé
 
 * **Séquencement** : vous pouvez ici choisir l'ordre d'arrivée des conditions dans une durée donnée et choisir si toutes les conditions doivent toujours être valides ou non pour le déclenchement effectif. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-).
 Fonctionnement :
-  * Seuls les "déclencheurs" peuvent être utilisés ici (les plages temporelles ou condition "scenarios" peuvent être utilisées en condition de validité mais elles n'ont pas de "date" d'exécution).
-  * Vous devez écrire la condition logique à respecter au format suivant : (§Cond1§<§Cond2§)&&(§Cond2§<=§Cond3§) (Condition 1 puis Condition 2 puis Condition 3, qui peut-être simultanée à la Condition2)
-  * Le nom de chaque condition doit être encadré par des § (n'utilisez pas de § par ailleurs dans la condition...)
-  * Vos conditions ne doivent pas contenir d'accents, de %, § ou # dans leurs noms (testé ok : lettres minuscules et majuscules, chiffres, espaces, "-" ou "_")
+  * Seuls les "déclencheurs" peuvent être utilisés ici (les plages temporelles ou condition "scenarios" peuvent être utilisées en condition de validité mais elles n'ont pas de "date" d'exécution utilisables).
+  * Vous devez écrire la condition logique à respecter au format suivant : (@Cond1@<@Cond2@)&&(@Cond2@<=@Cond3@) (Condition 1 puis Condition 2 puis Condition 3, qui peut-être simultanée à la Condition2)
+  * Le nom de chaque condition doit être encadré par des @ (n'utilisez pas de @ par ailleurs dans la condition...)
   * Vous pouvez utiliser des () pour déterminer les priorités
   * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), !(inversion),...)
   * Vous pouvez utiliser les tags Jeedom des scenarios dans l'expression, notamment #timestamp# pour avoir le timestamp actuel.
-  * Vous pouvez définir un délai spécifique entre chaque conditions, par exemple "§btblanc§+30<§btrouge§" pour demander minimum 30 secondes entre l'activation de "§btblanc§"" et "§btrouge§"
+  * Vous pouvez définir un délai spécifique entre chaque conditions, par exemple "@btblanc@+30<@btrouge@" pour demander minimum 30 secondes entre l'activation de "@btblanc@" et "@btrouge@"
   * Le champ **Durée maximum** permet de limiter la prise en compte des déclencheurs trop anciens. Toutes les conditions comprises dans le champ **Condition** doivent avoir été validées (= déclenchées et correct) dans la période correspondante. En secondes.
   * Si la case **Toutes conditions toujours valides** est cochée, le plugin évaluera en plus la validité de la totalité des conditions avant de déclencher (toutes les conditions définies, pas uniquement celles utilisées dans la condition)
 
 > Pour vous aider à écrire la condition, voilà le détail du traitement qui sera réalisé par le plugin :
->    * chaque §Condx§ sera remplacée par le timestamp de son dernier déclenchement **valide**.
+>    * chaque @Condx@ sera remplacée par le timestamp de son dernier déclenchement **valide**.
 >    * Puis l'expression complète sera évaluée logiquement, le résultat doit être == 1 pour être valide
->    * Les timestamps de toutes les conditions utilisées dans l'expressions devront aussi respecter le champ timeout.
->    * Et si la case "Toutes conditions toujours valides" est cochée, le plugin évaluera en plus la validité de la totalité des conditions (toutes celles définies, pas uniquement celles utilisées dans la condition)
+>    * Le plugin vérifiera si les timestamps de toutes les conditions **utilisées dans l’expression** respectent le champ timeout.
+>    * Si la case "Toutes conditions toujours valides" est cochée, le plugin évaluera en plus la validité de la totalité des conditions (toutes celles définies dans l'onglet, pas uniquement celles utilisées dans la condition)
 >    * Si ces 3 conditions sont réunies => la séquence d'action sera déclenchée
+
 
 * **Condition personnalisée** : vous pouvez ici choisir condition par condition l'évaluation à réaliser. Attention cette fonctionnalité est encore expérimentale, merci de me faire part des problèmes éventuels (avec le log en mode "debug" associé svp) pour que je puisse l'améliorer ;-).
 Fonctionnement :
-  * Vous devez écrire la condition logique à respecter au format suivant : (§Cond1§<§Cond2§)&&(%Cond2%||%Cond3%) (Condition 1 puis Condition 2 et Condition 2 ou Condition 3 valide)
+  * Vous devez écrire la condition logique à respecter au format suivant : (@Cond1@<@Cond2@)&&(%Cond2%||%Cond3%) (Condition 1 puis Condition 2 et Condition 2 ou Condition 3 valide)
   * Pour utiliser l'état de validité d'une condition (valide sera égale à 1 et non valide à 0) : encadrez son nom par des %
-  * Pour utiliser le timestamp du dernier déclenchement valide d'un déclencheur : encadrez son nom par des §
-  * Les noms des conditions/déclencheurs ne doivent pas contenir d'accents, de %, § ou # (testé ok : lettres minuscules et majuscules, chiffres, espaces, "-" ou "_")
+  * Pour utiliser le timestamp du dernier déclenchement valide d'un déclencheur : encadrez son nom par des @. (Attention, seuls les **Déclencheurs** ont un timestamp associés, les **Conditions** (plage temporelle ou type "scenario" n'en n'ont pas et ne peuvent donc pas être utilisées avec un @)
   * Vous pouvez utiliser des () pour déterminer les priorités
   * Vous pouvez utiliser les symboles usuels pour les comparaisons et les conditions (==, >=, <=, <, >, ||(ou), &&(et), !(inversion),...)
   * Vous pouvez utiliser les tags Jeedom des scenarios dans l'expression, notamment #timestamp# pour avoir le timestamp actuel.
   * Vous pouvez utiliser directement une commande Jeedom dans l'expression, elle sera remplacée par sa valeur, par exemple " #[Developpement][Capteur porte][Etat]#"
+  * Vous pouvez utiliser la valeur d'une variable au format "variable(nom_variable)" (sans #)
   * Vous pouvez utiliser directement toutes les opérations des scenarios Jeedom (time_op(), ...)
-  * Vous pouvez définir un délai spécifique entre chaque conditions, par exemple "§btblanc§+30<§btrouge§" pour demander minimum 30 secondes entre l'activation de "§btblanc§"" et "§btrouge§"
+  * Vous pouvez définir un délai spécifique entre chaque conditions, par exemple "@btblanc@+30<@btrouge@" pour demander minimum 30 secondes entre l'activation de "@btblanc@"" et "@btrouge@"
   * Vous pouvez évaluer "x sur N conditions valides" en utilisant la syntaxe suivante : "%Cond1%+%Cond2%+%Cond3%+%Cond4%+%Cond5%>=3" (sur les 5 conditions données, au moins 3 doivent être valides)
   * Il n'est pas nécessaire d'ajouter le ==1 dans la condition : "#lundis#==1" ou "#lundis#" auront un comportement identiques
   * Si vous voulez tester une condition non valide (==0), cette condition ne pourra pas être le déclencheur
 
 > Pour vous aider à écrire la condition, voilà le détail du traitement qui sera réalisé par le plugin :
->    * chaque §Condx§ sera remplacée par le timestamp de son dernier déclenchement **valide**.
+>    * chaque @Condx@ sera remplacée par le timestamp de son dernier déclenchement **valide**.
 >    * chaque %Condx% sera remplacée par sa validité (0 ou 1)
->    * chaque #xxx# sera remplacé par sa valeur Jeedom (commande, variables, tags, ...)
+>    * chaque #xxx# sera remplacé par sa valeur Jeedom
 >    * Puis l'expression complète sera évaluée logiquement, le résultat doit être == 1 pour déclencher la séquence d'action
 
 Onglet **Actions**
@@ -382,15 +383,15 @@ Le comportement du core Jeedom concernant ces crons périodiques est le suivant 
 * Il peut arriver qu'ils soient aussi exécutés lors de la prochaine "5min pleine" (12h00 ou 12h05 ou 12h10, ... par exemple)
 * Puis le comportement se normalise et ils s'exécutent correctement selon la période voulue
 
-Ceci est un bug Jeedom que je n'ai pas encore réussi à contourner, toute personne ayant un indice : merci de m'en faire part ;-)
+Ceci est un comportement Jeedom que je n'ai pas encore réussi à contourner, toute personne ayant un indice : merci de m'en faire part ;-)
 
 Comportement des évaluations sur la durée
 ---
 
-Lorsque vous definissez une évaluation sur une durée, le plugin peut mettre jusqu'à 1 min de moins que choisie car l'évaluation se fera toujours en début de minute. Par exemple si votre déclencheurs se déclenche à 11h50min58s et que vous demandez 3 minutes de validité, la validité sera déclarée à 11h53min02s.
+Lorsque vous définissez une évaluation sur une durée en minutes, le plugin peut mettre jusqu'à 1 min de moins que choisie car l'évaluation se fera toujours en début de minute. Par exemple si votre déclencheurs se déclenche à 11h50min58s et que vous demandez 3 minutes de validité, la validité sera déclarée à 11h53min02s (et non à 11h53min58s)
 
 Support
 ===
 
-* Pour toute demande de support ou d'information : [Forum Jeedom](https://community.jeedom.com/c/plugins/automatisation/48)
+* Pour toute demande de support ou d'information : [Forum Jeedom](https://community.jeedom.com/c/plugins/automatisation/48) en utilisant le tag "plugin-sequencing" et/ou en taggant mon pseudo (@agp.com) pour que j'en soit informée.
 * Pour un bug ou une demande d'évolution, merci de passer de préférence par [Github](https://github.com/AgP42/sequencing/issues)

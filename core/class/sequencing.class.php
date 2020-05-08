@@ -382,12 +382,15 @@ class sequencing extends eqLogic {
       preg_match_all('/@([\p{L}\p{M}-_\s]*)@/', $condition, $matches, PREG_SET_ORDER);
       foreach ($matches as $key => $matche) {
     //    log::add('sequencing', 'debug', $this->getHumanName() . ' - matche : ' . $matche[1]); //$matche[1] c'est le nom de notre condition, sans les #. C'est donc aussi le $key de notre tableau ou de notre variable de cache
-    //    $condition = str_replace('§'.$matche[1].'§', $results[$matche[1]], $condition);
+    //    $condition = str_replace('@'.$matche[1].'@', $results[$matche[1]], $condition);
 
         $timestamp_cache = $this->getCache('condValide_'.$matche[1].'_timestamp');
-        $condition = str_replace('@'.$matche[1].'@', $timestamp_cache, $condition); // la condition a évaluer où les §xx§ sont remplacés par leur timestamp
+        $condition = str_replace('@'.$matche[1].'@', $timestamp_cache, $condition); // la condition a évaluer où les @xx@ sont remplacés par leur timestamp
 
       }
+
+      $condition = scenarioExpression::setTags(jeedom::fromHumanReadable($condition)); // permet de traiter les tags des scenarios genre #time#
+
     //  log::add('sequencing', 'debug', $this->getHumanName() . ' - Condition après moulinette regex : ' . $condition);
 
       $result = jeedom::evaluateExpression($condition);
@@ -1328,13 +1331,13 @@ class sequencing extends eqLogic {
         if (is_array($this->getConfiguration($type))) {
           foreach ($this->getConfiguration($type) as $trigger) { // pour tous les capteurs de tous les types, on veut un nom et une cmd
             if (trim($trigger['name']) == '') {
-              throw new Exception(__('Le champs Nom pour les capteurs ('.$type.') ne peut être vide',__FILE__));
+              throw new Exception(__('Le champs Nom pour les Déclencheurs ('.$type.') ne peut être vide',__FILE__));
             }
 
             array_push($allNames, trim($trigger['name']));
 
             if ($trigger['cmd'] == '') {
-              throw new Exception(__('Le champs Capteur ('.$type.') ne peut être vide',__FILE__));
+              throw new Exception(__('Le champs Commande ('.$type.') ne peut être vide',__FILE__));
             }
 
             if (substr_count($trigger['cmd'], '#') < 2) {
@@ -1345,42 +1348,52 @@ class sequencing extends eqLogic {
 
             // pas d'operateur entre les 2 conditions alors qu'on a des infos pour la condition 2
             if ($trigger['condition_operator'] == '' && ($trigger['condition_operator2'] != '' || $trigger['condition_test2'] != '')) {
-              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : vous devez choisir un opérateur entre les conditions 1 et 2, ou supprimer les champs de la seconde condition',__FILE__));
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : vous devez choisir un opérateur entre les conditions 1 et 2, ou supprimer les champs de la seconde condition',__FILE__));
             }
 
             // operateur entre les 2 conditions alors qu'il manque des infos pour la condition 2
             if ($trigger['condition_operator'] != '' && ($trigger['condition_operator2'] == '' || $trigger['condition_test2'] == '')) {
-              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : condition 2 incomplète',__FILE__));
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : condition 2 incomplète',__FILE__));
             }
 
             // condition 1 incomplete
             if (($trigger['condition_operator1'] != '' && $trigger['condition_test1'] == '') || ($trigger['condition_operator1'] == '' && $trigger['condition_test1'] != ''))  {
-              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : condition 1 incomplète',__FILE__));
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : condition 1 incomplète',__FILE__));
             }
 
             // condition 2 incomplete
             if (($trigger['condition_operator2'] != '' && $trigger['condition_test2'] == '') || ($trigger['condition_operator2'] == '' && $trigger['condition_test2'] != ''))  {
-              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : condition 2 incomplète',__FILE__));
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : condition 2 incomplète',__FILE__));
             }
 
             // condition 2 sans condition 1
             if ($trigger['condition_operator1'] == '' && $trigger['condition_test1'] == '' && $trigger['condition_operator2'] != '' && $trigger['condition_test2'] != '') {
-              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : Si vous n\'avez qu\'une condition, utilisez la 1ère',__FILE__));
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : Si vous n\'avez qu\'une condition, utilisez la 1ère',__FILE__));
             }
 
             // pas de période associé à une repetition > 1
             if ($trigger['condition_rep_nb_fois'] > 1 && $trigger['condition_rep_periode'] == '') {
-              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : Vous avez déclaré une répétition, vous devez préciser la période correspondante',__FILE__));
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : Vous avez déclaré une répétition, vous devez préciser la période correspondante',__FILE__));
             }
 
             // pas de repetition associé à une période
             if ($trigger['condition_rep_nb_fois'] == '' && $trigger['condition_rep_periode'] != '') {
-              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : Vous avez déclaré une période de répétition, vous devez préciser le nombre correspondant',__FILE__));
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : Vous avez déclaré une période de répétition, vous devez préciser le nombre correspondant',__FILE__));
             }
 
             // un de nos champs de durée ou répétition est négatif
             if ($trigger['condition_rep_nb_fois'] < 0 || $trigger['condition_rep_periode'] < 0) {
-              throw new Exception(__('Capteur ' . $trigger['name'] . ' ('.$type.') : Les conditions de répétition doivent être des nombres positifs',__FILE__));
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : Les conditions de répétition doivent être des nombres positifs',__FILE__));
+            }
+
+            // le champ de durée est négatif
+            if ($trigger['condition_duree'] < 0) {
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : Les conditions de durée doivent être des nombres positifs',__FILE__));
+            }
+
+            // pas de repetition associé à une période
+            if ($trigger['condition_duree'] != '' && ($trigger['condition_rep_nb_fois'] != '' || $trigger['condition_rep_periode'] != '')) {
+              throw new Exception(__('Déclencheur ' . $trigger['name'] . ' ('.$type.') : Vous ne pouvez pas ávaluer la durée et la répétition en même temps',__FILE__));
             }
 
           }

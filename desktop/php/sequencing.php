@@ -429,7 +429,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
           <div class="sequencement_cancel">
             <div class="form-group">
-              <label class="col-sm-1 control-label">{{formule}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir l'ordre des conditions (uniquement pour des conditions sur valeurs). Pour Cond1 puis Cond2 puis Cond3, saisir '§Cond1§<§Cond2§&&§Cond2§<§Cond3§'}}"></i></sup></label>
+              <label class="col-sm-1 control-label">{{formule}} <sup><i class="fas fa-question-circle tooltips" title="{{Définir l'ordre des conditions (uniquement pour des conditions sur valeurs). Pour Cond1 puis Cond2 puis Cond3, saisir '@Cond1@<@Cond2@&&@Cond2@<@Cond3@'}}"></i></sup></label>
               <div class="col-sm-5 col-md-3">
                 <input class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="condition_sequence"/>
               </div>

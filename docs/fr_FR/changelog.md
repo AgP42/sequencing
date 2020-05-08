@@ -14,6 +14,9 @@
 * Ajout évaluation sur la durée de validité pour les triggers sur "valeur"
 * Refactorisation code notamment sur les crons
 * Update logs
+* Relecture et debugs
+* Tests sur Jeedom v4.0.54
+* Mise à jour documentation
 
 1.0.6 - 6 mai
 ---

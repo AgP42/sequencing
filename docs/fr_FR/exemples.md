@@ -1,35 +1,33 @@
 Exemples d'utilisation
 ===
 
-Cloche 2.0
----
-
-Quand j'étais enfant ma grand-mère nous appelait pour les repas en sonnant la cloche. Aujourd'hui elle aurait un bouton dans sa cuisine avec déclenchement de la séquence suivante :
-* Immédiatement : mémoriser les états des lampes et faire clignoter toutes les lampes de la maison (label : lampes)
-* Immédiatement : envoyer une notification sur les smartphones des grands
-* Délai 1 min : couper le clignotement des lampes et retour état précédent
-* Délai 5 min : couper le courant de la télévision, des consoles de jeux et des radios (label : tv)
-
-Annulation (un autre bouton ou 2 appuis sur le même bouton) :
-* Si "lampe" : couper le clignotement des lampes et retour état précédent
-* Si "tv" : rallumer le courant de la télévision, des consoles de jeux et des radios
-
 Réveil
 ---
 
-Séquence programmée tous les matins, les jours de semaines, hors jours fériés à 6h :
-* Immédiatement : changer le thermostat pour baisser le chauffage dans les chambres et l'augmenter dans les pièces de vie (label : thermostat)
-* Délai 60 min : allumer progressivement la lumière (label : lumière)
-* Délai 60 min : ouvrir les volets (label : volets)
-* Délai 65 min : activer la machine à café (label : café)
+* **Déclenchement** :
 
-Annulation :
-* Si "thermostat" : remettre le thermostat en "nuit"
-* Si "lumière" : couper la lumière
-* Si "volets" : fermer les volets
-* Si "café" : couper la machine à café
+Séquence programmée tous les matins à 6h, les jours de semaines, hors jours fériés (pour un reveil à 7h):
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExOngletTriggerReveil.png)
 
-Et pour les matins difficiles : un bouton sur la table de nuit pour annuler la séquence !
+* **Actions** :
+
+  * Immédiatement : changer le thermostat pour baisser le chauffage dans les chambres et l'augmenter dans les pièces de vie (label : thermostat)
+  * Délai 60 min : allumer progressivement la lumière (label : lumière)
+  * Délai 60 min : ouvrir les volets (label : volets)
+  * Délai 65 min : activer la machine à café (label : café)
+
+* **Déclenchement d'annulation** :
+
+Pour les matins difficiles : un bouton sur la table de nuit pour annuler la séquence :
+![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ExTriggerAnnulationReveil.png
+.png)
+
+* **Actions d'annulation** :
+
+  * Si "thermostat" : remettre le thermostat en "nuit"
+  * Si "lumière" : couper la lumière
+  * Si "volets" : fermer les volets
+  * Si "café" : couper la machine à café
 
 Départ/retour maison
 ---

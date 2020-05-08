@@ -29,8 +29,6 @@ Divers :
 * comment passer par un virtuel pour avoir un trigger cmd (à tester avant... éventuellement créér des cmd à la demande ?)
 * Utiliser domogeek et ou Heliotrope pour les conditions
 
-* Validité sur durée peut etre jusqu'à 1 min de moins que configurée
-
 # Notes
 les plugins avec des crons :
 - datetime : thermostat, weather, calendar

@@ -104,7 +104,6 @@ class sequencing extends eqLogic {
         $sequencing->setCache('trigger_value_temp', jeedom::evaluateExpression($_options['trigger']['cmd']));
         $sequencing->setCache('trigger_datetime_temp', date('Y-m-d H:i:s'));
         $sequencing->setCache('trigger_time_temp', date('H:i:s'));
-        // TODO : tester
 
         $check = $sequencing->checkTriggerValues($_options['trigger'], false, $_options['type']); // évalue si cette condition est toujours valide aprés le délai
 
@@ -1230,7 +1229,7 @@ class sequencing extends eqLogic {
 
               unset($jsSensors[$key][$cmd->getName()]); // on a traité notre ligne, on la vire. Attention ici a ne pas remplacer $jsSensors[$key] par $jsSensor. C'est bien dans le tableau d'origine qu'on veut virer notre ligne
 
-            } else { // on a un sensor qui était dans la DB mais dont le nom n'est plus dans notre JS : on la supprime ! Attention, si on a juste changé le nom, on va le supprimer et le recreer, donc perdre l'historique éventuel. //TODO : voir si ça pose problème
+            } else { // on a un sensor qui était dans la DB mais dont le nom n'est plus dans notre JS : on la supprime ! Attention, si on a juste changé le nom, on va le supprimer et le recreer, donc perdre l'historique éventuel.
               $cmd->remove();
             }
           }

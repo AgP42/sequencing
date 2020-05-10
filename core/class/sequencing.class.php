@@ -489,7 +489,7 @@ class sequencing extends eqLogic {
 
           $check = $this->checkTriggerValuesRepetition($trigger, $conditions, $_fromTrigger);
 
-        } else if($trigger['condition_duree'] != '' && is_numeric($trigger['condition_duree'])){ // si on doit évaluer nos conditions sur la durée de cette valeur
+        } else if(isset($trigger['condition_duree']) && $trigger['condition_duree'] != '' && is_numeric($trigger['condition_duree'])){ // si on doit évaluer nos conditions sur la durée de cette valeur
 
           $check = $this->checkTriggerValuesDuree($trigger, $conditions, $_fromTrigger, $type);
 

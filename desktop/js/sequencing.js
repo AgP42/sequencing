@@ -440,7 +440,7 @@ function addAction(_action, _type, _labels) {
 
       if(_type == 'action'){ // pour les actions, on ajoute un label et un timer
       //  div += '<label class="col-sm-1 control-label">{{Label}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner un label si vous voulez lier des actions de désactivations à cette action}}"></i></sup></label>';
-        div += '<div class="col-sm-4 col-md-2">';
+        div += '<div class="col-sm-4 col-md-1">';
           div += '<div class="input-group">';
             div += '<span class="input-group-btn">';
               div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
@@ -457,7 +457,7 @@ function addAction(_action, _type, _labels) {
 
       } else { // pour les action_cancel on ajoute le label de l'action à lier
 
-        div += '<label class="col-sm-2 col-md-2 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
+        div += '<label class="col-sm-2 col-md-1 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
 
         div += '<div class="col-sm-6 col-md-2">';
           div += '<div class="input-group">';
@@ -488,7 +488,7 @@ function addAction(_action, _type, _labels) {
         div += '</div>';
       div += '</div>';
 
-      div += '<div class="col-sm-6 col-md-3 actionOptions">'; // on laisse la place pour afficher les champs "message" ou autre selon les options associées à l'action choisie par l'utilisateur si besoin
+      div += '<div class="col-sm-6 col-md-4 actionOptions">'; // on laisse la place pour afficher les champs "message" ou autre selon les options associées à l'action choisie par l'utilisateur si besoin
         div += jeedom.cmd.displayActionOption(init(_action.cmd, ''), _action.options);
       div += '</div>';
 

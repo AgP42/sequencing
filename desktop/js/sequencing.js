@@ -17,19 +17,89 @@
 
 // permet de reorganiser les elements de la div en les cliquant/deplacant
 $("#div_trigger").sortable({axis: "y", cursor: "move", items: ".trigger", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_prog").sortable({axis: "y", cursor: "move", items: ".trigger_prog", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_timerange").sortable({axis: "y", cursor: "move", items: ".trigger_timerange", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_scenario").sortable({axis: "y", cursor: "move", items: ".trigger_scenario", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_action").sortable({axis: "y", cursor: "move", items: ".action", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_trigger_cancel").sortable({axis: "y", cursor: "move", items: ".trigger_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_cancel_prog").sortable({axis: "y", cursor: "move", items: ".trigger_cancel_prog", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_cancel_timerange").sortable({axis: "y", cursor: "move", items: ".trigger_cancel_timerange", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#div_trigger_cancel_scenario").sortable({axis: "y", cursor: "move", items: ".trigger_cancel_scenario", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#div_action_cancel").sortable({axis: "y", cursor: "move", items: ".action_cancel", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 
-// ajoute chaque ligne de trigger ou trigger_cancel
-$('.addTrigger').off('click').on('click', function () {
-  addTrigger({}, $(this).attr('data-type'));
+// gestion des champs additionnels selon le menu déroulant condition entre triggers et triggers_cancel
+$('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').change(function () {
+  if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "OR" || $('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "AND"){
+    $('.x_sur_N_value').hide();
+    $('.condition_perso').hide();
+    $('.sequencement').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "x_sur_N"){
+    $('.x_sur_N_value').show();
+    $('.condition_perso').hide();
+    $('.sequencement').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "sequence"){
+    $('.x_sur_N_value').hide();
+    $('.condition_perso').hide();
+    $('.sequencement').show();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_type]').value() == "perso"){
+    $('.x_sur_N_value').hide();
+    $('.condition_perso').show();
+    $('.sequencement').hide();
+  } else {
+    $('.x_sur_N_value').hide();
+    $('.condition_perso').hide();
+    $('.sequencement').hide();
+  }
 });
 
+$('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').change(function () {
+  if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "OR" || $('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "AND"){
+    $('.x_sur_N_value_cancel').hide();
+    $('.condition_perso_cancel').hide();
+    $('.sequencement_cancel').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "x_sur_N"){
+    $('.x_sur_N_value_cancel').show();
+    $('.condition_perso_cancel').hide();
+    $('.sequencement_cancel').hide();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "sequence"){
+    $('.x_sur_N_value_cancel').hide();
+    $('.condition_perso_cancel').hide();
+    $('.sequencement_cancel').show();
+  } else if($('.eqLogicAttr[data-l1key=configuration][data-l2key=check_triggers_cancel_type]').value() == "perso"){
+    $('.x_sur_N_value_cancel').hide();
+    $('.condition_perso_cancel').show();
+    $('.sequencement_cancel').hide();
+  } else {
+    $('.x_sur_N_value_cancel').hide();
+    $('.condition_perso_cancel').hide();
+    $('.sequencement_cancel').hide();
+  }
+});
+
+// ajoute chaque ligne de trigger ou trigger_cancel pour condition sur valeur
+$('.addTriggerValue').off('click').on('click', function () {
+  addTriggerValue({}, $(this).attr('data-type'));
+});
+
+// ajoute chaque ligne de trigger_prog ou trigger_cancel_prog pour programmation
+$('.addTriggerProg').off('click').on('click', function () {
+  addTriggerProg({}, $(this).attr('data-type'));
+});
+
+// ajoute chaque ligne de trigger_timerange ou trigger_cancel_timerange pour condition sur plage horaire
+$('.addCondTimeRange').off('click').on('click', function () {
+  addCondTimeRange({}, $(this).attr('data-type'));
+});
+
+$('.addCondScenario').off('click').on('click', function () {
+  addCondScenario({}, $(this).attr('data-type'));
+});
+
+var _labels; // variable pour memoriser les labels "action", la variable est remplie à la sauvegarde dans printEqLogic
 // ajoute chaque ligne d'action ou action_cancel
 $('.addAction').off('click').on('click', function () {
-  addAction({}, $(this).attr('data-type'));
+  addAction({}, $(this).attr('data-type'), _labels);
 });
 
 // tous les - qui permettent de supprimer la ligne
@@ -39,10 +109,45 @@ $("body").off('click','.bt_removeAction').on('click','.bt_removeAction',function
 });
 
 // permet d'afficher la liste des cmd Jeedom pour choisir sa commande de type "info" (pas les actions donc)
-$("body").off('click', '.listCmdInfoWindow').on('click', '.listCmdInfoWindow',function () {
+$("body").off('click','.bt_selectTrigger').on('click','.bt_selectTrigger',  function (event) {
   var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
-  jeedom.cmd.getSelectModal({cmd: {type: 'info', subtype: 'binary'}}, function (result) {
-    el.value(result.human);
+  jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
+    el.value(result.human); // remplace tout
+  });
+});
+
+// idem mais appelé quand on veut ajouter l'info et non pas la remplacer dans le champs
+$("body").off('click','.bt_selectTriggerAj').on('click','.bt_selectTriggerAj',  function (event) {
+  var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
+  jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
+    el.atCaret('insert', result.human); // ajoute
+  });
+});
+
+// permet la selection des variables
+$("body").off('click','.bt_selectDataStoreTrigger').on( 'click','.bt_selectDataStoreTrigger', function (event) {
+  var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
+  jeedom.dataStore.getSelectModal({cmd: {type: 'info'}}, function (result) {
+    //  el.value(result.human); // remplace tout
+    el.atCaret('insert', result.human); // ajoute
+  });
+});
+
+// pour selectionner un scenario
+$('body').off('click','.bt_selectScenarioExpression').on('click','.bt_selectScenarioExpression',  function (event) {
+  var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
+  jeedom.scenario.getSelectModal({}, function (result) {
+    //  el.value(result.human); // remplace tout
+    el.atCaret('insert', result.human); // ajoute
+  });
+});
+
+// pour selectionner un equipement
+$('body').off('click','.bt_selectEqLogicExpression').on('click','.bt_selectEqLogicExpression',  function (event) {
+  var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=cmd]');
+  jeedom.eqLogic.getSelectModal({}, function (result) {
+  //  el.value(result.human); // remplace tout
+    el.atCaret('insert', result.human); // ajoute
   });
 });
 
@@ -55,7 +160,16 @@ $("body").off('click','.listCmdAction').on('click','.listCmdAction', function ()
     jeedom.cmd.displayActionOption(el.value(), '', function (html) {
       el.closest('.' + type).find('.actionOptions').html(html);
     });
+  });
+});
 
+//sert à charger les champs quand on clique dehors
+$('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focusout','.cmdAction.expressionAttr[data-l1key=cmd]',function (event) {
+  var type = $(this).attr('data-type');
+  var expression = $(this).closest('.' + type).getValues('.expressionAttr');
+  var el = $(this);
+  jeedom.cmd.displayActionOption($(this).value(), init(expression[0].options), function (html) {
+    el.closest('.' + type).find('.actionOptions').html(html);
   });
 });
 
@@ -72,88 +186,244 @@ $("body").undelegate(".listAction", 'click').delegate(".listAction", 'click', fu
   });
 });
 
-//sert à charger les champs quand on clique dehors -> A garder !!!
-$('body').off('focusout','.cmdAction.expressionAttr[data-l1key=cmd]').on('focusout','.cmdAction.expressionAttr[data-l1key=cmd]',function (event) {
-  var type = $(this).attr('data-type');
-  var expression = $(this).closest('.' + type).getValues('.expressionAttr');
-  var el = $(this);
-  jeedom.cmd.displayActionOption($(this).value(), init(expression[0].options), function (html) {
-    el.closest('.' + type).find('.actionOptions').html(html);
-  });
 
-});
-
-// chaque ligne de trigger ou trigger_cancel
-function addTrigger(_action, _type) {
+// chaque ligne de trigger ou trigger_cancel pour les declencheurs de type "conditions"
+function addTriggerValue(_action, _type) {
   var div = '<div class="' + _type + '">';
-    div += '<div class="form-group ">';
+    div += '<div class="form-group">';
 
-      div += '<label class="col-sm-1 control-label">{{Nom}}</label>';
-      div += '<div class="col-sm-1">';
+  //    div += '<label class="col-sm-1 control-label">{{Valeur}}</label>';
+      div += '<div class="col-sm-5 col-md-2">';
         div += '<div class="input-group">';
           div += '<span class="input-group-btn">';
-          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer le bouton}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
           div += '</span>';
-          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}"/>'; // dans la class ['name']
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
         div += '</div>';
       div += '</div>';
 
-      div += '<label class="col-sm-1 control-label">Capteur</label>';
-      div += '<div class="col-sm-2">';
+  //    div += '<label class="col-sm-1 control-label">Capteur</label>';
+      div += '<div class="col-sm-7 col-md-2">';
         div += '<div class="input-group">';
-          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" />';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" placeholder="{{Commande}}"/>';
           div += '<span class="input-group-btn">';
-            div += '<a class="btn btn-default listCmdInfoWindow roundedRight"><i class="fas fa-list-alt"></i></a>';
+            div += '<a class="btn btn-default cursor bt_selectTrigger" title="{{Choisir une commande}}"><i class="fas fa-list-alt"></i></a>';
+        //    div += '<a class="btn btn-default cursor bt_selectDataStoreTrigger" title="{{Choisir une variable}}"><i class="fas fa-calculator"></i></a>';
           div += '</span>';
         div += '</div>';
       div += '</div>';
 
-      div += '<div class="col-sm-1">';
+/*      div += '<div class="col-sm-2 col-md-1">';
         div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="new_value_only"/>{{Filtrer répétitions}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour ne prendre en compte que les nouvelles valeurs}}"></i></sup></label></span>';
+      div += '</div>';*/
+
+      div += '<div class="col-sm-12 col-md-8">';
+        div += '<label class="col-sm-2 col-md-2 control-label">{{Conditions}}</label>';
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1" placeholder="{{Opérateur 1}}">'; // dans la class : ['condition_operator1']
+          div += '<option value="" select></option>';
+          div += '<option value="==">{{égal}}</option>';
+          div += '<option value="!=">{{différent}}</option>';
+          div += '<option value=">=">{{supérieur ou égal}}</option>';
+          div += '<option value=">">{{strictement supérieur}}</option>';
+          div += '<option value="<=">{{inférieur ou égal}}</option>';
+          div += '<option value="<">{{strictement inférieur}}</option>';
+          div += '</select>';
+        div += '</div>';
+
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test1" placeholder="{{Condition 1}}"/>';
+        div += '</div>';
+
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator">';
+          div += '<option value="" select></option>';
+          div += '<option value="&&">{{ET}}</option>';
+          div += '<option value="||">{{OU}}</option>';
+          div += '<option value="|^">{{OU Exclusif}}</option>';
+          div += '</select>';
+        div += '</div>';
+
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2" placeholder="{{Opérateur 1}}">';
+          div += '<option value="" select></option>';
+          div += '<option value="==">{{égal}}</option>';
+          div += '<option value=">=">{{supérieur ou égal}}</option>';
+          div += '<option value=">">{{strictement supérieur}}</option>';
+          div += '<option value="<=">{{inférieur ou égal}}</option>';
+          div += '<option value="<">{{strictement inférieur}}</option>';
+          div += '<option value="!=">{{différent}}</option>';
+          div += '</select>';
+        div += '</div>';
+
+        div += '<div class="col-sm-2 col-md-2">';
+          div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test2" placeholder="{{Condition 2}}"/>';
+        div += '</div>';
+
+
+        div += '<label class="col-sm-2 col-md-2 control-label" style="margin-top:2px;">{{Durée ou répétition}}</label>';
+
+        div += '<div class="col-sm-2 col-md-2" style="margin-top:2px;">';
+          div += '<input type="number" min="0" class="expressionAttr form-control" data-l1key="condition_duree" placeholder="{{Pendant (min)}}"/>';
+        div += '</div>';
+
+        div += '<label class="col-sm-2 col-md-2 control-label" style="margin-top:2px;">{{ou}}</label>';
+        div += '<div class="col-sm-2 col-md-2" style="margin-top:2px;">';
+          div += '<input type="number" min="2" class="expressionAttr form-control" data-l1key="condition_rep_nb_fois" placeholder="{{Nombre de fois}}"/>';
+        div += '</div>';
+
+    //    div += '<label class="col-sm-4 col-md-2 control-label">{{Pendant}}</label>';
+        div += '<div class="col-sm-2 col-md-2" style="margin-top:2px;">';
+          div += '<input type="number" min="0" class="expressionAttr form-control" data-l1key="condition_rep_periode" placeholder="{{en x secondes}}"/>';
+        div += '</div>';
+
       div += '</div>';
 
-      div += '<label class="col-sm-1 control-label">{{Conditions}}</label>';
-      div += '<div class="col-sm-1">';
-        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator1">'; // dans la class : ['condition_operator1']
-        div += '<option value="" select></option>';
-        div += '<option value="==">{{égal}}</option>';
-        div += '<option value="!=">{{différent}}</option>';
-        div += '<option value=">=">{{supérieur ou égal}}</option>';
-        div += '<option value=">">{{strictement supérieur}}</option>';
-        div += '<option value="<=">{{inférieur ou égal}}</option>';
-        div += '<option value="<">{{strictement inférieur}}</option>';
-    //    div += '<option value="matches">{{contient (matches)}}</option>';
-        div += '</select>';
-      div += '</div>';
-// TODO : ajouter matches et not() ? (donc ce cas c'est plus des types number dessous)
 
-      div += '<div class="col-sm-1">';
-        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test1" />';
-      div += '</div>';
+    div += '</div>';
+  div += '</div>';
+  $('#div_' + _type).append(div);
+  $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
+}
 
-      div += '<div class="col-sm-1">';
-        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator">';
-        div += '<option value="" select></option>';
-        div += '<option value="&&">{{ET}}</option>';
-        div += '<option value="||">{{OU}}</option>';
-        div += '<option value="|^">{{OU Exclusif}}</option>';
-        div += '</select>';
+function addTriggerProg(_action, _type) {
+  var div = '<div class="' + _type + '">';
+    div += '<div class="form-group">';
+
+    //  div += '<label class="col-sm-3 control-label">{{Déclencheur programmé ou périodique}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette programmation déclenchera l\'évaluation des conditions ci-dessous.}}"></i></sup></label>';
+      div += '<div class="input-group col-sm-4 col-md-2">';
+      div += '<span class="input-group-btn">';
+      div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+      div += '</span>';
+        div += '<input type="text" class="expressionAttr form-control" data-l1key="trigger_prog" placeholder="{{format cron}}"/>';
+        div += '<span class="input-group-btn">';
+          div += '<a class="btn btn-default cursor jeeHelper" data-helper="cron">';
+            div += '<i class="fas fa-question-circle"></i>';
+          div += '</a>';
+      //  div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+        div += '</span>';
       div += '</div>';
 
-      div += '<div class="col-sm-1">';
-        div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="condition_operator2">';
-        div += '<option value="" select></option>';
-        div += '<option value="==">{{égal}}</option>';
-        div += '<option value=">=">{{supérieur ou égal}}</option>';
-        div += '<option value=">">{{strictement supérieur}}</option>';
-        div += '<option value="<=">{{inférieur ou égal}}</option>';
-        div += '<option value="<">{{strictement inférieur}}</option>';
-        div += '<option value="!=">{{différent}}</option>';
-        div += '</select>';
+    div += '</div>';
+  div += '</div>';
+  $('#div_' + _type).append(div);
+  $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
+}
+
+function addCondTimeRange(_action, _type) {
+  var div = '<div class="' + _type + '">';
+    div += '<div class="form-group">';
+
+      div += '<div class="col-sm-4 col-md-2">';
+        div += '<div class="input-group">';
+          div += '<span class="input-group-btn">';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '</span>';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
+        div += '</div>';
       div += '</div>';
 
-      div += '<div class="col-sm-1">';
-        div += '<input type="" class="expressionAttr form-control" data-l1key="condition_test2" />';
+      div += '<label class="col-sm-2 col-md-1 control-label">{{Plage temporelle}} <sup><i class="fas fa-question-circle tooltips" title="{{Cette période est une condition uniquement (pas un déclencheur). Ajouter une programmation si besoin. La condition sera valide si l\'heure courante est comprise dans la plage.}}"></i></sup></label>';
+
+      div += '<div class="col-sm-6 col-md-3">';
+        div += '<span>';
+           div += '<div> {{Du}} <input class="expressionAttr form-control in_datepicker" data-l1key="timerange_start" style="display : inline-block; width: 170px;" value=""/> {{au }}';
+             div += '<input class="expressionAttr form-control in_datepicker" data-l1key="timerange_end" style="display : inline-block; width: 170px;" value=""/>';
+          div += '</div>';
+        div += '</span>';
+      div += '</div>';
+
+      div += '<label class="col-sm-1 col-md-1 control-label">{{Répéter}}</label>';
+
+      div += '<div class="col-sm-11 col-md-5">';
+     //   div += '<span>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_1"/>{{lundis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_2"/>{{mardis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_3"/>{{mercredis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_4"/>{{jeudis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_5"/>{{vendredis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_6"/>{{samedis}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_7"/>{{dimanches}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_week"/>{{semaines}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_month"/>{{mois}} </label>';
+        div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr" data-l1key="rep_year"/>{{années}} </label>';
+       // div += '</span>';
+      div += '</div>';
+
+    div += '</div>';
+  div += '</div>';
+  $('#div_' + _type).append(div);
+  $('#div_' + _type + ' .' + _type + '').last().setValues(_action, '.expressionAttr');
+  $(".in_datepicker").datetimepicker({
+          lang: 'fr',
+          dayOfWeekStart : 1,
+          i18n: {
+            fr: {
+              months: [
+                'Janvier', 'Février', 'Mars', 'Avril',
+                'Mai', 'Juin', 'Juillet', 'Aout',
+                'Septembre', 'Octobre', 'Novembre', 'Décembre',
+              ],
+              dayOfWeek: [
+                "Di", "Lu", "Ma", "Me",
+                "Je", "Ve", "Sa",
+              ]
+            }
+          },
+          format: 'Y-m-d H:i:00',
+          step: 15
+        });
+}
+
+/*$('.bt_showExpressionTest').off('click').on('click', function () {
+  $('#md_modal').dialog({title: "{{Testeur d'expression}}"});
+  $("#md_modal").load('index.php?v=d&modal=expression.test').dialog('open');
+});*/
+
+/*$('#bt_showExpressionTesting').on('click',function(event) {
+  if (event.ctrlKey || event.originalEvent.which == 2) {
+    var title = encodeURI("{{Testeur d'expression}}")
+    var url = '/index.php?v=d&p=modaldisplay&loadmodal=expression.test&title=' + title
+    window.open(url).focus()
+  } else {
+    $('#md_modal').dialog({title: "{{Testeur d'expression}}"}).load('index.php?v=d&modal=expression.test').dialog('open')
+  }
+})
+$('#bt_showExpressionTesting').on('mouseup', function (event) {
+  if( event.which == 2 ) {
+    event.preventDefault()
+    $('#bt_showExpressionTesting').trigger(jQuery.Event('click', { ctrlKey: true }))
+  }
+})*/
+
+// chaque ligne de condition scenario pour trigger ou trigger_cancel
+function addCondScenario(_action, _type) {
+  var div = '<div class="' + _type + '">';
+    div += '<div class="form-group">';
+
+      div += '<div class="col-sm-5 col-md-2">';
+        div += '<div class="input-group">';
+          div += '<span class="input-group-btn">';
+          div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '" title="{{Supprimer}}""><i class="fas fa-minus-circle"></i></a>';
+          div += '</span>';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="name" title="{{Le nom doit être unique}}" placeholder="{{Nom}}"/>'; // dans la class ['name']
+        div += '</div>';
+      div += '</div>';
+
+      div += '<label class="col-sm-1 control-label">Condition</label>';
+      div += '<div class="col-sm-6 col-md-8">';
+        div += '<div class="input-group">';
+          div += '<input class="expressionAttr form-control cmdInfo" data-l1key="cmd" placeholder="{{Condition type scenario}}"/>';
+          div += '<span class="input-group-btn">';
+            div += '<a class="btn btn-default cursor bt_selectTriggerAj" title="{{Rechercher une commande}}"><i class="fas fa-list-alt"></i></a>';
+            div += '<a class="btn btn-default cursor bt_selectDataStoreTrigger" title="{{Rechercher une variable}}"><i class="fas fa-calculator"></i></a>';
+            div += '<a class="btn btn-default cursor bt_selectScenarioExpression"  title="{{Rechercher un scenario}}"><i class="fas fa-history"></i></a>';
+            div += '<a class="btn btn-default cursor bt_selectEqLogicExpression"  title="{{Rechercher d\'un équipement}}"><i class="fas fa-cube"></i></a>';
+
+        //    div += '<a class="btn btn-default cursor bt_showExpressionTesting"  title="{{Testeur d\'expression}}"><i class="fas fa-check"></i></a>';
+
+          div += '</span>';
+        div += '</div>';
       div += '</div>';
 
     div += '</div>';
@@ -163,13 +433,14 @@ function addTrigger(_action, _type) {
 }
 
 // chaque ligne d'action ou action_cancel
-function addAction(_action, _type) {
+function addAction(_action, _type, _labels) {
+
   var div = '<div class="' + _type + '">';
     div += '<div class="form-group ">';
 
       if(_type == 'action'){ // pour les actions, on ajoute un label et un timer
       //  div += '<label class="col-sm-1 control-label">{{Label}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner un label si vous voulez lier des actions de désactivations à cette action}}"></i></sup></label>';
-        div += '<div class="col-sm-1">';
+        div += '<div class="col-sm-4 col-md-1">';
           div += '<div class="input-group">';
             div += '<span class="input-group-btn">';
               div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
@@ -178,36 +449,37 @@ function addAction(_action, _type) {
           div += '</div>';
         div += '</div>';
 
-        div += '<label class="col-sm-1 control-label">{{Délai avant exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Le délai avant exécution doit être donné (en minutes) par rapport au déclenchement initial et non par rapport à l\'action précédente. Ne pas remplir ou 0 pour déclenchement immédiat.}}"></i></sup></label>';
-        div += '<div class="col-sm-1">';
-            div += '<input type="number" class="expressionAttr form-control cmdInfo" data-l1key="action_timer" placeholder="{{en minutes}}"/>';
+        div += '<label class="col-sm-2 col-md-1 control-label">{{Délai avant exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Le délai avant exécution doit être donné (en minutes) par rapport au déclenchement initial et non par rapport à l\'action précédente. Ne pas remplir ou 0 pour déclenchement immédiat.}}"></i></sup></label>';
+        div += '<div class="col-sm-2 col-md-1">';
+            div += '<input type="number" min="0" class="expressionAttr form-control cmdInfo" data-l1key="action_timer" placeholder="{{en minutes}}"/>';
             div += '<label class="checkbox-inline"><input type="checkbox" class="expressionAttr cmdInfo" data-l1key="reporter"/>{{Reporter}} <sup><i class="fas fa-question-circle tooltips" title="{{Cocher pour reporter l\'exécution de l\'action en cas de nouveau déclenchement. }}"></i></sup></label>';
         div += '</div>';
 
       } else { // pour les action_cancel on ajoute le label de l'action à lier
 
-       //   div += '<label class="col-sm-2 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
-          div += '<div class="col-sm-2">';
-        div += '<div class="input-group">';
-          div += '<span class="input-group-btn">';
-            div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
-          div += '</span>';
-            div += '<input type="" class="expressionAttr form-control cmdInfo" data-l1key="action_label_liee" placeholder="{{Label action de référence}}"/>';
+        div += '<label class="col-sm-2 col-md-1 control-label">{{Label action de référence}} <sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le label de l\'action de référence. Cette action ne sera exécutée que si l\'action de référence a été précédemment exécutée. }}"></i></sup></label>';
+
+        div += '<div class="col-sm-6 col-md-2">';
+          div += '<div class="input-group">';
+            div += '<span class="input-group-btn">';
+              div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
+            div += '</span>';
+            div += '<select class="expressionAttr eqLogicAttr form-control" data-l1key="action_label_liee">';
+              div += _labels;
+            div += '</select>';
           div += '</div>';
         div += '</div>';
+
       }
 
-      div += '<label class="col-sm-1 control-label">{{Limiter exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Si vous souhaitez limiter le nombre d\'exécution sur une période donnée (en minutes). Ne pas remplir ou 0 pour exécuter systèmatiquement.}}"></i></sup></label>';
-      div += '<div class="col-sm-1">';
-          div += '<input type="number" class="expressionAttr form-control" data-l1key="action_time_limit" placeholder="{{en minutes}}"/>';
+      div += '<label class="col-sm-2 col-md-1 control-label">{{Limiter exécution}} <sup><i class="fas fa-question-circle tooltips" title="{{Si vous souhaitez limiter le nombre d\'exécution sur une période donnée (en secondes). Ne pas remplir ou 0 pour exécuter systèmatiquement.}}"></i></sup></label>';
+      div += '<div class="col-sm-2 col-md-1">';
+          div += '<input type="number" min="0" class="expressionAttr form-control" data-l1key="action_time_limit" placeholder="{{en secondes}}"/>';
       div += '</div>';
 
     //  div += '<label class="col-sm-1 control-label">Action</label>';
-      div += '<div class="col-sm-3">';
+      div += '<div class="col-sm-6 col-md-3">';
         div += '<div class="input-group">';
-      //    div += '<span class="input-group-btn">';
-      //      div += '<a class="btn btn-default bt_removeAction roundedLeft" data-type="' + _type + '"><i class="fas fa-minus-circle"></i></a>';
-      //    div += '</span>';
           div += '<input class="expressionAttr form-control cmdAction" data-l1key="cmd" data-type="' + _type + '" placeholder="{{Action}}"/>';
           div += '<span class="input-group-btn">';
             div += '<a class="btn btn-default listAction" data-type="' + _type + '" title="{{Sélectionner un mot-clé}}"><i class="fa fa-tasks"></i></a>';
@@ -216,7 +488,7 @@ function addAction(_action, _type) {
         div += '</div>';
       div += '</div>';
 
-      div += '<div class="col-sm-4 actionOptions">'; // on laisse la place pour afficher les champs "message" ou autre selon les options associées à l'action choisie par l'utilisateur si besoin
+      div += '<div class="col-sm-6 col-md-4 actionOptions">'; // on laisse la place pour afficher les champs "message" ou autre selon les options associées à l'action choisie par l'utilisateur si besoin
         div += jeedom.cmd.displayActionOption(init(_action.cmd, ''), _action.options);
       div += '</div>';
 
@@ -234,8 +506,15 @@ function saveEqLogic(_eqLogic) {
   }
 
   _eqLogic.configuration.trigger = $('#div_trigger .trigger').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_prog = $('#div_trigger_prog .trigger_prog').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_timerange = $('#div_trigger_timerange .trigger_timerange').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_scenario = $('#div_trigger_scenario .trigger_scenario').getValues('.expressionAttr');
   _eqLogic.configuration.action = $('#div_action .action').getValues('.expressionAttr');
+
   _eqLogic.configuration.trigger_cancel = $('#div_trigger_cancel .trigger_cancel').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_cancel_prog = $('#div_trigger_cancel_prog .trigger_cancel_prog').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_cancel_timerange = $('#div_trigger_cancel_timerange .trigger_cancel_timerange').getValues('.expressionAttr');
+  _eqLogic.configuration.trigger_cancel_scenario = $('#div_trigger_cancel_scenario .trigger_cancel_scenario').getValues('.expressionAttr');
   _eqLogic.configuration.action_cancel = $('#div_action_cancel .action_cancel').getValues('.expressionAttr');
 
   return _eqLogic;
@@ -245,29 +524,71 @@ function saveEqLogic(_eqLogic) {
 function printEqLogic(_eqLogic) {
 
   $('#div_trigger').empty();
+  $('#div_trigger_prog').empty();
+  $('#div_trigger_timerange').empty();
+  $('#div_trigger_scenario').empty();
   $('#div_action').empty();
   $('#div_trigger_cancel').empty();
+  $('#div_trigger_cancel_prog').empty();
+  $('#div_trigger_cancel_timerange').empty();
+  $('#div_trigger_cancel_scenario').empty();
   $('#div_action_cancel').empty();
+
+  _labels = '<option value="" select></option>'; // initialise notre liste deroulante de labels avec le choix "vide"
 
   if (isset(_eqLogic.configuration)) {
     if (isset(_eqLogic.configuration.trigger)) {
       for (var i in _eqLogic.configuration.trigger) {
-        addTrigger(_eqLogic.configuration.trigger[i], 'trigger');
+        addTriggerValue(_eqLogic.configuration.trigger[i], 'trigger');
+      }
+    }
+    if (isset(_eqLogic.configuration.trigger_prog)) {
+      for (var i in _eqLogic.configuration.trigger_prog) {
+        addTriggerProg(_eqLogic.configuration.trigger_prog[i], 'trigger_prog');
+      }
+    }
+    if (isset(_eqLogic.configuration.trigger_timerange)) {
+      for (var i in _eqLogic.configuration.trigger_timerange) {
+        addCondTimeRange(_eqLogic.configuration.trigger_timerange[i], 'trigger_timerange');
+      }
+    }
+    if (isset(_eqLogic.configuration.trigger_scenario)) {
+      for (var i in _eqLogic.configuration.trigger_scenario) {
+        addCondScenario(_eqLogic.configuration.trigger_scenario[i], 'trigger_scenario');
       }
     }
     if (isset(_eqLogic.configuration.action)) {
       for (var i in _eqLogic.configuration.action) {
-        addAction(_eqLogic.configuration.action[i], 'action');
+      //  console.log(_eqLogic.configuration.action[i].action_label);
+        if(_eqLogic.configuration.action[i].action_label != ''){ // a chaque action, si le label est non vide, on le prend pour le mettre dans la liste déroulante
+          _labels += '<option value="'+_eqLogic.configuration.action[i].action_label+'">'+_eqLogic.configuration.action[i].action_label+'</option>';
+        }
+        addAction(_eqLogic.configuration.action[i], 'action', '');
       }
     }
     if (isset(_eqLogic.configuration.trigger_cancel)) {
       for (var i in _eqLogic.configuration.trigger_cancel) {
-        addTrigger(_eqLogic.configuration.trigger_cancel[i], 'trigger_cancel');
+        addTriggerValue(_eqLogic.configuration.trigger_cancel[i], 'trigger_cancel');
+      }
+    }
+    if (isset(_eqLogic.configuration.trigger_cancel_prog)) {
+      for (var i in _eqLogic.configuration.trigger_cancel_prog) {
+        addTriggerProg(_eqLogic.configuration.trigger_cancel_prog[i], 'trigger_cancel_prog');
+      }
+    }
+    if (isset(_eqLogic.configuration.trigger_cancel_timerange)) {
+      for (var i in _eqLogic.configuration.trigger_cancel_timerange) {
+        addCondTimeRange(_eqLogic.configuration.trigger_cancel_timerange[i], 'trigger_cancel_timerange');
+      }
+    }
+    if (isset(_eqLogic.configuration.trigger_cancel_scenario)) {
+      for (var i in _eqLogic.configuration.trigger_cancel_scenario) {
+        addCondScenario(_eqLogic.configuration.trigger_cancel_scenario[i], 'trigger_cancel_scenario');
       }
     }
     if (isset(_eqLogic.configuration.action_cancel)) {
       for (var i in _eqLogic.configuration.action_cancel) {
-        addAction(_eqLogic.configuration.action_cancel[i], 'action_cancel');
+        addAction(_eqLogic.configuration.action_cancel[i], 'action_cancel', _labels); // on passe en argument notre liste de labels
       }
     }
   }

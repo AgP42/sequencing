@@ -40,7 +40,7 @@ Exemples détaillés
 
 Voir la page [Exemples Séquencement](https://agp42.github.io/sequencing/fr_FR/exemples)
 
-> (en beta, ici : https://github.com/AgP42/sequencing/blob/dev/docs/fr_FR/exemples.md)
+> (en beta, ici : https://github.com/AgP42/sequencing/blob/master/docs/fr_FR/exemples.md)
 
 (N'hésitez pas à me proposer des exemples de vos utilisations !)
 
@@ -52,7 +52,7 @@ Ajouter un équipement, puis configurer les différents onglets.
 Onglet **Général**
 ---
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletGeneral.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletGeneral.png)
 
 ### **Informations Jeedom**
    * Indiquer le nom de l'équipement
@@ -125,7 +125,7 @@ Onglet **Déclenchement immédiat**
 
 Le déclenchement immédiat ne tient compte d'aucune autre condition par ailleurs, il permet de déclencher directement la séquence d'action.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletDeclenchementImmediat.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletDeclenchementImmediat.png)
 
 ### Via l'API, un autre plugin ou un scénario, ou via le Dashboard
 
@@ -136,7 +136,7 @@ Le déclenchement immédiat ne tient compte d'aucune autre condition par ailleur
 * Pour un appel via un scenario ou un autre plugin (Mode, Agenda, Présence, ...), utilisez la commande Jeedom donnée ([Déclencher]).
 * La commande de déclenchement est aussi disponible via un bouton sur le Dashboard
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/widget.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/widget.png)
 
 ### Par programmation
 
@@ -149,7 +149,7 @@ Onglet **Déclenchement conditionné**
 
 Cet onglet permet de configurer des déclencheurs complexes pour lancer la séquence d'action. Ils sont indépendant du déclenchement immédiat défini à l'onglet précédent.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletDeclencheursConditionnesVide.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletDeclencheursConditionnesVide.png)
 
 ### Principe de fonctionnement
 Cet onglet contient 2 parties : **Déclencheurs et conditions** et **Évaluation**.
@@ -173,13 +173,13 @@ Cet onglet contient 2 parties : **Déclencheurs et conditions** et **Évaluation
 
 Cliquez sur le bouton correspondant à l'élément que vous souhaitez ajouter.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletDeclencheursConditionnes.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletDeclencheursConditionnes.png)
 
 Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
 
 * **Déclencheurs programmés** :
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/TriggerCron.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/TriggerCron.png)
 
   * cliquez sur le bouton **?** pour choisir la programmation voulue. Vous pouvez ensuite adapter la programmation manuellement si besoin (toutes les 2 mins par exemple). Le code vérifiera la validité de votre programmation avant l'enregistrement. (Techniquement il n'est pas possible de descendre sous la minute et la programmation sera toujours réalisée en début de minute)
   * le champ ne peut pas être laissé vide
@@ -188,7 +188,7 @@ Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
 
 * **Déclencheur selon valeur et répétition** :
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/TriggersValeur.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/TriggersValeur.png)
 
   * **Nom** : chaque déclencheur doit avoir un nom unique. Champ obligatoire. Le changement de nom d'un déclencheur revient à le supprimer et à en créer un nouveau. L'historique associé sera donc perdu. Chaque déclencheur de cette catégorie est automatiquement historisé, vous pouvez changer ceci via l'onglet **Avancé - commandes**
   * **Commande** : la commande Jeedom du déclencheur. Champ obligatoire. Il ne peut s'agir que d'une commande (pas d'une variable ou autre).
@@ -210,7 +210,7 @@ Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
 
 * **Condition selon plage temporelle** :
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/PlageTemporelle.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/PlageTemporelle.png)
 
   * **Nom** : chaque élément doit avoir un nom unique. Champ obligatoire.
   * Début et fin de **Plage temporelle** : utilisez le sélectionneur de date-heure pour la plage souhaitée. Vous pouvez corriger manuellement si vous souhaitez un horaire plus précis (le plugin est capable d'évaluer à la seconde sur ces champs)
@@ -223,7 +223,7 @@ Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
 
 * **Conditions type scénario** :
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/ConditionScenario.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/ConditionScenario.png)
 
   * **Nom** : chaque élément doit avoir un nom unique. Champ obligatoire.
   * **Condition** :
@@ -237,7 +237,7 @@ Pour chaque nouvelle ligne, cliquez sur le bouton **-** pour la supprimer.
 
 * **Évaluation**
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/evaluation.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/evaluation.png)
 
 Choisir ici les conditions que vous voulez appliquer entre ces différents éléments :
 * **ET** : toutes les conditions (valeur, plage temporelle et scenario) doivent être valides pour déclencher la séquence d'action
@@ -293,7 +293,7 @@ Onglet **Actions**
 
 Cet onglet permet de définir les actions de la séquence.
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletActions.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActions.png)
 
 Cliquer sur "ajouter une action" pour définir une ou plusieurs actions puis les configurer :
 * **Label** : Champs facultatif permettant de lier cette action à une ou plusieurs actions d'annulation. Vous pouvez aussi utiliser ce champ pour personnaliser le tag lié à cette action (#action_label#)
@@ -333,7 +333,7 @@ Par exemple :
 
 Vous pouvez aussi avoir des actions d'annulation systématiques (non conditionnées).
 
-![](https://raw.githubusercontent.com/AgP42/sequencing/dev/docs/assets/images/OngletActionsAnnulation.png)
+![](https://raw.githubusercontent.com/AgP42/sequencing/master/docs/assets/images/OngletActionsAnnulation.png)
 
 Cliquer sur "ajouter une action" pour définir une ou plusieurs actions d'annulation puis les configurer :
 * **Label action de référence** :

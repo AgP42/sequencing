@@ -3,12 +3,13 @@
 1.0.0 - 24 avril 2020 => Stable n°1
 ---
 
-# Betas
-
-1.0.7 - 7 mai
+2.0.0 - 11 mai 2020 => Stable n°2 (scope de la beta 1.0.7 du 7 mai)
 ---
 
-/!\ changer les liens des images de la doc avant de mettre en stable !
+# Betas
+
+1.0.7 - 7 mai => Stable n°2
+---
 
 * Update regex pour les évaluation "Sequencement" et "Perso" pour ajouter les accents et caractéres chelous. Merci @naboleo
 * Ajout évaluation sur la durée de validité pour les triggers sur "valeur"

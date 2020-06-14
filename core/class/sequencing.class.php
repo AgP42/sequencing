@@ -712,6 +712,10 @@ class sequencing extends eqLogic {
       } else {
         log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action *sans label ou sans label de référence* ############');
       }
+        
+      if(!isset($action['action_label'])){
+            $action['action_label']='';
+      }
 
       $now = time();
 

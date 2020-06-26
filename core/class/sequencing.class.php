@@ -260,7 +260,7 @@ class sequencing extends eqLogic {
 
       $triggers_timerange = $this->getConfiguration($_type.'_timerange');
       if (count($triggers_timerange)>0){
-        foreach (triggers_timerange as $triggerOrCond) {
+        foreach ($triggers_timerange as $triggerOrCond) {
             $results[$triggerOrCond['name']] = $this->checkCondTimeRange($triggerOrCond);
         }
       }

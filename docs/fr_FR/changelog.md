@@ -6,13 +6,17 @@
 2.0.0 - 11 mai 2020 => Stable n°2 (scope de la beta 1.0.7 du 7 mai)
 ---
 
+2.0.1 - 26 juin
+---
+
+* Correction dans le cas où plusieurs actions d'annulation sont associées à un même label (seule la 1ere s'executait)
+
 # Betas
 
 2.0.1 - 26 juin
 ---
 
 * Correction dans le cas où plusieurs actions d'annulation sont associées à un même label (seule la 1ere s'executait)
-
 
 1.0.7 - 7 mai => Stable n°2
 ---

@@ -8,6 +8,12 @@
 
 # Betas
 
+2.0.1 - 26 juin
+---
+
+* Correction dans le cas où plusieurs actions d'annulation sont associées à un même label (seule la 1ere s'executait)
+
+
 1.0.7 - 7 mai => Stable n°2
 ---
 

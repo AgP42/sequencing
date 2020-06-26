@@ -712,7 +712,7 @@ class sequencing extends eqLogic {
       } else {
         log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action *sans label ou sans label de référence* ############');
       }
-        
+
       if(!isset($action['action_label'])){
             $action['action_label']='';
       }
@@ -820,7 +820,7 @@ class sequencing extends eqLogic {
 
       log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution des actions d\'annulation ############');
 
-      foreach ($this->getConfiguration('action_cancel') as $action) { // pour toutes les actions d'annulation définies
+      foreach ($this->getConfiguration('action_cancel') as $action) { // pour toutes les actions d'annulation définies, on va les executer
 
         $execActionLiee = $this->getCache('execAction_'.trim($action['action_label_liee'])); // on va lire le cache d'exécution de l'action liée, savoir si déjà lancé ou non...
 
@@ -833,17 +833,32 @@ class sequencing extends eqLogic {
 
           $this->execAction($action);
 
-        }else if(isset($action['action_label_liee']) && trim($action['action_label_liee']) != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été exécutée => on execute notre action et on remet le cache de l'action liée à 0
+        }else if(isset($action['action_label_liee']) && trim($action['action_label_liee']) != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été exécutée => on execute notre action uniquement. (On remet le cache de l'action liée à 0 apres avoir executé tout le monde uniquement)
 
-          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.trim($action['action_label_liee']).') exécutée précédemment, donc on execute ' . $action['cmd'] . ' et remise à 0 du cache d\'exéc de l\'action origine');
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.trim($action['action_label_liee']).') exécutée précédemment, donc on execute ' . $action['cmd']);
 
           $this->execAction($action);
 
-          $this->setCache('execAction_'.trim($action['action_label_liee']), 0);
+        //  $this->setCache('execAction_'.trim($action['action_label_liee']), 0); // 26 juin 2020 : on veut avoir balayé toutes la liste avant de reset
 
         }else{ // sinon, on log qu'on n'execute pas l'action et la raison
           log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.trim($action['action_label_liee']).') non exécutée précédemment, donc on execute pas ' . $action['cmd']);
           //cmd::byId(str_replace('#', '', $action['cmd']))->getHumanName()
+        }
+
+      } // fin foreach toutes les actions
+
+      // on refait la meme boucle uniquement pour reset les caches
+      foreach ($this->getConfiguration('action_cancel') as $action) { // pour toutes les actions d'annulation définies
+
+        $execActionLiee = $this->getCache('execAction_'.trim($action['action_label_liee'])); // on va lire le cache d'exécution de l'action liée, savoir si déjà lancé ou non...
+
+        if(isset($action['action_label_liee']) && trim($action['action_label_liee']) != '' && $execActionLiee == 1){ // si on a une action liée définie et qu'elle a été exécutée => on execute notre action et on remet le cache de l'action liée à 0
+
+          log::add('sequencing', 'debug', $this->getHumanName() . ' - Action liée ('.trim($action['action_label_liee']).'),  remise à 0 du cache d\'exéc de l\'action origine');
+
+          $this->setCache('execAction_'.trim($action['action_label_liee']), 0); // 26 juin 2020 : on veut avoir balayé toutes la liste avant de reset
+
         }
 
       } // fin foreach toutes les actions

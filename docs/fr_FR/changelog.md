@@ -13,6 +13,11 @@
 
 # Betas
 
+2.0.2 - 3 juillet 2020
+---
+
+* Debug warnings - Merci à @Naboleo
+
 2.0.1 - 26 juin
 ---
 

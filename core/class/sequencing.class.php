@@ -252,21 +252,21 @@ class sequencing extends eqLogic {
 
       $results = array(); // va stocker le resultat de toutes les conditions (oui on va recalculer notre trigger éventuel aussi...;-( ))
       $triggers = $this->getConfiguration($_type);
-      if (count($triggers)>0){
+      if (is_array($triggers)){
         foreach ($triggers as $triggerOrCond) {
             $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false, $_type); // false : c'est pas un trigger qui appelle (default), on veut juste lire
         }
       }
 
       $triggers_timerange = $this->getConfiguration($_type.'_timerange');
-      if (count($triggers_timerange)>0){
+      if (is_array($triggers_timerange)){
         foreach ($triggers_timerange as $triggerOrCond) {
             $results[$triggerOrCond['name']] = $this->checkCondTimeRange($triggerOrCond);
         }
       }
 
       $triggers_scenario = $this->getConfiguration($_type.'_scenario');
-      if (count($triggers_scenario)>0){
+      if (is_array($triggers_scenario)){
         foreach ($triggers_scenario as $triggerOrCond) {
             $results[$triggerOrCond['name']] = $this->checkCondScenario($triggerOrCond);
         }

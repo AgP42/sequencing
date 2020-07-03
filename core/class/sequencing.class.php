@@ -251,20 +251,28 @@ class sequencing extends eqLogic {
       // les infos du JS peuvent etre : trigger, trigger_prog, trigger_timerange, trigger_cancel, trigger_cancel_prog et trigger_cancel_timerange.
 
       $results = array(); // va stocker le resultat de toutes les conditions (oui on va recalculer notre trigger éventuel aussi...;-( ))
-      foreach ($this->getConfiguration($_type) as $triggerOrCond) {
-        $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false, $_type); // false : c'est pas un trigger qui appele (default), on veut juste lire
+      $triggers = $this->getConfiguration($_type);
+      if (is_array($triggers)){
+        foreach ($triggers as $triggerOrCond) {
+            $results[$triggerOrCond['name']] = $this->checkTriggerValues($triggerOrCond, false, $_type); // false : c'est pas un trigger qui appelle (default), on veut juste lire
+        }
       }
 
-      foreach ($this->getConfiguration($_type.'_timerange') as $triggerOrCond) {
-        $results[$triggerOrCond['name']] = $this->checkCondTimeRange($triggerOrCond);
+      $triggers_timerange = $this->getConfiguration($_type.'_timerange');
+      if (is_array($triggers_timerange)){
+        foreach ($triggers_timerange as $triggerOrCond) {
+            $results[$triggerOrCond['name']] = $this->checkCondTimeRange($triggerOrCond);
+        }
       }
 
-      foreach ($this->getConfiguration($_type.'_scenario') as $triggerOrCond) {
-        $results[$triggerOrCond['name']] = $this->checkCondScenario($triggerOrCond);
+      $triggers_scenario = $this->getConfiguration($_type.'_scenario');
+      if (is_array($triggers_scenario)){
+        foreach ($triggers_scenario as $triggerOrCond) {
+            $results[$triggerOrCond['name']] = $this->checkCondScenario($triggerOrCond);
+        }
       }
 
       foreach ($results as $key => $value) {
-
         if($this->getCache('condValide_'.$key.'_timestamp') != ''){
           $lastValid = ' - last valide : ' . date('Y-m-d H:i:s', $this->getCache('condValide_'.$key.'_timestamp'));
         } else {
@@ -713,9 +721,12 @@ class sequencing extends eqLogic {
         log::add('sequencing', 'debug', $this->getHumanName() . '################ Exécution de l\'action *sans label ou sans label de référence* ############');
       }
 
-      if(!isset($action['action_label'])){
-            $action['action_label']='';
-      }
+       #valeurs par défaut pour éviter les warnings php
+       if(!isset($action['action_label'])){
+          $action['action_label']='';
+       }elseif(!isset($action['action_label_liee'])){
+          $action['action_label_liee']='';
+       }
 
       $now = time();
 
@@ -1616,5 +1627,3 @@ class sequencingCmd extends cmd {
 
     /*     * **********************Getteur Setteur*************************** */
 }
-
-
